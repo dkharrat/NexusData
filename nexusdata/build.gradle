@@ -1,0 +1,33 @@
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:0.5.6'
+  }
+}
+
+apply plugin: 'android-library'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+  compile group: 'org.slf4j',               name: 'slf4j-api',              version: '1.7.5'
+  compile group: 'com.google.code.gson',    name: 'gson',                   version: '2.2.4'
+}
+
+android {
+  buildToolsVersion "17.0"
+  compileSdkVersion 15
+
+  sourceSets {
+    main {
+      java.srcDirs = ['src/main/java']
+      resources.srcDirs = ['src/main/resources']
+    }
+  }
+}
+

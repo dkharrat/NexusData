@@ -1,0 +1,48 @@
+{
+  "metaVersion": 1,
+  "model": {
+    "name": "Todo",
+    "version": 3,
+    "packageName": "com.example.todo",
+    "entities": [{
+      "name": "Task",
+      "enums": [{
+        "name": "Priority",
+        "values": ["HIGH", "MEDIUM", "LOW"]
+      }],
+      "attributes": [{
+        "name": "title",
+        "type": "String"
+      }, {
+        "name": "notes",
+        "type": "String"
+      }, {
+        "name": "dueBy",
+        "type": "Date"
+      }, {
+         "name": "completed",
+         "type": "Bool"
+       }, {
+         "name": "priority",
+         "type": "Priority"
+       }],
+      "relationships": [{
+        "name": "assignedTo",
+        "destinationEntity": "User",
+        "inverseName": "tasks"
+      }]
+    }, {
+      "name": "User",
+      "attributes": [{
+        "name": "name",
+        "type": "String"
+      }],
+      "relationships": [{
+        "name": "tasks",
+        "destinationEntity": "Task",
+        "inverseName": "assignedTo",
+        "toMany": true
+      }]
+    }]
+  }
+}
