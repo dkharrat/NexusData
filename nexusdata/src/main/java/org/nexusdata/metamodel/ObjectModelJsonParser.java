@@ -101,10 +101,11 @@ class ObjectModelJsonParser {
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
             for (JsonElem.Relationship jsonRelation : jsonEntity.relationships) {
-                List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(jsonRelation);
+                EntityDescription<?> entity = entities.get(jsonEntity.name);
+                List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(entity);
                 if (jsonRelations == null) {
                     jsonRelations = new ArrayList<JsonElem.Relationship>();
-                    entityRelationMap.put(entities.get(jsonEntity.name), jsonRelations);
+                    entityRelationMap.put(entity, jsonRelations);
                 }
                 jsonRelations.add(jsonRelation);
             }
@@ -123,6 +124,7 @@ class ObjectModelJsonParser {
                 }
             }
             AttributeDescription attr = new AttributeDescription(entity, jsonAttr.name, attrType);
+            LOG.debug("Adding attribute: " + jsonAttr.name);
             entity.addProperty(attr);
         }
     }
@@ -142,6 +144,7 @@ class ObjectModelJsonParser {
                         relationshipType,
                         destinationEntity,
                         null);
+                LOG.debug("Adding relationship: " + jsonRelation.name + " for entity: " + entity.getName());
                 entity.addProperty(relationship);
             }
         }
@@ -170,7 +173,7 @@ class ObjectModelJsonParser {
                     RelationshipDescription inverseRelationship = (RelationshipDescription) destinationEntity.getProperty(inverseName);
                     relationship.setInverse(inverseRelationship);
                 } catch (NoSuchFieldException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Could not find inverse property " + inverseName + " in destination entity " + destinationEntity.getName() + " for relationship " + relationship.getName(), e);
                 }
             }
         }
