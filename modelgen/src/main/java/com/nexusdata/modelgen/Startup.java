@@ -1,4 +1,4 @@
-package com.nexusdata.modelgen;
+package org.nexusdata.modelgen;
 
 import org.apache.commons.cli.*;
 

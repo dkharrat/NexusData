@@ -1,4 +1,4 @@
-package com.nexusdata.modelgen.metamodel;
+package org.nexusdata.modelgen.metamodel;
 
 import com.google.common.base.CaseFormat;
 

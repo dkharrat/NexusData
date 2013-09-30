@@ -4,7 +4,7 @@ package ${packageName};
 
 import java.util.Date;
 import java.util.Set;
-import com.nexusdata.core.ManagedObject;
+import org.nexusdata.core.ManagedObject;
 
 class _${entity.name} extends ManagedObject {
 

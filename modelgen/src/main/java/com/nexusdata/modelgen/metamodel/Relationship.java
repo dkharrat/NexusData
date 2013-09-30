@@ -1,4 +1,4 @@
-package com.nexusdata.modelgen.metamodel;
+package org.nexusdata.modelgen.metamodel;
 
 public class Relationship extends Property {
     String destinationEntity;

@@ -1,7 +1,7 @@
-package com.nexusdata.modelgen;
+package org.nexusdata.modelgen;
 
 import com.google.gson.*;
-import com.nexusdata.modelgen.metamodel.*;
+import org.nexusdata.modelgen.metamodel.*;
 import freemarker.template.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;

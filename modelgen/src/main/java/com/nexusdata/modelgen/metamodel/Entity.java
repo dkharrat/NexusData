@@ -1,4 +1,4 @@
-package com.nexusdata.modelgen.metamodel;
+package org.nexusdata.modelgen.metamodel;
 
 import java.util.ArrayList;
 import java.util.List;

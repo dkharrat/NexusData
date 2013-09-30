@@ -1,4 +1,4 @@
-package com.nexusdata.modelgen.metamodel;
+package org.nexusdata.modelgen.metamodel;
 
 import java.util.HashMap;
 import java.util.Map;
