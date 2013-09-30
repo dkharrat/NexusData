@@ -4,6 +4,7 @@
 *.iws
 .idea/
 local.properties
+out/
 
 # Eclipse
 .classpath

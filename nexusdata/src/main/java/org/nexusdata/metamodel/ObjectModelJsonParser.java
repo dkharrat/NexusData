@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.nexusdata.core.ManagedObject;
 import org.nexusdata.utils.StringUtil;
-import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +14,18 @@ class ObjectModelJsonParser {
     private static final Logger LOG = LoggerFactory.getLogger(ObjectModelJsonParser.class);
 
     static class ParsedModel {
+        private String name;
         private int version;
         private List<EntityDescription<?>> entities;
 
-        ParsedModel(int version, List<EntityDescription<?>> entities) {
+        ParsedModel(String name, int version, List<EntityDescription<?>> entities) {
+            this.name = name;
             this.version = version;
             this.entities = entities;
+        }
+
+        String getName() {
+            return name;
         }
 
         int getVersion() {
@@ -38,9 +43,9 @@ class ObjectModelJsonParser {
 
         Gson gson = new Gson();
         JsonObject rootJson = gson.fromJson(reader, JsonObject.class);
-        JsonObject modelJson = rootJson.get("model").getAsJsonObject();
-        int modelVersion = modelJson.get("version").getAsInt();
-        JsonElem.Model jsonModel = gson.fromJson(modelJson, JsonElem.Model.class);
+        JsonObject modelJsonObj = rootJson.get("model").getAsJsonObject();
+        JsonElem.Model jsonModel = gson.fromJson(modelJsonObj, JsonElem.Model.class);
+        int modelVersion = jsonModel.version;
 
         HashMap<String, EntityDescription<?>> entities = setupEntities(jsonModel, model);
 
@@ -51,7 +56,7 @@ class ObjectModelJsonParser {
 
         EntityDescription<?>[] entitiesArray = entities.values().toArray(new EntityDescription<?>[0]);
         LOG.debug("Done parsing model");
-        return new ParsedModel(modelVersion, Arrays.asList(entitiesArray));
+        return new ParsedModel(jsonModel.name, modelVersion, Arrays.asList(entitiesArray));
     }
 
     static private Class<?> getEntityType(String packageName, String entityName) {
@@ -208,8 +213,6 @@ class JsonElem {
         String type;
         boolean hasGetter = true;
         boolean hasSetter = true;
-
-
     }
 
     static class Relationship {
