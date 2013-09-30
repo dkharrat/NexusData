@@ -3,7 +3,7 @@
   "model": {
     "name": "Todo",
     "version": 3,
-    "packageName": "com.example.todo",
+    "packageName": "org.example.todo",
     "entities": [{
       "name": "Task",
       "enums": [{

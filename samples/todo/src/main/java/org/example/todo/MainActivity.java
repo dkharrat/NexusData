@@ -118,7 +118,7 @@ public class MainActivity extends Activity {
             TextView titleView = (TextView)view.findViewById(R.id.list_item_title);
             TextView detailsView = (TextView)view.findViewById(R.id.list_item_detail);
 
-            titleView.setText(getTitleViewText(entry) + "2");
+            titleView.setText(getTitleViewText(entry));
             detailsView.setText(getDetailViewText(entry));
 
             return view;
