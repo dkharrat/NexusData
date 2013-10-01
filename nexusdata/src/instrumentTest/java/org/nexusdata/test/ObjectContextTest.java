@@ -1,24 +1,26 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
+import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import android.test.AndroidTestCase;
 
-import com.pixineers.nexusdata.core.ChangedObjectsSet;
-import com.pixineers.nexusdata.core.FetchRequest;
-import com.pixineers.nexusdata.core.ObjectContext;
-import com.pixineers.nexusdata.core.ObjectContextNotifier;
-import com.pixineers.nexusdata.core.ObjectContextNotifier.DefaultObjectContextListener;
-import com.pixineers.nexusdata.core.ObjectContextNotifier.ObjectContextListener;
-import com.pixineers.nexusdata.core.PersistentStore;
-import com.pixineers.nexusdata.core.PersistentStoreCoordinator;
-import com.pixineers.nexusdata.metamodel.EntityDescription;
-import com.pixineers.nexusdata.metamodel.ObjectModel;
-import com.pixineers.nexusdata.predicate.ExpressionBuilder;
+import org.nexusdata.core.ChangedObjectsSet;
+import org.nexusdata.core.FetchRequest;
+import org.nexusdata.core.ObjectContext;
+import org.nexusdata.core.ObjectContextNotifier;
+import org.nexusdata.core.ObjectContextNotifier.DefaultObjectContextListener;
+import org.nexusdata.core.ObjectContextNotifier.ObjectContextListener;
+import org.nexusdata.core.PersistentStore;
+import org.nexusdata.core.PersistentStoreCoordinator;
+import org.nexusdata.metamodel.EntityDescription;
+import org.nexusdata.metamodel.ObjectModel;
+import org.nexusdata.predicate.ExpressionBuilder;
 
 public abstract class ObjectContextTest extends AndroidTestCase {
 
@@ -32,8 +34,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Class<?>[] types = {Employee.class, Company.class, Address.class};
-        model = new ObjectModel(types, 1);
+        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
         PersistentStoreCoordinator coordinator = new PersistentStoreCoordinator(model);
         persistentStore = newPersistentStore();
         coordinator.addStore(persistentStore);
@@ -66,7 +67,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         assertSame(employees.get(0), employees2.get(0));
         assertEquals("John", employees.get(0).getFirstName());
         assertEquals("Smith", employees.get(0).getLastName());
-        assertEquals(1000, employees.get(0).getSalary());
+        assertEquals(1000, (int)employees.get(0).getSalary());
         assertEquals(new Date(999000), employees.get(0).getDateOfBirth());
     }
 
@@ -370,7 +371,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         Company google = createCompany(mainContext, "Google");
         mainContext.save();
 
-        google.setEmployees(null);
+        google.setEmployees((Set<Employee>)null);
 
         assertTrue(mainContext.getUpdatedObjects().isEmpty());
     }

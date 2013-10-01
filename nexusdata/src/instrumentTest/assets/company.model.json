@@ -1,0 +1,68 @@
+{
+  "metaVersion": 1,
+  "model": {
+    "name": "CompanyStructure",
+    "version": 1,
+    "packageName": "org.nexusdata.test",
+    "entities": [{
+      "name": "Company",
+      "attributes": [{
+        "name": "name",
+        "type": "String"
+      }],
+      "relationships": [{
+        "name": "employees",
+        "destinationEntity": "Employee",
+        "inverseName": "company",
+        "toMany": true
+      }]
+    }, {
+      "name": "Employee",
+      "attributes": [{
+        "name": "firstName",
+        "type": "String"
+      }, {
+         "name": "lastName",
+         "type": "String"
+      }, {
+        "name": "salary",
+        "type": "Int"
+      }, {
+        "name": "dateOfBirth",
+        "type": "Date"
+      }],
+      "relationships": [{
+        "name": "company",
+        "destinationEntity": "Company",
+        "inverseName": "employees"
+      }, {
+        "name": "manager",
+        "destinationEntity": "Employee",
+        "inverseName": "directReports"
+      }, {
+        "name": "directReports",
+        "destinationEntity": "Employee",
+        "inverseName": "manager",
+        "toMany": true
+      }, {
+        "name": "address",
+        "destinationEntity": "Address",
+        "inverseName": "employee"
+      }]
+    }, {
+     "name": "Address",
+     "attributes": [{
+       "name": "streetName",
+       "type": "String"
+     }, {
+       "name": "country",
+       "type": "String"
+     }],
+     "relationships": [{
+       "name": "employee",
+       "destinationEntity": "Employee",
+       "inverseName": "address"
+     }]
+   }]
+  }
+}

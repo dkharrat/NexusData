@@ -1,7 +1,7 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
-import com.pixineers.nexusdata.core.PersistentStore;
-import com.pixineers.nexusdata.store.AndroidSqlPersistentStore;
+import org.nexusdata.core.PersistentStore;
+import org.nexusdata.store.AndroidSqlPersistentStore;
 
 public class ObjectContextWithSqlStoreTest extends ObjectContextTest {
 

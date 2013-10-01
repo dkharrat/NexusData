@@ -1,12 +1,11 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
 import android.test.AndroidTestCase;
-
-import com.pixineers.nexusdata.core.ObjectContext;
-import com.pixineers.nexusdata.core.PersistentStore;
-import com.pixineers.nexusdata.core.PersistentStoreCoordinator;
-import com.pixineers.nexusdata.metamodel.ObjectModel;
-import com.pixineers.nexusdata.store.AndroidSqlPersistentStore;
+import org.nexusdata.core.ObjectContext;
+import org.nexusdata.core.PersistentStore;
+import org.nexusdata.core.PersistentStoreCoordinator;
+import org.nexusdata.metamodel.ObjectModel;
+import org.nexusdata.store.AndroidSqlPersistentStore;
 
 public class PersistentStoreCoordinatorTest extends AndroidTestCase {
 
@@ -17,8 +16,7 @@ public class PersistentStoreCoordinatorTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Class<?>[] types = {Employee.class, Company.class, Address.class};
-        ObjectModel model = new ObjectModel(types, 1);
+        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
         coordinator = new PersistentStoreCoordinator(model);
         PersistentStore persistentStore = new AndroidSqlPersistentStore(getContext(), getContext().getDatabasePath("test.db"));
         coordinator.addStore(persistentStore);

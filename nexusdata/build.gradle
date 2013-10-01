@@ -4,7 +4,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:0.5.6'
+    classpath 'com.android.tools.build:gradle:0.5.+'
   }
 }
 
@@ -15,8 +15,11 @@ repositories {
 }
 
 dependencies {
-  compile group: 'org.slf4j',               name: 'slf4j-api',              version: '1.7.5'
-  compile group: 'com.google.code.gson',    name: 'gson',                   version: '2.2.4'
+  compile 'org.slf4j:slf4j-api:1.7.5'
+  compile 'com.google.code.gson:gson:2.2.4'
+
+  instrumentTestCompile 'com.github.tony19:logback-android-core:1.0.10-2'
+  instrumentTestCompile 'com.github.tony19:logback-android-classic:1.0.10-2'
 }
 
 android {
@@ -28,6 +31,15 @@ android {
       java.srcDirs = ['src/main/java']
       resources.srcDirs = ['src/main/resources']
     }
+    instrumentTest {
+      java.srcDirs = ['src/instrumentTest/java']
+      resources.srcDirs = ['src/instrumentTest/resources']
+    }
+  }
+
+  defaultConfig {
+    testPackageName "org.nexusdata.test"
+    testInstrumentationRunner "android.test.InstrumentationTestRunner"
   }
 }
 

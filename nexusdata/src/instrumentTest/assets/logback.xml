@@ -1,0 +1,35 @@
+<configuration>
+    <appender
+	name="LOGCAT"
+	class="ch.qos.logback.classic.android.LogcatAppender" >
+	<tagEncoder>
+	    <pattern>%logger{0}</pattern>
+	</tagEncoder>
+	<encoder>
+	    <pattern>[%method] > %msg%n</pattern>
+	</encoder>
+    </appender>
+
+    <property name="dest.dir" value="/mnt/sdcard/org.nexusdata.test" />
+    <appender name='FILE' class='ch.qos.logback.core.rolling.RollingFileAppender'>
+	<file>${dest.dir}/app.log</file>
+	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+	    <FileNamePattern>${dest.dir}/app.%i.log</FileNamePattern>
+	    <minIndex>1</minIndex>
+	    <maxIndex>5</maxIndex>
+	</rollingPolicy>
+	<triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+	  <maxFileSize>2MB</maxFileSize>
+	</triggeringPolicy>
+	<append>true</append>
+	<encoder>
+	    <pattern>%d [%16.16t] %-5p %-45.45C{45} | %m%n</pattern>
+	</encoder>
+    </appender> 
+
+    <root level="ALL" >
+	<appender-ref ref="LOGCAT" />
+	<appender-ref ref="FILE" />
+    </root> 
+</configuration>
+

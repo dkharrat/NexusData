@@ -1,8 +1,9 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
 import junit.framework.TestCase;
-
-import com.pixineers.nexusdata.metamodel.ObjectModel;
+import java.io.File;
+import java.io.FileInputStream;
+import org.nexusdata.metamodel.ObjectModel;
 
 public class ObjectModelTest extends TestCase {
 
@@ -12,8 +13,7 @@ public class ObjectModelTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Class<?>[] types = {Employee.class, Company.class, Address.class};
-        model = new ObjectModel(types, 1);
+        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
     }
 
     @Override

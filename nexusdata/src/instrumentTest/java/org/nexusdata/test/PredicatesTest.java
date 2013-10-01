@@ -1,9 +1,9 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
 import junit.framework.TestCase;
 
-import com.pixineers.nexusdata.predicate.ExpressionBuilder;
-import com.pixineers.nexusdata.predicate.Predicate;
+import org.nexusdata.predicate.ExpressionBuilder;
+import org.nexusdata.predicate.Predicate;
 
 public class PredicatesTest extends TestCase {
 

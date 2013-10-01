@@ -1,14 +1,14 @@
-package com.pixineers.nexusdata.test;
+package org.nexusdata.test;
 
 import java.util.Arrays;
-
+import java.io.InputStream;
+import java.util.Set;
 import junit.framework.TestCase;
-
-import com.pixineers.nexusdata.core.ObjectContext;
-import com.pixineers.nexusdata.core.PersistentStore;
-import com.pixineers.nexusdata.core.PersistentStoreCoordinator;
-import com.pixineers.nexusdata.metamodel.ObjectModel;
-import com.pixineers.nexusdata.store.InMemoryPersistentStore;
+import org.nexusdata.core.ObjectContext;
+import org.nexusdata.core.PersistentStore;
+import org.nexusdata.core.PersistentStoreCoordinator;
+import org.nexusdata.metamodel.ObjectModel;
+import org.nexusdata.store.InMemoryPersistentStore;
 
 public class ManagedObjectTest extends TestCase {
 
@@ -21,8 +21,7 @@ public class ManagedObjectTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        Class<?>[] types = {Employee.class, Company.class, Address.class};
-        ObjectModel model = new ObjectModel(types, 1);
+        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
         PersistentStoreCoordinator coordinator = new PersistentStoreCoordinator(model);
         PersistentStore persistentStore = new InMemoryPersistentStore();
         coordinator.addStore(persistentStore);
@@ -82,7 +81,7 @@ public class ManagedObjectTest extends TestCase {
         bob.setSalary(999);
 
         assertEquals("Bob", bob.getFirstName());
-        assertEquals(999, bob.getSalary());
+        assertEquals(999, (int)bob.getSalary());
     }
 
     public void testSettingOneToOneRelationship() throws Throwable {
@@ -156,7 +155,7 @@ public class ManagedObjectTest extends TestCase {
     }
 
     public void testClearingToManyRelationship() throws Throwable {
-        google.setEmployees(null);
+        google.setEmployees((Set<Employee>)null);
 
         assertFalse(google.getEmployees().contains(john));
         assertTrue(google.getEmployees().isEmpty());
