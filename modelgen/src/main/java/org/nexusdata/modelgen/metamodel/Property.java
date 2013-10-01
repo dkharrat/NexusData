@@ -1,6 +1,7 @@
 package org.nexusdata.modelgen.metamodel;
 
 import com.google.common.base.CaseFormat;
+import org.modeshape.common.text.Inflector;
 
 public abstract class Property {
 
@@ -14,14 +15,18 @@ public abstract class Property {
 
     abstract String getJavaType();
 
+    static private String capitalizedFirstChar(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
     public String getCapitalizedName() {
         if (name == null || name.isEmpty()) {
             throw new RuntimeException("Invalid attribute name");
         }
-        return name.substring(0, 1).toUpperCase() + name.substring(1);
+        return capitalizedFirstChar(name);
     }
 
-    public String getAllCapsName() {
+    public String getNameAsConstant() {
         return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
     }
 
@@ -31,5 +36,17 @@ public abstract class Property {
 
     public boolean isHasSetter() {
         return hasSetter;
+    }
+
+    public String getSingularName() {
+        return Inflector.getInstance().singularize(name);
+    }
+
+    public String getMethodNameForGetter() {
+        return "get" + getCapitalizedName();
+    }
+
+    public String getMethodNameForSetter() {
+        return "set" + getCapitalizedName();
     }
 }

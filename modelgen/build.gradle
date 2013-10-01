@@ -3,7 +3,7 @@ apply plugin:'application'
 
 version = '1.0'
 sourceCompatibility = 1.7
-mainClassName = "com.nexusdata.modelgen.Startup"
+mainClassName = "org.nexusdata.modelgen.Startup"
 jar {
   dependsOn configurations.runtime
   from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
@@ -22,19 +22,19 @@ repositories {
 }
 
 dependencies {
-  compile group: 'org.freemarker',          name: 'freemarker',             version: '2.3.20'
-  compile group: 'commons-cli',             name: 'commons-cli',            version: '1.2'
-  compile group: 'com.google.code.gson',    name: 'gson',                   version: '2.2.4'
-  compile group: 'org.slf4j',               name: 'slf4j-api',              version: '1.7.5'
-  compile group: 'ch.qos.logback',          name: 'logback-core',           version: '1.0.13'
-  compile group: 'ch.qos.logback',          name: 'logback-classic',        version: '1.0.13'
-  compile group: 'commons-cli',             name: 'commons-cli',            version: '1.2'
-  compile group: 'com.google.guava',        name: 'guava',                  version: '15.0'
+  compile 'org.freemarker:freemarker:2.3.20'
+  compile 'commons-cli:commons-cli:1.2'
+  compile 'com.google.code.gson:gson:2.2.4'
+  compile 'org.slf4j:slf4j-api:1.7.5'
+  compile 'ch.qos.logback:logback-core:1.0.13'
+  compile 'ch.qos.logback:logback-classic:1.0.13'
+  compile 'commons-cli:commons-cli:1.2'
+  compile 'com.google.guava:guava:15.0'
+  compile 'org.modeshape:modeshape-common:3.5.0.Final'
 }
 
 run {
   if ( project.hasProperty('args') ) {
-    //args "-f", "todo.model.json"
     args project.args.split('\\s+')
   }
 }

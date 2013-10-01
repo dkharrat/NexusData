@@ -10,10 +10,10 @@ class _${entity.name} extends ManagedObject {
 
     public interface Property {
 <#list entity.attributes as attribute>
-        final static String ${attribute.getAllCapsName()} = "${attribute.name}";
+        final static String ${attribute.getNameAsConstant()} = "${attribute.name}";
 </#list>
 <#list entity.relationships as relationship>
-        final static String ${relationship.getAllCapsName()} = "${relationship.name}";
+        final static String ${relationship.getNameAsConstant()} = "${relationship.name}";
 </#list>
     }
 
@@ -27,14 +27,14 @@ class _${entity.name} extends ManagedObject {
 
 <#list entity.attributes as attribute>
 <#if attribute.hasGetter>
-    public ${attribute.getJavaType()} get${attribute.getCapitalizedName()}() {
-        return (${attribute.getJavaType()})getValue(Property.${attribute.getAllCapsName()});
+    public ${attribute.getJavaType()} ${attribute.getMethodNameForGetter()}() {
+        return (${attribute.getJavaType()})getValue(Property.${attribute.getNameAsConstant()});
     }
 
 </#if>
 <#if attribute.hasSetter>
-    public void set${attribute.getCapitalizedName()}(${attribute.getJavaType()} ${attribute.name}) {
-        setValue(Property.${attribute.getAllCapsName()}, ${attribute.name});
+    public void ${attribute.getMethodNameForSetter()}(${attribute.getJavaType()} ${attribute.name}) {
+        setValue(Property.${attribute.getNameAsConstant()}, ${attribute.name});
     }
 
 </#if>
@@ -42,16 +42,21 @@ class _${entity.name} extends ManagedObject {
 
 <#list entity.relationships as relationship>
 <#if relationship.hasGetter>
-    public ${relationship.getJavaType()} get${relationship.getCapitalizedName()}() {
-        return (${relationship.getJavaType()})getValue(Property.${relationship.getAllCapsName()});
+    public ${relationship.getJavaType()} ${relationship.getMethodNameForGetter()}() {
+        return (${relationship.getJavaType()})getValue(Property.${relationship.getNameAsConstant()});
     }
 
 </#if>
 <#if relationship.hasSetter>
-    public void set${relationship.getCapitalizedName()}(${relationship.getJavaType()} ${relationship.name}) {
-        setValue(Property.${relationship.getAllCapsName()}, ${relationship.name});
+    public void ${relationship.getMethodNameForSetter()}(${relationship.getJavaType()} ${relationship.name}) {
+        setValue(Property.${relationship.getNameAsConstant()}, ${relationship.name});
     }
 
+<#if relationship.toMany>
+    public void ${relationship.getMethodNameForAddingToCollection()}(${relationship.destinationEntity} ${relationship.getSingularName()}) {
+        ${relationship.getMethodNameForGetter()}().add(${relationship.getSingularName()});
+    }
+</#if>
 </#if>
 </#list>
 }
