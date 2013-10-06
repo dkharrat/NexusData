@@ -212,6 +212,8 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 if (value != null) {
                     if (Date.class.isAssignableFrom(propertyType)) {
                         values.put(getColumnName(property), DateUtil.format(DateUtil.ISO8601_NO_TIMEZONE, (Date)value));
+                    } else if (Boolean.class.isAssignableFrom(propertyType)) {
+                        values.put(getColumnName(property), ((Boolean)value) ? "1" : "0" );
                     } else {
                         values.put(getColumnName(property), value.toString());
                     }

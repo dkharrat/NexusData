@@ -12,13 +12,13 @@ class _Employee extends ManagedObject {
         final static String FIRST_NAME = "firstName";
         final static String LAST_NAME = "lastName";
         final static String SALARY = "salary";
+        final static String ACTIVE = "active";
         final static String DATE_OF_BIRTH = "dateOfBirth";
         final static String COMPANY = "company";
         final static String MANAGER = "manager";
         final static String DIRECT_REPORTS = "directReports";
         final static String ADDRESS = "address";
     }
-
 
     public String getFirstName() {
         return (String)getValue(Property.FIRST_NAME);
@@ -44,6 +44,14 @@ class _Employee extends ManagedObject {
         setValue(Property.SALARY, salary);
     }
 
+    public Boolean isActive() {
+        return (Boolean)getValue(Property.ACTIVE);
+    }
+
+    public void setActive(Boolean active) {
+        setValue(Property.ACTIVE, active);
+    }
+
     public Date getDateOfBirth() {
         return (Date)getValue(Property.DATE_OF_BIRTH);
     }
@@ -51,7 +59,6 @@ class _Employee extends ManagedObject {
     public void setDateOfBirth(Date dateOfBirth) {
         setValue(Property.DATE_OF_BIRTH, dateOfBirth);
     }
-
 
     public Company getCompany() {
         return (Company)getValue(Property.COMPANY);
@@ -77,9 +84,10 @@ class _Employee extends ManagedObject {
         setValue(Property.DIRECT_REPORTS, directReports);
     }
 
-    public void addDirectreport(Employee directReport) {
+    public void addDirectReport(Employee directReport) {
         getDirectReports().add(directReport);
     }
+
     public Address getAddress() {
         return (Address)getValue(Property.ADDRESS);
     }
@@ -87,5 +95,4 @@ class _Employee extends ManagedObject {
     public void setAddress(Address address) {
         setValue(Property.ADDRESS, address);
     }
-
 }

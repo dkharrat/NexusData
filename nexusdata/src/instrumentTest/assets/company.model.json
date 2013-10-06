@@ -22,11 +22,14 @@
         "name": "firstName",
         "type": "String"
       }, {
-         "name": "lastName",
-         "type": "String"
+        "name": "lastName",
+        "type": "String"
       }, {
         "name": "salary",
         "type": "Int"
+      }, {
+        "name": "active",
+        "type": "Bool"
       }, {
         "name": "dateOfBirth",
         "type": "Date"
