@@ -35,6 +35,7 @@ import org.nexusdata.utils.ObjectUtil;
 //  * unregister objects when they are no longer referenced
 //  * Implement custom Exception classes to identify different error types
 //  * Add support to query objects of super entity type
+//  * Check for null for required properties
 //  * remove m_ prefix in variable names
 
 public class ObjectContext {
