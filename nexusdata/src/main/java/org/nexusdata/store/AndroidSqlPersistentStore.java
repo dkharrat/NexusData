@@ -150,7 +150,11 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                         ManagedObject relatedObject = (ManagedObject)rhs;
                         selectionArgs.add(getReferenceObjectForObjectID(relatedObject.getID()).toString());
                     } else {
-                        selectionArgs.add(rhs.toString());
+                        String value = rhs.toString();
+                        if (rhs.getClass().isAssignableFrom(Boolean.class) || rhs.getClass().isAssignableFrom(boolean.class)) {
+                            value = ((Boolean)rhs) ? "1" : "0";
+                        }
+                        selectionArgs.add(value);
                     }
                 }
             }
