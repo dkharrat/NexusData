@@ -46,4 +46,16 @@ public class Attribute  extends Property {
 
         return false;
     }
+
+    public String getMethodNameForGetter() {
+        if (type.equals("Bool")) {
+            if (name.substring(0, 2).equalsIgnoreCase("is")) {
+                return name;
+            } else {
+                return "is" + getCapitalizedName();
+            }
+        } else {
+            return super.getMethodNameForGetter();
+        }
+    }
 }
