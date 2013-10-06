@@ -11,8 +11,8 @@ public class RelationshipDescription extends PropertyDescription {
     private final EntityDescription<?> m_destinationEntity;
     private RelationshipDescription m_inverse;
 
-    public RelationshipDescription(EntityDescription<?> entity, String name, Class<?> type, Type relationshipType, EntityDescription<?> destinationEntity, RelationshipDescription inverse) {
-        super(entity, name, type);
+    public RelationshipDescription(EntityDescription<?> entity, String name, Class<?> type, Type relationshipType, EntityDescription<?> destinationEntity, RelationshipDescription inverse, boolean isRequired) {
+        super(entity, name, type, isRequired);
         m_relationshipType = relationshipType;
         m_destinationEntity = destinationEntity;
         m_inverse = inverse;

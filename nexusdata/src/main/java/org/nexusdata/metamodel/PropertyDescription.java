@@ -7,11 +7,13 @@ public abstract class PropertyDescription {
     private final EntityDescription<?> m_entity;
     private final String m_name;
     private final Class<?> m_type;      //TODO: should this be moved to AttributeDescription, as it doesn't really make sense for relationships
+    private final boolean m_isRequired;
 
-    public PropertyDescription(EntityDescription<?> entity, String name, Class<?> type) {
+    public PropertyDescription(EntityDescription<?> entity, String name, Class<?> type, boolean isRequired) {
         m_entity = entity;
         m_name = name;
         m_type = type;
+        m_isRequired = isRequired;
     }
 
     public EntityDescription<?> getEntity() {
@@ -24,6 +26,10 @@ public abstract class PropertyDescription {
 
     public String getName() {
         return m_name;
+    }
+
+    public boolean isRequired() {
+        return m_isRequired;
     }
 
     public abstract boolean isRelationship();

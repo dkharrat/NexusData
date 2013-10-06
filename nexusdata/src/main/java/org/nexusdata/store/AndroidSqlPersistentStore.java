@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.nexusdata.metamodel.*;
 import org.nexusdata.utils.StringUtil;
 import org.nexusdata.utils.android.SQLiteDatabaseHelper;
 import org.slf4j.Logger;
@@ -32,10 +33,6 @@ import org.nexusdata.core.ObjectID;
 import org.nexusdata.core.SaveChangesRequest;
 import org.nexusdata.core.SortDescriptor;
 import org.nexusdata.core.StoreCacheNode;
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.metamodel.PropertyDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
 import org.nexusdata.predicate.ComparisonPredicate;
 import org.nexusdata.predicate.FieldPathExpression;
 import org.nexusdata.predicate.Predicate;
@@ -540,10 +537,13 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                     } else if (Date.class.isAssignableFrom(property.getType())) {
                         columnType = ColumnType.DATETIME;
                     } else {
-                        throw new UnsupportedOperationException("Unsupport field type " + property.getType() + " for " + entity.getType());
+                        throw new UnsupportedOperationException("Unsupported field type " + property.getType() + " for " + entity.getType());
                     }
 
                     tableBuilder.column(property.getName(), columnType);
+                    if (property.isRequired()) {
+                        tableBuilder.setNullable(false);
+                    }
                 }
 
                 tableBuilder.createTable(db);

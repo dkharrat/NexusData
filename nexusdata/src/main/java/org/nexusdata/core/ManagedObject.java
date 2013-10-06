@@ -6,9 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.PropertyDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
+import org.nexusdata.metamodel.*;
 import org.nexusdata.utils.ObjectUtil;
 import org.nexusdata.metamodel.PropertyDescription;
 import org.nexusdata.utils.ObjectUtil;
@@ -51,7 +49,11 @@ public class ManagedObject {
     }
 
     protected void init() {
-
+        for (AttributeDescription attr : getEntity().getAttributes()) {
+            if (attr.getDefaultValue() != null) {
+                m_values.put(attr.getName(), attr.getDefaultValue());
+            }
+        }
     }
 
     public <T extends ManagedObject> ObjectID getID() {

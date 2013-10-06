@@ -1,9 +1,11 @@
 package org.nexusdata.metamodel;
 
 import java.io.*;
+import java.text.ParseException;
 import java.util.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import org.nexusdata.core.ManagedObject;
 import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
@@ -123,7 +125,7 @@ class ObjectModelJsonParser {
                     throw new RuntimeException("Unknown type '" + jsonAttr.type + "' for " + jsonEntity.name + "#" + jsonAttr.name);
                 }
             }
-            AttributeDescription attr = new AttributeDescription(entity, jsonAttr.name, attrType);
+            AttributeDescription attr = new AttributeDescription(entity, jsonAttr.name, attrType, jsonAttr.required, jsonAttr.getDefaultValue());
             LOG.debug("Adding attribute: " + jsonAttr.name);
             entity.addProperty(attr);
         }
@@ -143,7 +145,8 @@ class ObjectModelJsonParser {
                         relationClassType,
                         relationshipType,
                         destinationEntity,
-                        null);
+                        null,
+                        jsonRelation.required);
                 LOG.debug("Adding relationship: " + jsonRelation.name + " for entity: " + entity.getName());
                 entity.addProperty(relationship);
             }
@@ -200,7 +203,12 @@ class JsonElem {
         List<String> values;
     }
 
-    static class Attribute {
+    static class Property {
+        boolean required;
+    }
+
+
+    static class Attribute extends Property {
 
         static final Map<String,Class<?>> primTypeToJavaType = new HashMap<String,Class<?>>();
         static
@@ -214,11 +222,24 @@ class JsonElem {
 
         String name;
         String type;
+        @SerializedName("default") String defaultValue;
         boolean hasGetter = true;
         boolean hasSetter = true;
+
+        Object getDefaultValue() {
+            if (defaultValue == null) {
+                return null;
+            }
+
+            try {
+                return StringUtil.convertStringValueToType(defaultValue, primTypeToJavaType.get(type));
+            } catch (ParseException ex) {
+                throw new RuntimeException("Could not parse default value " + defaultValue + " for attribute " + name);
+            }
+        }
     }
 
-    static class Relationship {
+    static class Relationship extends Property {
         String name;
         String destinationEntity;
         String inverseName;
