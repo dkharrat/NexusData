@@ -24,6 +24,6 @@ public class Relationship extends Property {
     }
 
     public String getMethodNameForAddingToCollection() {
-        return "add" + Inflector.getInstance().capitalize(getSingularName());
+        return "add" + capitalizedFirstChar(getSingularName());
     }
 }

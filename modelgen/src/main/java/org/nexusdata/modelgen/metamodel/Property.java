@@ -15,7 +15,7 @@ public abstract class Property {
 
     abstract String getJavaType();
 
-    static private String capitalizedFirstChar(String str) {
+    static protected String capitalizedFirstChar(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
