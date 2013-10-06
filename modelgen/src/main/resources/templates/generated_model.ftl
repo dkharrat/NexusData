@@ -27,13 +27,13 @@ class _${entity.name} extends ManagedObject {
 
 <#list entity.attributes as attribute>
 <#if attribute.hasGetter>
-    public ${attribute.getJavaType()} ${attribute.getMethodNameForGetter()}() {
+    public ${attribute.getJavaTypeForParam()} ${attribute.getMethodNameForGetter()}() {
         return (${attribute.getJavaType()})getValue(Property.${attribute.getNameAsConstant()});
     }
 
 </#if>
 <#if attribute.hasSetter>
-    public void ${attribute.getMethodNameForSetter()}(${attribute.getJavaType()} ${attribute.name}) {
+    public void ${attribute.getMethodNameForSetter()}(${attribute.getJavaTypeForParam()} ${attribute.name}) {
         setValue(Property.${attribute.getNameAsConstant()}, ${attribute.name});
     }
 

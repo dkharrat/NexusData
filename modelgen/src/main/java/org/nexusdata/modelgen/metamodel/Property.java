@@ -6,6 +6,7 @@ import org.modeshape.common.text.Inflector;
 public abstract class Property {
 
     String name;
+    boolean required = false;
     boolean hasGetter = true;
     boolean hasSetter = true;
 

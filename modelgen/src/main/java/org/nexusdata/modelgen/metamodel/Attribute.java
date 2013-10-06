@@ -1,5 +1,7 @@
 package org.nexusdata.modelgen.metamodel;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,8 +17,19 @@ public class Attribute  extends Property {
         typeToJavaType.put("Date", "Date");
     }
 
+    private static final Map<String,String> typeToPrimType = new HashMap<>();
+    static
+    {
+        typeToPrimType.put("String", "String");
+        typeToPrimType.put("Int", "int");
+        typeToPrimType.put("Long", "long");
+        typeToPrimType.put("Bool", "boolean");
+        typeToPrimType.put("Date", "Date");
+    }
+
     private Entity entity;
     private String type;
+    @SerializedName("default") private String defaultValue;
 
     // use to set parent entity when object is de-serialized
     public void setEntity(Entity entity) {
@@ -25,7 +38,15 @@ public class Attribute  extends Property {
 
     @Override
     public String getJavaType() {
-        String javaType = typeToJavaType.get(type);
+        return getJavaType(true);
+    }
+
+    public String getJavaTypeForParam() {
+        return getJavaType(!required);
+    }
+
+    private String getJavaType(boolean useObjectType) {
+        String javaType = useObjectType ? typeToJavaType.get(type): typeToPrimType.get(type);
         if (javaType == null) {
             if (isEnumProperty(type)) {
                 javaType = type;
