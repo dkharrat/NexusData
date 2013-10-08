@@ -34,6 +34,8 @@ public class PersistentStoreCoordinatorTest extends AndroidTestCase {
 
     public void testGetUuidToObjectIDConversion() throws Throwable {
         Employee employee = context.newObject(Employee.class);
+        employee.setFirstName("John");
+        employee.setLastName("Smith");
         context.save();
 
         assertEquals(employee.getID(), coordinator.objectIDFromUri(employee.getID().getUriRepresentation()));
@@ -41,6 +43,8 @@ public class PersistentStoreCoordinatorTest extends AndroidTestCase {
 
     public void testCantConvertTemporaryUuidToObjectID() throws Throwable {
         Employee employee = context.newObject(Employee.class);
+        employee.setFirstName("John");
+        employee.setLastName("Smith");
 
         boolean thrown = false;
         try {

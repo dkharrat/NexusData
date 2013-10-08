@@ -47,6 +47,12 @@ public class ManagedObjectTest extends TestCase {
         super.tearDown();
     }
 
+    public void testDefaultsSetWhenCreated() throws Throwable {
+        Employee bob = context.newObject(Employee.class);
+        assertTrue(bob.isActive());
+        assertEquals(50000, bob.getSalary());
+    }
+
     public void testIsInserted() throws Throwable {
         Employee bob = context.newObject(Employee.class);
         assertTrue(bob.isInserted());

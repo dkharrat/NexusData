@@ -8,7 +8,8 @@
       "name": "Company",
       "attributes": [{
         "name": "name",
-        "type": "String"
+        "type": "String",
+        "required": true
       }],
       "relationships": [{
         "name": "employees",
@@ -20,19 +21,27 @@
       "name": "Employee",
       "attributes": [{
         "name": "firstName",
-        "type": "String"
+        "type": "String",
+        "required": true
       }, {
         "name": "lastName",
-        "type": "String"
+        "type": "String",
+        "required": true
       }, {
         "name": "salary",
-        "type": "Int"
+        "type": "Int",
+        "required": true,
+        "default": 50000
       }, {
         "name": "active",
-        "type": "Bool"
+        "type": "Bool",
+        "required": true,
+        "default": true
       }, {
         "name": "dateOfBirth",
-        "type": "Date"
+        "type": "Date",
+        "required": true,
+        "default": "1984-02-03T00:00:00"
       }],
       "relationships": [{
         "name": "company",
@@ -59,7 +68,8 @@
        "type": "String"
      }, {
        "name": "country",
-       "type": "String"
+       "type": "String",
+       "required": true
      }],
      "relationships": [{
        "name": "employee",

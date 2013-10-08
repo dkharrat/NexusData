@@ -67,8 +67,8 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         assertSame(employees.get(0), employees2.get(0));
         assertEquals("John", employees.get(0).getFirstName());
         assertEquals("Smith", employees.get(0).getLastName());
-        assertEquals(1000, (int)employees.get(0).getSalary());
-        assertEquals(true, (boolean)employees.get(0).isActive());
+        assertEquals(1000, employees.get(0).getSalary());
+        assertEquals(true, employees.get(0).isActive());
         assertEquals(new Date(999000), employees.get(0).getDateOfBirth());
     }
 
