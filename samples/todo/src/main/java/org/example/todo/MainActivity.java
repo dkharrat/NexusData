@@ -1,30 +1,55 @@
 package org.example.todo;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.DataSetObserver;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.*;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.*;
+import org.nexusdata.core.FetchRequest;
 import org.nexusdata.core.ObjectContext;
+import org.nexusdata.predicate.ExpressionBuilder;
+import org.nexusdata.predicate.PredicateBuilder;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends Activity {
 
+    private enum DisplayMode {
+        TODO,
+        COMPLETED
+    }
+
     private ListView listView;
-    private EntryListAdapter<Task> listAdapter;
+    private TaskListAdapter listAdapter;
 
     private static final int ADD_TASK = 1;
-    private static final int DELETE_TASK = 2;
+
+    private DisplayMode displayMode = DisplayMode.TODO;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        getActionBar().setDisplayShowTitleEnabled(false);
+        getActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        getActionBar().setListNavigationCallbacks(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, Arrays.asList("Todo", "Completed")), new ActionBar.OnNavigationListener() {
+            @Override
+            public boolean onNavigationItemSelected(int itemPosition, long itemId) {
+                if (itemPosition == 0) {
+                    displayMode = DisplayMode.TODO;
+                } else {
+                    displayMode = DisplayMode.COMPLETED;
+                }
+                refreshUI();
+                return true;
+            }
+        });
 
         listView = (ListView)findViewById(R.id.todo_tasks_list);
 
@@ -65,19 +90,17 @@ public class MainActivity extends Activity {
 
     private void refreshUI() {
         ObjectContext ctx = TodoApp.getMainObjectContext();
-        List<Task> tasks = ctx.findAll(Task.class);
+
+        boolean displayCompleted = (displayMode == DisplayMode.COMPLETED);
+        FetchRequest<Task> fetchRequest = ctx.newFetchRequestBuilder(Task.class).
+                predicate(ExpressionBuilder.
+                        field(Task.Property.COMPLETED).eq(displayCompleted).
+                        getPredicate()).
+                build();
+        List<Task> tasks = ctx.executeFetchOperation(fetchRequest);
 
         if (listAdapter == null) {
-            listAdapter = new EntryListAdapter<Task>(this, tasks) {
-                @Override
-                protected String getTitleViewText(Task task) {
-                    return task.getTitle();
-                }
-                @Override
-                protected String getDetailViewText(Task task) {
-                    return task.getNotes();
-                }
-            };
+            listAdapter = new TaskListAdapter(this, tasks);
             listView.setAdapter(listAdapter);
         } else {
             listAdapter.clear();
@@ -86,40 +109,54 @@ public class MainActivity extends Activity {
         }
     }
 
-    public abstract class EntryListAdapter<T> extends ArrayAdapter<T> {
+    public class TaskListAdapter extends ArrayAdapter<Task> {
 
-        public final static int NONE_SELECTED = -1;
-        private int m_selectedItem = NONE_SELECTED;
-
-        public EntryListAdapter(Context context, List<T> entries) {
+        public TaskListAdapter(Context context, List<Task> entries) {
             super(context, 0, entries);
         }
 
-        public void setSelectedItem(int position) {
-            m_selectedItem = position;
-            notifyDataSetChanged();
+        private void setStrikeThroughView(TextView textView, boolean strikeThrough) {
+            if (strikeThrough) {
+                textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+            }
         }
-
-        public int getSelectedItem() {
-            return m_selectedItem;
-        }
-
-        abstract protected String getTitleViewText(T entry);
-        abstract protected String getDetailViewText(T entry);
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            T entry = getItem(position);
+        public View getView(final int position, final View convertView, final ViewGroup parent) {
+            final Task task = getItem(position);
 
-            LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            final LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            View view = inflater.inflate(R.layout.list_item_with_detail, null);
+            final View view = inflater.inflate(R.layout.list_item_with_detail, null);
 
-            TextView titleView = (TextView)view.findViewById(R.id.list_item_title);
-            TextView detailsView = (TextView)view.findViewById(R.id.list_item_detail);
+            final TextView titleView = (TextView)view.findViewById(R.id.list_item_title);
+            final TextView detailsView = (TextView)view.findViewById(R.id.list_item_detail);
+            final CheckBox completedCheckbox = (CheckBox)view.findViewById(R.id.checkbox_completed);
+            completedCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    task.setCompleted(isChecked);
+                    if (task.isCompleted()) {
+                        setStrikeThroughView(titleView, true);
+                        setStrikeThroughView(detailsView, true);
+                    } else {
+                        setStrikeThroughView(titleView, false);
+                        setStrikeThroughView(detailsView, false);
+                    }
+                    TodoApp.getMainObjectContext().save();
+                }
+            });
 
-            titleView.setText(getTitleViewText(entry));
-            detailsView.setText(getDetailViewText(entry));
+            titleView.setText(task.getTitle());
+            detailsView.setText(task.getNotes());
+            completedCheckbox.setChecked(task.isCompleted());
+
+            if (task.isCompleted()) {
+                setStrikeThroughView(titleView, true);
+                setStrikeThroughView(detailsView, true);
+            }
 
             return view;
         }

@@ -5,7 +5,6 @@ package org.example.todo;
 import java.util.Date;
 import java.util.Set;
 import org.nexusdata.core.ManagedObject;
-import org.nexusdata.core.ManagedObject;
 
 class _User extends ManagedObject {
 
@@ -32,4 +31,7 @@ class _User extends ManagedObject {
         setValue(Property.TASKS, tasks);
     }
 
+    public void addTask(Task task) {
+        getTasks().add(task);
+    }
 }

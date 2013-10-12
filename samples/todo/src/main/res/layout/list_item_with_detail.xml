@@ -24,7 +24,7 @@
                 android:layout_weight="1"
                 >
 
-            <CheckBox android:id="@+id/checkbox_meat"
+            <CheckBox android:id="@+id/checkbox_completed"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content" />
 

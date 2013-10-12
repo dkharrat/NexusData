@@ -47,11 +47,11 @@ class _Task extends ManagedObject {
         setValue(Property.DUE_BY, dueBy);
     }
 
-    public Boolean getCompleted() {
+    public boolean isCompleted() {
         return (Boolean)getValue(Property.COMPLETED);
     }
 
-    public void setCompleted(Boolean completed) {
+    public void setCompleted(boolean completed) {
         setValue(Property.COMPLETED, completed);
     }
 

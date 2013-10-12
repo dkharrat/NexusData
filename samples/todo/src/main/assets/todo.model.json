@@ -21,7 +21,9 @@
         "type": "Date"
       }, {
          "name": "completed",
-         "type": "Bool"
+         "type": "Bool",
+         "required": true,
+         "default": false
        }, {
          "name": "priority",
          "type": "Priority"
