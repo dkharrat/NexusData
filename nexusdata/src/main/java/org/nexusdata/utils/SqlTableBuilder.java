@@ -13,9 +13,9 @@ public class SqlTableBuilder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SqlTableBuilder.class);
 
-    private String m_tableName;
-    private ArrayList<Column> m_columns;
-    private ArrayList<TableConstraint> m_tableConstraints;
+    private String tableName;
+    private ArrayList<Column> columns;
+    private ArrayList<TableConstraint> tableConstraints;
 
     public enum ColumnType {
         INTEGER,
@@ -41,9 +41,9 @@ public class SqlTableBuilder {
     }
 
     public SqlTableBuilder tableName(String name) {
-        m_tableName = name;
-        m_columns = new ArrayList<Column>();
-        m_tableConstraints = new ArrayList<TableConstraint>();
+        tableName = name;
+        columns = new ArrayList<Column>();
+        tableConstraints = new ArrayList<TableConstraint>();
         return this;
     }
 
@@ -59,14 +59,14 @@ public class SqlTableBuilder {
         Column column = new Column(name, type);
         column.constraints.add(primaryKeyContraint);
 
-        m_columns.add(column);
+        columns.add(column);
 
         return this;
     }
 
     public SqlTableBuilder column(String name, ColumnType type) {
         Column column = new Column(name, type);
-        m_columns.add(column);
+        columns.add(column);
         return this;
     }
 
@@ -96,33 +96,33 @@ public class SqlTableBuilder {
 
     public SqlTableBuilder setUnique(ConflictAction conflictAction, String... columns) {
         TableUniqueConstraint uniqueContraint = new TableUniqueConstraint(new ConflictClause(conflictAction), columns);
-        m_tableConstraints.add(uniqueContraint);
+        tableConstraints.add(uniqueContraint);
 
         return this;
     }
 
     public SqlTableBuilder primaryKey(ConflictAction conflictAction, String... columns) {
         TablePrimaryKeyConstraint primaryKeyContraint = new TablePrimaryKeyConstraint(new ConflictClause(conflictAction), columns);
-        m_tableConstraints.add(primaryKeyContraint);
+        tableConstraints.add(primaryKeyContraint);
 
         return this;
     }
 
     public void createTable(SQLiteDatabase db) {
-        if (m_tableName == null)
+        if (tableName == null)
             throw new IllegalStateException("Table name not specified");
 
-        String sqlStatement = "CREATE TABLE " + m_tableName;
+        String sqlStatement = "CREATE TABLE " + tableName;
 
-        if (m_columns.isEmpty())
+        if (columns.isEmpty())
             throw new IllegalStateException("No columns specified");
 
         sqlStatement += " (";
         ArrayList<String> columnsSqlStatements = new ArrayList<String>();
-        for (Column column : m_columns) {
+        for (Column column : columns) {
             columnsSqlStatements.add(column.toSql());
         }
-        for (TableConstraint tableConstraint : m_tableConstraints) {
+        for (TableConstraint tableConstraint : tableConstraints) {
             columnsSqlStatements.add(tableConstraint.toSql());
         }
         sqlStatement += StringUtil.join(columnsSqlStatements, ", ") + ")";
@@ -133,11 +133,11 @@ public class SqlTableBuilder {
 
     // Note Sqlite does not support altering existing columns
     public void alterTable(SQLiteDatabase db) {
-        if (m_tableName == null)
+        if (tableName == null)
             throw new IllegalStateException("Table name not specified");
 
-        for (Column column : m_columns) {
-            String sqlStatement = "ALTER TABLE " + m_tableName + " ADD COLUMN " + column.toSql();
+        for (Column column : columns) {
+            String sqlStatement = "ALTER TABLE " + tableName + " ADD COLUMN " + column.toSql();
 
             LOG.trace("Executing SQL Statement: " + sqlStatement);
             db.execSQL(sqlStatement);
@@ -145,10 +145,10 @@ public class SqlTableBuilder {
     }
 
     private Column getLastColumn() {
-        if (m_columns.isEmpty())
+        if (columns.isEmpty())
             throw new IllegalStateException("No column previously specified");
         else
-            return m_columns.get(m_columns.size()-1);
+            return columns.get(columns.size()-1);
     }
 
     private class Column {

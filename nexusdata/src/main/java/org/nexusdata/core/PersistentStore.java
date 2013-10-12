@@ -9,42 +9,40 @@ import java.util.UUID;
 
 import org.nexusdata.metamodel.EntityDescription;
 import org.nexusdata.metamodel.RelationshipDescription;
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
 
 
 public abstract class PersistentStore {
 
     private static final String UUID_KEY    = "_UUID";
 
-    private PersistentStoreCoordinator m_storeCoordinator;
-    private final File m_location;
-    private final Map<String,Object> m_metadata = new HashMap<String,Object>();
+    private PersistentStoreCoordinator storeCoordinator;
+    private final File location;
+    private final Map<String,Object> metadata = new HashMap<String,Object>();
 
     PersistentStore(File location) {
-        m_location = location;
+        this.location = location;
     }
 
     protected abstract void loadMetadata();
 
     public PersistentStoreCoordinator getCoordinator() {
-        return m_storeCoordinator;
+        return storeCoordinator;
     }
 
     public File getLocation() {
-        return m_location;
+        return location;
     }
 
     public UUID getUuid() {
-        return (UUID) m_metadata.get(UUID_KEY);
+        return (UUID) metadata.get(UUID_KEY);
     }
 
     protected void setUuid(UUID uuid) {
-        m_metadata.put(UUID_KEY, uuid);
+        metadata.put(UUID_KEY, uuid);
     }
 
     void setPersistentStoreCoordinator(PersistentStoreCoordinator coordinator) {
-        m_storeCoordinator = coordinator;
+        storeCoordinator = coordinator;
     }
 
     ObjectID createObjectID(EntityDescription<?> entity, Object referenceObject) {
@@ -75,6 +73,6 @@ public abstract class PersistentStore {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+" [location=" + m_location + ", UUID=" + getUuid() + "]";
+        return getClass().getSimpleName()+" [location=" + location + ", UUID=" + getUuid() + "]";
     }
 }

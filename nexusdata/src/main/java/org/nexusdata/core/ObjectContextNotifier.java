@@ -31,8 +31,8 @@ public class ObjectContextNotifier {
     }
 
     //TODO: should contexts and/or listeners be weak references?
-    static Set<ObjectContextListener> m_allContextsListeners = new LinkedHashSet<ObjectContextListener>();
-    static Map<ObjectContext, Set<ObjectContextListener>> m_contextListeners = new HashMap<ObjectContext, Set<ObjectContextListener>>();
+    static Set<ObjectContextListener> allContextsListeners = new LinkedHashSet<ObjectContextListener>();
+    static Map<ObjectContext, Set<ObjectContextListener>> contextListeners = new HashMap<ObjectContext, Set<ObjectContextListener>>();
 
     static void notifyListenersOfWillSave(ObjectContext context) {
         for (ObjectContextListener listener : getListeners(context)) {
@@ -53,53 +53,53 @@ public class ObjectContextNotifier {
     }
 
     static boolean hasListeners(ObjectContext context) {
-        Set<ObjectContextListener> listeners = m_contextListeners.get(context);
-        return !m_allContextsListeners.isEmpty() || (listeners != null && !listeners.isEmpty());
+        Set<ObjectContextListener> listeners = contextListeners.get(context);
+        return !allContextsListeners.isEmpty() || (listeners != null && !listeners.isEmpty());
     }
 
     private static Set<ObjectContextListener> getListeners(ObjectContext context) {
         Set<ObjectContextListener> allListeners = getListenersForContext(context);
 
-        if (!m_allContextsListeners.isEmpty()) {
+        if (!allContextsListeners.isEmpty()) {
             // make a copy so we don't modify original
             allListeners = new LinkedHashSet<ObjectContextListener>(allListeners);
-            allListeners.addAll(m_allContextsListeners);
+            allListeners.addAll(allContextsListeners);
         }
 
         return allListeners;
     }
 
     private static Set<ObjectContextListener> getListenersForContext(ObjectContext context) {
-        Set<ObjectContextListener> listeners = m_contextListeners.get(context);
+        Set<ObjectContextListener> listeners = contextListeners.get(context);
 
         if (listeners == null) {
             listeners = new LinkedHashSet<ObjectContextListener>();
-            m_contextListeners.put(context, listeners);
+            contextListeners.put(context, listeners);
         }
 
         return listeners;
     }
 
     public static void registerListener(ObjectContext forContext, ObjectContextListener listener) {
-        if (!m_allContextsListeners.contains(listener)) {
+        if (!allContextsListeners.contains(listener)) {
             Set<ObjectContextListener> listeners = getListenersForContext(forContext);
             listeners.add(listener);
         }
     }
 
     public static void registerListener(ObjectContextListener listener) {
-        m_allContextsListeners.add(listener);
+        allContextsListeners.add(listener);
     }
 
     public static void unregisterListener(ObjectContext forContext, ObjectContextListener listener) {
         Set<ObjectContextListener> listeners = getListenersForContext(forContext);
         listeners.remove(listener);
         if (listeners.isEmpty()) {
-            m_contextListeners.remove(forContext);
+            contextListeners.remove(forContext);
         }
     }
 
     public static void unregisterListener(ObjectContextListener listener) {
-        m_allContextsListeners.remove(listener);
+        allContextsListeners.remove(listener);
     }
 }

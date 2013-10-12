@@ -7,39 +7,39 @@ public class RelationshipDescription extends PropertyDescription {
         TO_MANY,
     }
 
-    private final Type m_relationshipType;
-    private final EntityDescription<?> m_destinationEntity;
-    private RelationshipDescription m_inverse;
+    private final Type relationshipType;
+    private final EntityDescription<?> destinationEntity;
+    private RelationshipDescription inverse;
 
     public RelationshipDescription(EntityDescription<?> entity, String name, Class<?> type, Type relationshipType, EntityDescription<?> destinationEntity, RelationshipDescription inverse, boolean isRequired) {
         super(entity, name, type, isRequired);
-        m_relationshipType = relationshipType;
-        m_destinationEntity = destinationEntity;
-        m_inverse = inverse;
+        this.relationshipType = relationshipType;
+        this.destinationEntity = destinationEntity;
+        this.inverse = inverse;
     }
 
     public Type getRelationshipType() {
-        return m_relationshipType;
+        return relationshipType;
     }
 
     public boolean isToOne() {
-        return m_relationshipType == Type.TO_ONE;
+        return relationshipType == Type.TO_ONE;
     }
 
     public boolean isToMany() {
-        return m_relationshipType == Type.TO_MANY;
+        return relationshipType == Type.TO_MANY;
     }
 
     public EntityDescription<?> getDestinationEntity() {
-        return m_destinationEntity;
+        return destinationEntity;
     }
 
     public RelationshipDescription getInverse() {
-        return m_inverse;
+        return inverse;
     }
 
-    void setInverse(RelationshipDescription m_inverse) {
-        this.m_inverse = m_inverse;
+    void setInverse(RelationshipDescription inverse) {
+        this.inverse = inverse;
     }
 
     @Override

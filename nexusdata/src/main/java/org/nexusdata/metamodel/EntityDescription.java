@@ -7,44 +7,43 @@ import java.util.List;
 import java.util.Map;
 
 import org.nexusdata.core.ManagedObject;
-import org.nexusdata.core.ManagedObject;
 
 public class EntityDescription<T extends ManagedObject> {
 
-    private final ObjectModel m_model;
-    private final Class<T> m_type;
-    private final Map<String, PropertyDescription> m_properties = new HashMap<String,PropertyDescription>();
+    private final ObjectModel model;
+    private final Class<T> type;
+    private final Map<String, PropertyDescription> properties = new HashMap<String,PropertyDescription>();
 
     public EntityDescription(ObjectModel model, Class<T> type) {
-        m_model = model;
-        m_type = type;
+        this.model = model;
+        this.type = type;
     }
 
     public ObjectModel getModel() {
-        return m_model;
+        return model;
     }
 
     public Class<T> getType() {
-        return m_type;
+        return type;
     }
 
     void addProperty(PropertyDescription property) {
-        if (m_properties.containsKey(property.getName())) {
+        if (properties.containsKey(property.getName())) {
             throw new IllegalArgumentException(property + " already exists in entity " + getName());
         }
-        m_properties.put(property.getName(), property);
+        properties.put(property.getName(), property);
     }
 
     void removeProperty(String name) {
-        m_properties.remove(name);
+        properties.remove(name);
     }
 
     public boolean hasProperty(String name) {
-        return m_properties.containsKey(name);
+        return properties.containsKey(name);
     }
 
     public Collection<PropertyDescription> getProperties() {
-        return m_properties.values();
+        return properties.values();
     }
 
     public Collection<AttributeDescription> getAttributes() {
@@ -70,7 +69,7 @@ public class EntityDescription<T extends ManagedObject> {
     }
 
     public PropertyDescription getProperty(String name) throws NoSuchFieldException {
-        PropertyDescription property = m_properties.get(name);
+        PropertyDescription property = properties.get(name);
 
         if (property == null) {
             throw new NoSuchFieldException("Could not find property named: " + name);
@@ -89,14 +88,14 @@ public class EntityDescription<T extends ManagedObject> {
     }
 
     public String getName() {
-        return m_type.getSimpleName();
+        return type.getSimpleName();
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_type == null) ? 0 : m_type.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -109,10 +108,10 @@ public class EntityDescription<T extends ManagedObject> {
         if (getClass() != obj.getClass())
             return false;
         EntityDescription<?> other = (EntityDescription<?>) obj;
-        if (m_type == null) {
-            if (other.m_type != null)
+        if (type == null) {
+            if (other.type != null)
                 return false;
-        } else if (!m_type.equals(other.m_type))
+        } else if (!type.equals(other.type))
             return false;
         return true;
     }
@@ -122,7 +121,7 @@ public class EntityDescription<T extends ManagedObject> {
         return "EntityDescription ["
                 +   "name=" + getName()
                 + ", class=" + getType().getName()
-                + ", properties=" + m_properties.values()
+                + ", properties=" + properties.values()
                 + "]";
     }
 }

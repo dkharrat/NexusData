@@ -12,20 +12,17 @@ import org.nexusdata.metamodel.ObjectModel;
 import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.utils.StringUtil;
 
 
 public class PersistentStoreCoordinator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentStoreCoordinator.class);
 
-    private final Map<UUID, PersistentStore> m_storeUuidToPersisentStore = new LinkedHashMap<UUID, PersistentStore>();
-    private final ObjectModel m_model;
+    private final Map<UUID, PersistentStore> storeUuidToPersisentStore = new LinkedHashMap<UUID, PersistentStore>();
+    private final ObjectModel model;
 
     public PersistentStoreCoordinator(ObjectModel model) {
-        m_model = model;
+        this.model = model;
     }
 
     public void addStore(PersistentStore store) {
@@ -39,26 +36,26 @@ public class PersistentStoreCoordinator {
             throw new RuntimeException("Did not get permanent UUID from store: " + store);
         }
 
-        m_storeUuidToPersisentStore.put(store.getUuid(), store);
+        storeUuidToPersisentStore.put(store.getUuid(), store);
 
         LOG.info("Added persistent store " + store);
     }
 
     public void removeStore(PersistentStore store) {
-        m_storeUuidToPersisentStore.remove(store.getUuid());
+        storeUuidToPersisentStore.remove(store.getUuid());
         store.setPersistentStoreCoordinator(null);
     }
 
     public PersistentStore getPersistentStore(UUID uuid) {
-        return m_storeUuidToPersisentStore.get(uuid);
+        return storeUuidToPersisentStore.get(uuid);
     }
 
     public List<PersistentStore> getPersistentStores() {
-        return new ArrayList<PersistentStore>(m_storeUuidToPersisentStore.values());
+        return new ArrayList<PersistentStore>(storeUuidToPersisentStore.values());
     }
 
     public ObjectModel getModel() {
-        return m_model;
+        return model;
     }
 
     public ObjectID objectIDFromUri(URI objectIDUri) {
@@ -74,7 +71,7 @@ public class PersistentStoreCoordinator {
         }
 
         UUID storeUuid = UUID.fromString(objectIDUri.getAuthority());
-        EntityDescription<?> entity = m_model.getEntity(parts[1]);
+        EntityDescription<?> entity = model.getEntity(parts[1]);
         Object referenceObject = parts[2];
         try {
             referenceObject = Long.parseLong(parts[2]);
@@ -82,7 +79,7 @@ public class PersistentStoreCoordinator {
             // ignore; treat ref object as string
         }
 
-        return new ObjectID(m_storeUuidToPersisentStore.get(storeUuid), entity, referenceObject);
+        return new ObjectID(storeUuidToPersisentStore.get(storeUuid), entity, referenceObject);
     }
 
     void executeFetchRequest() {

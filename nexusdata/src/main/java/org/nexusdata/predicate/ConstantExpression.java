@@ -2,14 +2,14 @@ package org.nexusdata.predicate;
 
 public class ConstantExpression implements Expression {
 
-    private final Object m_value;
+    private final Object value;
 
     public ConstantExpression(Object value) {
-        m_value = value;
+        this.value = value;
     }
 
     public Object getValue() {
-        return m_value;
+        return value;
     }
 
     @Override
@@ -19,6 +19,6 @@ public class ConstantExpression implements Expression {
 
     @Override
     public String toString() {
-        return m_value == null ? null : m_value.toString();
+        return value == null ? null : value.toString();
     }
 }

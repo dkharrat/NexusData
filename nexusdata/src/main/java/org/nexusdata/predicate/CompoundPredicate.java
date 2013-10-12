@@ -7,44 +7,44 @@ public class CompoundPredicate implements Predicate {
         OR,
     }
 
-    private final Predicate m_lhs, m_rhs;
-    private final Operator m_op;
+    private final Predicate lhs, rhs;
+    private final Operator op;
 
     public CompoundPredicate(Predicate lhs, Operator op, Predicate rhs) {
-        m_lhs = lhs;
-        m_op = op;
-        m_rhs = rhs;
+        this.lhs = lhs;
+        this.op = op;
+        this.rhs = rhs;
     }
 
     public Predicate getLhs() {
-        return m_lhs;
+        return lhs;
     }
 
     public Operator getOperator() {
-        return m_op;
+        return op;
     }
 
     public Predicate getRhs() {
-        return m_rhs;
+        return rhs;
     }
 
     @Override
     public boolean evaluate(Object object) {
-        boolean lhsValue = m_lhs.evaluate(object);
-        boolean rhsValue = m_rhs.evaluate(object);
+        boolean lhsValue = lhs.evaluate(object);
+        boolean rhsValue = rhs.evaluate(object);
 
-        switch (m_op) {
+        switch (op) {
             case AND:
                 return lhsValue && rhsValue;
             case OR:
                 return lhsValue || rhsValue;
             default:
-                throw new UnsupportedOperationException("Unsupported compound operator: " + m_op);
+                throw new UnsupportedOperationException("Unsupported compound operator: " + op);
         }
     }
 
     @Override
     public String toString() {
-        return "(" + m_lhs + " " + m_op + " " + m_rhs + ")";
+        return "(" + lhs + " " + op + " " + rhs + ")";
     }
 }

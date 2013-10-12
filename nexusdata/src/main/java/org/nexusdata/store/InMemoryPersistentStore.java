@@ -8,7 +8,7 @@ import org.nexusdata.core.ManagedObject;
 
 public class InMemoryPersistentStore extends AtomicStore {
 
-    long m_lastUnusedId = 1;
+    long lastUnusedId = 1;
 
     public InMemoryPersistentStore() {
         super(null);
@@ -31,6 +31,6 @@ public class InMemoryPersistentStore extends AtomicStore {
 
     @Override
     public Object createReferenceObjectForManagedObject(ManagedObject object) {
-        return m_lastUnusedId++;
+        return lastUnusedId++;
     }
 }

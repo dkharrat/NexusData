@@ -24,53 +24,47 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import org.nexusdata.metamodel.AttributeDescription;
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.PropertyDescription;
 import org.nexusdata.metamodel.RelationshipDescription;
-import org.nexusdata.predicate.Predicate;
-import org.nexusdata.utils.ObjectUtil;
 
 // TODO: ObjectContext changes
 //  * unregister objects when they are no longer referenced
 //  * Implement custom Exception classes to identify different error types
 //  * Add support to query objects of super entity type
 //  * Check for null for required properties
-//  * remove m_ prefix in variable names
 
 public class ObjectContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectContext.class);
 
-    private final PersistentStoreCoordinator m_storeCoordinator;
+    private final PersistentStoreCoordinator storeCoordinator;
 
     // TODO: use weak reference for storing objects
-    private final Map<ObjectID, ManagedObject> m_objects = new HashMap<ObjectID, ManagedObject>();
-    private final ChangedObjectsSet m_changedObjects = new ChangedObjectsSet();
+    private final Map<ObjectID, ManagedObject> objects = new HashMap<ObjectID, ManagedObject>();
+    private final ChangedObjectsSet changedObjects = new ChangedObjectsSet();
 
-    private final ObjectsChangedNotification m_objectsChangedSinceLastNotification = new ObjectsChangedNotification();
+    private final ObjectsChangedNotification objectsChangedSinceLastNotification = new ObjectsChangedNotification();
 
     private final static int NOTIFY_OBJECTS_CHANGED = 1;
     //TODO: abstract this away for multi-platform support (use Futures?)
-    private final Handler m_messageHandler;
+    private final Handler messageHandler;
 
     public ObjectContext(PersistentStoreCoordinator storeCoordinator) {
-        m_storeCoordinator = storeCoordinator;
+        this.storeCoordinator = storeCoordinator;
 
         // If there is no event loop in the current thread, use the main thread's event loop
         Looper looper = Looper.myLooper();
         if (looper == null) {
             looper = Looper.getMainLooper();
         }
-        m_messageHandler = new ObjectContextMessageHandler(looper, this);
+        messageHandler = new ObjectContextMessageHandler(looper, this);
     }
 
     public PersistentStoreCoordinator getPersistentStoreCoordinator() {
-        return m_storeCoordinator;
+        return storeCoordinator;
     }
 
     public <T extends ManagedObject> FetchRequest.Builder<T> newFetchRequestBuilder(Class<T> entityType) {
-        return FetchRequest.Builder.forEntity(m_storeCoordinator.getModel().getEntity(entityType));
+        return FetchRequest.Builder.forEntity(storeCoordinator.getModel().getEntity(entityType));
     }
 
     @SuppressWarnings("unchecked")
@@ -84,7 +78,7 @@ public class ObjectContext {
         results = store.executeFetchRequest(fetchRequest, this);
 
         if (fetchRequest.includesPendingChanges()) {
-            for (ManagedObject object : m_changedObjects.getInsertedObjects()) {
+            for (ManagedObject object : changedObjects.getInsertedObjects()) {
                 ObjectID objID = object.getID();
                 if (objID.getType().isAssignableFrom(fetchRequest.getEntity().getType())) {
                     if (fetchRequest.getPredicate() == null || fetchRequest.getPredicate().evaluate(object)) {
@@ -106,7 +100,7 @@ public class ObjectContext {
     }
 
     public <T extends ManagedObject> List<T> findAll(Class<T> type, Predicate predicate) {
-        EntityDescription<T> entity = m_storeCoordinator.getModel().getEntity(type);
+        EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
         FetchRequest<T> fetchRequest = new FetchRequest<T>(entity);
         fetchRequest.setPredicate(predicate);
         return this.executeFetchOperation(fetchRequest);
@@ -114,7 +108,7 @@ public class ObjectContext {
 
     @SuppressWarnings("unchecked")
     public <T extends ManagedObject> T objectWithID(ObjectID id) {
-        T object = (T) m_objects.get(id);
+        T object = (T) objects.get(id);
 
         if (object == null) {
             object = ManagedObject.newObject(id);
@@ -125,13 +119,13 @@ public class ObjectContext {
     }
 
     public ManagedObject objectWithID(URI objectIDUri) {
-        ObjectID id = m_storeCoordinator.objectIDFromUri(objectIDUri);
+        ObjectID id = storeCoordinator.objectIDFromUri(objectIDUri);
         return objectWithID(id);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends ManagedObject> T getExistingObject(ObjectID id) {
-        T object = (T) m_objects.get(id);
+        T object = (T) objects.get(id);
 
         if (object == null) {
             object = objectWithID(id);
@@ -142,12 +136,12 @@ public class ObjectContext {
     }
 
     public ManagedObject getExistingObject(URI objectIDUri) {
-        ObjectID id = m_storeCoordinator.objectIDFromUri(objectIDUri);
+        ObjectID id = storeCoordinator.objectIDFromUri(objectIDUri);
         return getExistingObject(id);
     }
 
     public <T extends ManagedObject> T newObject(Class<T> type) {
-        EntityDescription<T> entity = m_storeCoordinator.getModel().getEntity(type);
+        EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
         ObjectID id = new ObjectID(null, entity, UUID.randomUUID());
 
         T object = ManagedObject.newObject(id);
@@ -219,7 +213,7 @@ public class ObjectContext {
     }
 
     public Set<ManagedObject> getRegisteredObjects() {
-        return new HashSet<ManagedObject>(m_objects.values());
+        return new HashSet<ManagedObject>(objects.values());
     }
 
     private void registerObject(ManagedObject object) {
@@ -231,7 +225,7 @@ public class ObjectContext {
         }
 
         object.setManagedObjectContext(this);
-        m_objects.put(object.getID(), object);
+        objects.put(object.getID(), object);
 
         //FIXME: temporary object won't have a store assign yet
         /* List<ObjectID<?>> objectIDs = new ArrayList<ObjectID<?>>();
@@ -241,7 +235,7 @@ public class ObjectContext {
 
     private void unregisterObject(ManagedObject object) {
         object.setManagedObjectContext(null);
-        m_objects.remove(object.getID());
+        objects.remove(object.getID());
 
         PersistentStore store = object.getID().getPersistentStore();
 
@@ -257,7 +251,7 @@ public class ObjectContext {
             List<ObjectID> objectIDs = new ArrayList<ObjectID>(objects.size());
             for (ManagedObject object : objects) {
                 object.setManagedObjectContext(this);
-                m_objects.put(object.getID(), object);
+                this.objects.put(object.getID(), object);
                 objectIDs.add(object.getID());
             }
 
@@ -275,7 +269,7 @@ public class ObjectContext {
             List<ObjectID> objectIDs = new ArrayList<ObjectID>(objects.size());
             for (ManagedObject object : objects) {
                 object.setManagedObjectContext(null);
-                m_objects.remove(object.getID());
+                this.objects.remove(object.getID());
                 objectIDs.add(object.getID());
             }
 
@@ -288,12 +282,12 @@ public class ObjectContext {
     }
 
     private void unregisterAllObjects() {
-        if (!m_objects.isEmpty()) {
-            Collection<ObjectID> objectIDs = m_objects.keySet();
-            for (ManagedObject object : m_objects.values()) {
+        if (!objects.isEmpty()) {
+            Collection<ObjectID> objectIDs = objects.keySet();
+            for (ManagedObject object : objects.values()) {
                 object.setManagedObjectContext(null);
             }
-            m_objects.clear();
+            objects.clear();
 
             // TODO: need to fix
             /*
@@ -304,12 +298,12 @@ public class ObjectContext {
     }
 
     boolean isCompatibleWithContext(ObjectContext otherContext) {
-        return m_storeCoordinator == otherContext.getPersistentStoreCoordinator();
+        return storeCoordinator == otherContext.getPersistentStoreCoordinator();
     }
 
     private void sendObjectsChangedNotification() {
-        if (ObjectContextNotifier.hasListeners(this) && !m_messageHandler.hasMessages(NOTIFY_OBJECTS_CHANGED)) {
-            m_messageHandler.sendEmptyMessage(NOTIFY_OBJECTS_CHANGED);
+        if (ObjectContextNotifier.hasListeners(this) && !messageHandler.hasMessages(NOTIFY_OBJECTS_CHANGED)) {
+            messageHandler.sendEmptyMessage(NOTIFY_OBJECTS_CHANGED);
         }
     }
 
@@ -323,43 +317,43 @@ public class ObjectContext {
             throw new IllegalStateException("Object already associated with another context");
         }
 
-        m_changedObjects.objectInserted(object);
+        changedObjects.objectInserted(object);
         registerObject(object);
 
-        m_objectsChangedSinceLastNotification.objectInserted(object);
+        objectsChangedSinceLastNotification.objectInserted(object);
         sendObjectsChangedNotification();
     }
 
     void markObjectAsUpdated(ManagedObject object) {
-        m_changedObjects.objectUpdated(object);
+        changedObjects.objectUpdated(object);
 
-        if (m_changedObjects.isUpdated(object)) {
-            m_objectsChangedSinceLastNotification.objectUpdated(object);
+        if (changedObjects.isUpdated(object)) {
+            objectsChangedSinceLastNotification.objectUpdated(object);
             sendObjectsChangedNotification();
         }
     }
 
     public void delete(ManagedObject object) {
-        m_changedObjects.objectDeleted(object, false);
+        changedObjects.objectDeleted(object, false);
         if (!object.isNew()) {
             registerObject(object);
         } else {
             unregisterObject(object);
         }
 
-        m_objectsChangedSinceLastNotification.objectDeleted(object, true);
+        objectsChangedSinceLastNotification.objectDeleted(object, true);
         sendObjectsChangedNotification();
     }
 
     public void markObjectAsRefreshed(ManagedObject object) {
-        m_objectsChangedSinceLastNotification.objectRefreshed(object);
+        objectsChangedSinceLastNotification.objectRefreshed(object);
         sendObjectsChangedNotification();
     }
 
     private void updateRegisteredObjectID(ManagedObject object, ObjectID newID) {
-        m_objects.remove(object.getID());
+        objects.remove(object.getID());
         object.setID(newID);
-        m_objects.put(newID, object);
+        objects.put(newID, object);
     }
 
     public <T extends ManagedObject> void obtainPermanentIDsForObjects(Collection<T> objects) {
@@ -384,7 +378,7 @@ public class ObjectContext {
     }
 
     public void save() {
-        if (!m_changedObjects.hasChanges()) {
+        if (!changedObjects.hasChanges()) {
             return;
         }
 
@@ -394,7 +388,7 @@ public class ObjectContext {
         PersistentStore store = getPersistentStoreCoordinator().getPersistentStores().get(0);
 
         // null-out to-one relationship references of deleted objects to ensure nothing references them
-        for (ManagedObject object : m_changedObjects.getDeletedObjects()) {
+        for (ManagedObject object : changedObjects.getDeletedObjects()) {
             for (RelationshipDescription relationship : object.getEntity().getRelationships()) {
                 if (relationship.isToOne()) {
                     object.setValue(relationship.getName(), null);
@@ -402,36 +396,36 @@ public class ObjectContext {
             }
         }
 
-        obtainPermanentIDsForObjects(m_changedObjects.getInsertedObjects());
+        obtainPermanentIDsForObjects(changedObjects.getInsertedObjects());
 
-        SaveChangesRequest request = new SaveChangesRequest(m_changedObjects);
+        SaveChangesRequest request = new SaveChangesRequest(changedObjects);
         store.executeSaveRequest(request, this);
 
-        ObjectContextNotifier.notifyListenersOfDidSave(this, new ChangedObjectsSet(m_changedObjects));
+        ObjectContextNotifier.notifyListenersOfDidSave(this, new ChangedObjectsSet(changedObjects));
 
-        unregisterObjects(m_changedObjects.getDeletedObjects());
+        unregisterObjects(changedObjects.getDeletedObjects());
 
-        m_changedObjects.clear();
+        changedObjects.clear();
     }
 
     public boolean hasChanges() {
-        return m_changedObjects.hasChanges();
+        return changedObjects.hasChanges();
     }
 
     public Set<ManagedObject> getInsertedObjects() {
-        return Collections.unmodifiableSet(m_changedObjects.getInsertedObjects());
+        return Collections.unmodifiableSet(changedObjects.getInsertedObjects());
     }
 
     public Set<ManagedObject> getUpdatedObjects() {
-        return Collections.unmodifiableSet(m_changedObjects.getUpdatedObjects());
+        return Collections.unmodifiableSet(changedObjects.getUpdatedObjects());
     }
 
     public Set<ManagedObject> getDeletedObjects() {
-        return Collections.unmodifiableSet(m_changedObjects.getDeletedObjects());
+        return Collections.unmodifiableSet(changedObjects.getDeletedObjects());
     }
 
     public void reset() {
-        m_changedObjects.clear();
+        changedObjects.clear();
         unregisterAllObjects();
     }
 
@@ -440,7 +434,7 @@ public class ObjectContext {
 
         for (ManagedObject o : changedObjects.getInsertedObjects()) {
             ManagedObject object = objectWithID(o.getID());    // registers new object
-            m_objectsChangedSinceLastNotification.objectInserted(object);
+            objectsChangedSinceLastNotification.objectInserted(object);
         }
 
         for (ManagedObject otherObject : changedObjects.getUpdatedObjects()) {
@@ -469,7 +463,7 @@ public class ObjectContext {
                 }
 
                 if (objectChanged) {
-                    m_objectsChangedSinceLastNotification.objectUpdated(object);
+                    objectsChangedSinceLastNotification.objectUpdated(object);
                 }
             }
         }
@@ -477,13 +471,13 @@ public class ObjectContext {
         for (ManagedObject o : changedObjects.getDeletedObjects()) {
             ManagedObject object = objectWithID(o.getID());
             delete(object);
-            m_objectsChangedSinceLastNotification.objectDeleted(object, false);
+            objectsChangedSinceLastNotification.objectDeleted(object, false);
         }
 
         // since we've merged from another save operation, ensure merged objects are not marked as changed
-        m_changedObjects.getInsertedObjects().removeAll(changedObjects.getInsertedObjects());
-        m_changedObjects.getUpdatedObjects().removeAll(changedObjects.getUpdatedObjects());
-        m_changedObjects.getDeletedObjects().removeAll(changedObjects.getDeletedObjects());
+        this.changedObjects.getInsertedObjects().removeAll(changedObjects.getInsertedObjects());
+        this.changedObjects.getUpdatedObjects().removeAll(changedObjects.getUpdatedObjects());
+        this.changedObjects.getDeletedObjects().removeAll(changedObjects.getDeletedObjects());
 
         sendObjectsChangedNotification();
     }
@@ -507,15 +501,15 @@ public class ObjectContext {
     }
 
     public boolean isInserted(ManagedObject object) {
-        return m_changedObjects.isInserted(object);
+        return changedObjects.isInserted(object);
     }
 
     public boolean isUpdated(ManagedObject object) {
-        return m_changedObjects.isUpdated(object);
+        return changedObjects.isUpdated(object);
     }
 
     public boolean isDeleted(ManagedObject object) {
-        return m_changedObjects.isDeleted(object);
+        return changedObjects.isDeleted(object);
     }
 
     private static class ObjectContextMessageHandler extends Handler {
@@ -534,8 +528,8 @@ public class ObjectContext {
             switch (msg.what) {
                 case NOTIFY_OBJECTS_CHANGED: {
                     if (context != null) {
-                        ObjectContextNotifier.notifyListenersOfObjectsDidChange(context, context.m_objectsChangedSinceLastNotification);
-                        context.m_objectsChangedSinceLastNotification.clear();
+                        ObjectContextNotifier.notifyListenersOfObjectsDidChange(context, context.objectsChangedSinceLastNotification);
+                        context.objectsChangedSinceLastNotification.clear();
                     }
                     break;
                 }

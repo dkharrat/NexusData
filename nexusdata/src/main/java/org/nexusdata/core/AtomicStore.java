@@ -14,14 +14,11 @@ import java.util.Set;
 import org.nexusdata.metamodel.PropertyDescription;
 import org.nexusdata.metamodel.RelationshipDescription;
 import org.nexusdata.utils.ObjectUtil;
-import org.nexusdata.metamodel.PropertyDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
-import org.nexusdata.utils.ObjectUtil;
 
 
 public abstract class AtomicStore extends PersistentStore {
 
-    private final Map<ObjectID, StoreCacheNode> m_idsToCacheNodes = new HashMap<ObjectID, StoreCacheNode>();
+    private final Map<ObjectID, StoreCacheNode> idsToCacheNodes = new HashMap<ObjectID, StoreCacheNode>();
 
     public AtomicStore(File location) {
         super(location);
@@ -37,15 +34,15 @@ public abstract class AtomicStore extends PersistentStore {
     }
 
     Set<StoreCacheNode> getCacheNodes() {
-        return new HashSet<StoreCacheNode>(m_idsToCacheNodes.values());
+        return new HashSet<StoreCacheNode>(idsToCacheNodes.values());
     }
 
     protected void addCacheNode(StoreCacheNode cacheNode) {
-        m_idsToCacheNodes.put(cacheNode.getID(), cacheNode);
+        idsToCacheNodes.put(cacheNode.getID(), cacheNode);
     }
 
     protected void removeCacheNode(StoreCacheNode cacheNode) {
-        m_idsToCacheNodes.remove(cacheNode.getID());
+        idsToCacheNodes.remove(cacheNode.getID());
     }
 
     protected void updateCacheNode(StoreCacheNode cacheNode, ManagedObject object) {
@@ -77,7 +74,7 @@ public abstract class AtomicStore extends PersistentStore {
     }
 
     private StoreCacheNode getCacheNode(ObjectID objectID) {
-        return m_idsToCacheNodes.get(objectID);
+        return idsToCacheNodes.get(objectID);
     }
 
     @Override

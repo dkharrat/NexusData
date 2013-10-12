@@ -13,33 +13,33 @@ public class ComparisonPredicate implements Predicate {
         LESS_THAN_OR_EQUAL,
     }
 
-    private final Expression m_lhs, m_rhs;
-    private final Operator m_op;
+    private final Expression lhs, rhs;
+    private final Operator op;
 
     public ComparisonPredicate(Expression lhs, Operator op, Expression rhs) {
-        m_lhs = lhs;
-        m_op = op;
-        m_rhs = rhs;
+        this.lhs = lhs;
+        this.op = op;
+        this.rhs = rhs;
     }
 
     public Expression getLhs() {
-        return m_lhs;
+        return lhs;
     }
 
     public Operator getOperator() {
-        return m_op;
+        return op;
     }
 
     public Expression getRhs() {
-        return m_rhs;
+        return rhs;
     }
 
     @Override
     public boolean evaluate(Object object) {
-        Object lhsValue = m_lhs.evaluate(object);
-        Object rhsValue = m_rhs.evaluate(object);
+        Object lhsValue = lhs.evaluate(object);
+        Object rhsValue = rhs.evaluate(object);
 
-        if (m_op == Operator.EQUAL) {
+        if (op == Operator.EQUAL) {
             if (lhsValue == null) {
                 return rhsValue == null;
             } else {
@@ -55,7 +55,7 @@ public class ComparisonPredicate implements Predicate {
 
         int comparison = toBigDecimal(lhsNumber).compareTo(toBigDecimal(rhsNumber));
 
-        switch (m_op) {
+        switch (op) {
             case GREATER_THAN:
                 return comparison >= 1;
 
@@ -95,6 +95,6 @@ public class ComparisonPredicate implements Predicate {
 
     @Override
     public String toString() {
-        return "(" + m_lhs + " " + m_op + " " + m_rhs + ")";
+        return "(" + lhs + " " + op + " " + rhs + ")";
     }
 }

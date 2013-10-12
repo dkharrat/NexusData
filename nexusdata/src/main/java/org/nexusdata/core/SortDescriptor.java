@@ -2,19 +2,19 @@ package org.nexusdata.core;
 
 public class SortDescriptor {
 
-    private final String m_attributeName;
-    private final boolean m_isAscending;
+    private final String attributeName;
+    private final boolean isAscending;
 
     public SortDescriptor(String attributeName, boolean isAscending) {
-        m_attributeName = attributeName;
-        m_isAscending = isAscending;
+        this.attributeName = attributeName;
+        this.isAscending = isAscending;
     }
 
     public String getAttributeName() {
-        return m_attributeName;
+        return attributeName;
     }
 
     public boolean isAscending() {
-        return m_isAscending;
+        return isAscending;
     }
 }

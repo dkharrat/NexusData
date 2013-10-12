@@ -9,7 +9,6 @@ import java.util.Map;
 import org.nexusdata.metamodel.*;
 import org.nexusdata.utils.ObjectUtil;
 import org.nexusdata.metamodel.PropertyDescription;
-import org.nexusdata.utils.ObjectUtil;
 
 
 /* TODO: ManagedObject changes
@@ -18,12 +17,12 @@ import org.nexusdata.utils.ObjectUtil;
 
 public class ManagedObject {
 
-    private ObjectID m_id;
-    ObjectContext m_managedObjectContext;
-    private boolean m_isFault = false;
-    private final Map<String,Object> m_values = new HashMap<String,Object>();
+    private ObjectID id;
+    ObjectContext managedObjectContext;
+    private boolean isFault = false;
+    private final Map<String,Object> values = new HashMap<String,Object>();
 
-    private final PropertyChangeSupport m_propertyChangeSupport = new PropertyChangeSupport(this);
+    private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
     protected ManagedObject() {
     }
@@ -42,7 +41,7 @@ public class ManagedObject {
 
         object.setID(id);
         if (!id.isTemporary()) {
-            ((ManagedObject)object).m_isFault = true;
+            ((ManagedObject)object).isFault = true;
         }
 
         return object;
@@ -51,41 +50,41 @@ public class ManagedObject {
     protected void init() {
         for (AttributeDescription attr : getEntity().getAttributes()) {
             if (attr.getDefaultValue() != null) {
-                m_values.put(attr.getName(), attr.getDefaultValue());
+                values.put(attr.getName(), attr.getDefaultValue());
             }
         }
     }
 
     public <T extends ManagedObject> ObjectID getID() {
-        return m_id;
+        return id;
     }
 
     void setID(ObjectID id) {
-        m_id = id;
+        this.id = id;
     }
 
     public EntityDescription<?> getEntity() {
-        return m_id.getEntity();
+        return id.getEntity();
     }
 
     public ObjectContext getObjectContext() {
-        return m_managedObjectContext;
+        return managedObjectContext;
     }
 
     void setManagedObjectContext(ObjectContext context) {
-        m_managedObjectContext = context;
+        managedObjectContext = context;
     }
 
     protected void notifyManagedObjectContextOfChange() {
-        if (m_managedObjectContext != null) {
-            m_managedObjectContext.markObjectAsUpdated(this);
+        if (managedObjectContext != null) {
+            managedObjectContext.markObjectAsUpdated(this);
         }
     }
 
     void fulfillFaultIfNecessary() {
-        if (m_isFault) {
+        if (isFault) {
             getObjectContext().faultInObject(this);
-            m_isFault = false;
+            isFault = false;
         }
     }
 
@@ -113,7 +112,7 @@ public class ManagedObject {
     }
 
     Object getValueDirectly(PropertyDescription property) {
-        return m_values.get(property.getName());
+        return values.get(property.getName());
     }
 
     void setValueDirectly(PropertyDescription property, Object value) {
@@ -121,7 +120,7 @@ public class ManagedObject {
         if (value != null && !property.getType().isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException("Invalid value "+value+" for property: " + propertyName + " of entity " + getEntity().getName());
         }
-        m_values.put(propertyName, value);
+        values.put(propertyName, value);
     }
 
     private void setValue(PropertyDescription property, Object newValue, Object oldValue) {
@@ -168,7 +167,7 @@ public class ManagedObject {
         }
 
         notifyManagedObjectContextOfChange();
-        m_propertyChangeSupport.firePropertyChange(property.getName(), oldValue, newValue);
+        propertyChangeSupport.firePropertyChange(property.getName(), oldValue, newValue);
     }
 
     public boolean setValue(String propertyName, Object value) {
@@ -258,8 +257,8 @@ public class ManagedObject {
     }
 
     public void refresh() {
-        if (!m_isFault) {
-            m_isFault = true;
+        if (!isFault) {
+            isFault = true;
 
             for (RelationshipDescription relationship : getEntity().getRelationships()) {
                 refreshRelationship(relationship.getName());
@@ -270,7 +269,7 @@ public class ManagedObject {
     }
 
     public boolean isNew() {
-        return m_id.isTemporary() || isInserted();
+        return id.isTemporary() || isInserted();
     }
 
     public boolean isInserted() {
@@ -290,7 +289,7 @@ public class ManagedObject {
     }
 
     public boolean isFault() {
-        return m_isFault && !isNew();
+        return isFault && !isNew();
     }
 
     public void refreshRelationship(String relationshipName) {
@@ -313,11 +312,11 @@ public class ManagedObject {
     }
 
     public void addPropertyChangeListener(PropertyChangeListener listener) {
-        m_propertyChangeSupport.addPropertyChangeListener(listener);
+        propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
     public void removePropertyChangeListener(PropertyChangeListener listener) {
-        m_propertyChangeSupport.removePropertyChangeListener(listener);
+        propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
     String toObjectReferenceString() {

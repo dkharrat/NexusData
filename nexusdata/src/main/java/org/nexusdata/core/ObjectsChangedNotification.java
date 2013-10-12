@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class ObjectsChangedNotification extends ChangedObjectsSet {
 
-    private final Set<ManagedObject> m_refreshedObjects;
+    private final Set<ManagedObject> refreshedObjects;
 
     ObjectsChangedNotification() {
         this(new HashSet<ManagedObject>(), new HashSet<ManagedObject>(), new HashSet<ManagedObject>(), new HashSet<ManagedObject>());
@@ -18,7 +18,7 @@ public class ObjectsChangedNotification extends ChangedObjectsSet {
             Set<ManagedObject> deletedObjects,
             Set<ManagedObject> refreshedObjects) {
         super(insertedObjects, updatedObjects, deletedObjects);
-        m_refreshedObjects = refreshedObjects;
+        this.refreshedObjects = refreshedObjects;
     }
 
     ObjectsChangedNotification(
@@ -30,18 +30,18 @@ public class ObjectsChangedNotification extends ChangedObjectsSet {
     @Override
     void clear() {
         super.clear();
-        m_refreshedObjects.clear();
+        refreshedObjects.clear();
     }
 
     public Set<ManagedObject> getRefreshedObjects() {
-        return m_refreshedObjects;
+        return refreshedObjects;
     }
 
     void objectRefreshed(ManagedObject object) {
-        m_refreshedObjects.add(object);
+        refreshedObjects.add(object);
     }
 
     public boolean isRefreshed(ManagedObject object) {
-        return m_refreshedObjects.contains(object);
+        return refreshedObjects.contains(object);
     }
 }

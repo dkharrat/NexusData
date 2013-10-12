@@ -6,9 +6,9 @@ import java.util.Set;
 
 public class ChangedObjectsSet {
 
-    private final Set<ManagedObject> m_insertedObjects;
-    private final Set<ManagedObject> m_updatedObjects;
-    private final Set<ManagedObject> m_deletedObjects;
+    private final Set<ManagedObject> insertedObjects;
+    private final Set<ManagedObject> updatedObjects;
+    private final Set<ManagedObject> deletedObjects;
 
     ChangedObjectsSet() {
         this(new HashSet<ManagedObject>(), new HashSet<ManagedObject>(), new HashSet<ManagedObject>());
@@ -21,71 +21,71 @@ public class ChangedObjectsSet {
     }
 
     ChangedObjectsSet(Set<ManagedObject> insertedObjects, Set<ManagedObject> updatedObjects, Set<ManagedObject> deletedObjects) {
-        m_insertedObjects = insertedObjects;
-        m_updatedObjects = updatedObjects;
-        m_deletedObjects = deletedObjects;
+        this.insertedObjects = insertedObjects;
+        this.updatedObjects = updatedObjects;
+        this.deletedObjects = deletedObjects;
     }
 
     void objectInserted(ManagedObject object) {
         if (!object.isDeleted()) {
-            synchronized(m_insertedObjects) {
-                m_insertedObjects.add(object);
+            synchronized(insertedObjects) {
+                insertedObjects.add(object);
             }
         }
-        m_deletedObjects.remove(object);
+        deletedObjects.remove(object);
     }
 
     void objectUpdated(ManagedObject object) {
-        if (!m_insertedObjects.contains(object) && !m_deletedObjects.contains(object)) {
-            m_updatedObjects.add(object);
+        if (!insertedObjects.contains(object) && !deletedObjects.contains(object)) {
+            updatedObjects.add(object);
         }
     }
 
     void objectDeleted(ManagedObject object, boolean trackDeletionEvenIfNew) {
-        synchronized(m_insertedObjects) {
-            m_insertedObjects.remove(object);
+        synchronized(insertedObjects) {
+            insertedObjects.remove(object);
         }
-        m_updatedObjects.remove(object);
+        updatedObjects.remove(object);
         if (!object.isNew() || trackDeletionEvenIfNew) {
-            m_deletedObjects.add(object);
+            deletedObjects.add(object);
         }
     }
 
     void clear() {
-        synchronized(m_insertedObjects) {
-            m_insertedObjects.clear();
+        synchronized(insertedObjects) {
+            insertedObjects.clear();
         }
-        m_deletedObjects.clear();
-        m_updatedObjects.clear();
+        deletedObjects.clear();
+        updatedObjects.clear();
     }
 
     public Set<ManagedObject> getInsertedObjects() {
-        return m_insertedObjects;
+        return insertedObjects;
     }
 
     public Set<ManagedObject> getUpdatedObjects() {
-        return m_updatedObjects;
+        return updatedObjects;
     }
 
     public Set<ManagedObject> getDeletedObjects() {
-        return m_deletedObjects;
+        return deletedObjects;
     }
 
     public boolean isInserted(ManagedObject object) {
-        return m_insertedObjects.contains(object);
+        return insertedObjects.contains(object);
     }
 
     public boolean isUpdated(ManagedObject object) {
-        return m_updatedObjects.contains(object);
+        return updatedObjects.contains(object);
     }
 
     public boolean isDeleted(ManagedObject object) {
-        return m_deletedObjects.contains(object);
+        return deletedObjects.contains(object);
     }
 
     public boolean hasChanges() {
-        return  !m_insertedObjects.isEmpty() ||
-                !m_updatedObjects.isEmpty() ||
-                !m_deletedObjects.isEmpty();
+        return  !insertedObjects.isEmpty() ||
+                !updatedObjects.isEmpty() ||
+                !deletedObjects.isEmpty();
     }
 }

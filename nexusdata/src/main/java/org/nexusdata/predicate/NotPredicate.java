@@ -1,18 +1,18 @@
 package org.nexusdata.predicate;
 
 class NotPredicate implements Predicate {
-    private final Predicate m_predicate;
+    private final Predicate predicate;
 
     public NotPredicate(Predicate predicate) {
-        m_predicate = predicate;
+        this.predicate = predicate;
     }
 
     public Predicate getPredicate() {
-        return m_predicate;
+        return predicate;
     }
 
     @Override
     public boolean evaluate(Object object) {
-        return !m_predicate.evaluate(object);
+        return !predicate.evaluate(object);
     }
 }

@@ -38,11 +38,9 @@ import org.nexusdata.predicate.FieldPathExpression;
 import org.nexusdata.predicate.Predicate;
 import org.nexusdata.utils.android.CursorUtil;
 import org.nexusdata.utils.DateUtil;
-import org.nexusdata.utils.android.SQLiteDatabaseHelper;
 import org.nexusdata.utils.SqlTableBuilder;
 import org.nexusdata.utils.SqlTableBuilder.ColumnType;
 import org.nexusdata.utils.SqlTableBuilder.ConflictAction;
-import org.nexusdata.utils.StringUtil;
 
 /* TODO: AndroidSqlPersistentStore changes
  *  - improve memory-management
@@ -55,29 +53,29 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
     static final String COLUMN_ID_NAME = "_ID";
 
-    DatabaseHelper m_databaseHelper;
-    Map<String,Long> m_lastRowIDs = new HashMap<String,Long>();
-    Context m_context;
+    DatabaseHelper databaseHelper;
+    Map<String,Long> lastRowIDs = new HashMap<String,Long>();
+    Context context;
 
-    SQLiteDatabase m_db;
+    SQLiteDatabase db;
 
     // TODO: use a MRU cache and also remove objects if they are unregistered from all contexts
-    Map<Class<?>, Map<Long,StoreCacheNode>> m_cache = new HashMap<Class<?>, Map<Long,StoreCacheNode>>();
+    Map<Class<?>, Map<Long,StoreCacheNode>> cache = new HashMap<Class<?>, Map<Long,StoreCacheNode>>();
 
     public AndroidSqlPersistentStore(Context context, File path) {
         super(path);
-        m_context = context;
+        this.context = context;
     }
 
     @Override
     protected void loadMetadata() {
         ObjectModel model = getCoordinator().getModel();
-        m_databaseHelper = new DatabaseHelper(m_context, getLocation(), model);
+        databaseHelper = new DatabaseHelper(context, getLocation(), model);
 
         // TODO: does the DB need to be closed at some point?
-        m_db = m_databaseHelper.getWritableDatabase();
+        db = databaseHelper.getWritableDatabase();
 
-        setUuid(DatabaseHelper.getDatabaseUuid(m_db, model.getVersion()));
+        setUuid(DatabaseHelper.getDatabaseUuid(db, model.getVersion()));
     }
 
     static protected String getDatabaseName(ObjectModel model) {
@@ -95,10 +93,10 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         T object = context.objectWithID(objectID);
 
         StoreCacheNode cacheNode = getStoreNodeFromCursor(objectID, cursor, context);
-        Map<Long,StoreCacheNode> entityCache = m_cache.get(entity.getType());
+        Map<Long,StoreCacheNode> entityCache = cache.get(entity.getType());
         if (entityCache == null) {
             entityCache = new HashMap<Long,StoreCacheNode>();
-            m_cache.put(entity.getType(), entityCache);
+            cache.put(entity.getType(), entityCache);
         }
         entityCache.put(id, cacheNode);
 
@@ -178,7 +176,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
     @Override
     protected <T extends ManagedObject> List<T> executeFetchRequest(FetchRequest<T> request, ObjectContext context) {
-        Cursor cursor = performQuery(m_db, request);
+        Cursor cursor = performQuery(db, request);
 
         List<T> results = new ArrayList<T>();
         while(cursor.moveToNext()) {
@@ -229,20 +227,20 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
     @Override
     protected void executeSaveRequest(SaveChangesRequest request, ObjectContext context) {
-        m_db.beginTransaction();
+        db.beginTransaction();
         try {
             for (ManagedObject object : request.getInsertedObjects()) {
                 ContentValues values = getContentValues(object);
                 //TODO: log inserts, updates & deletes
-                m_db.insertOrThrow(getTableName(object.getEntity()), null, values);
+                db.insertOrThrow(getTableName(object.getEntity()), null, values);
             }
 
             for (ManagedObject object : request.getUpdatedObjects()) {
                 ContentValues values = getContentValues(object);
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
-                m_db.update(getTableName(object.getEntity()), values, "_ID = " + id, null);
+                db.update(getTableName(object.getEntity()), values, "_ID = " + id, null);
 
-                Map<Long, StoreCacheNode> entityCache = m_cache.get(object.getEntity().getType());
+                Map<Long, StoreCacheNode> entityCache = cache.get(object.getEntity().getType());
                 if (entityCache != null) {
                     //TODO: update cache entry instead of deleting it
                     entityCache.remove(id);
@@ -251,19 +249,19 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
             for (ManagedObject object : request.getDeletedObjects()) {
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
-                m_db.delete(getTableName(object.getEntity()), "_ID = " + id, null);
+                db.delete(getTableName(object.getEntity()), "_ID = " + id, null);
 
-                Map<Long, StoreCacheNode> entityCache = m_cache.get(object.getEntity().getType());
+                Map<Long, StoreCacheNode> entityCache = cache.get(object.getEntity().getType());
                 if (entityCache != null) {
                     entityCache.remove(id);
                 }
             }
 
-            m_db.setTransactionSuccessful();
+            db.setTransactionSuccessful();
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } finally {
-            m_db.endTransaction();
+            db.endTransaction();
         }
     }
 
@@ -332,7 +330,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         long id = Long.valueOf(getReferenceObjectForObjectID(objectID).toString());
 
-        Map<Long,StoreCacheNode> entityCache = m_cache.get(objectID.getEntity().getType());
+        Map<Long,StoreCacheNode> entityCache = cache.get(objectID.getEntity().getType());
         if (entityCache != null) {
             StoreCacheNode node = entityCache.get(id);
             if (node != null) {
@@ -340,7 +338,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             }
         }
 
-        Cursor cursor = m_db.query(
+        Cursor cursor = db.query(
                 false,          // not distinct
                 getTableName(objectID.getEntity()),
                 null,           // columns
@@ -359,7 +357,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         if (entityCache == null) {
             entityCache = new HashMap<Long,StoreCacheNode>();
-            m_cache.put(objectID.getEntity().getType(), entityCache);
+            cache.put(objectID.getEntity().getType(), entityCache);
         }
         entityCache.put(id, node);
 
@@ -377,7 +375,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         String selection = relationship.getInverse().getName()+"=?";
         String[] selectionArgs = new String[]{getReferenceObjectForObjectID(objectID).toString()};
 
-        Cursor cursor = m_db.query(
+        Cursor cursor = db.query(
                 false,          // not distinct
                 table,
                 columns,        // columns
@@ -414,7 +412,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         String selection = "t1"+"."+COLUMN_ID_NAME+"="+getReferenceObjectForObjectID(objectID) + " AND " +
                            "t1"+"."+getColumnName(relationship)+"=t2."+COLUMN_ID_NAME;
 
-        Cursor cursor = m_db.query(
+        Cursor cursor = db.query(
                 false,          // not distinct
                 table,
                 columns,           // columns
@@ -465,12 +463,12 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             ObjectID id;
 
             String tableName = getTableName(object.getEntity());
-            Long lastRowID = m_lastRowIDs.get(tableName);
+            Long lastRowID = lastRowIDs.get(tableName);
             if (lastRowID == null) {
-                lastRowID = getLastRowIDFromDatabase(m_db, tableName);
+                lastRowID = getLastRowIDFromDatabase(db, tableName);
             }
             id = createObjectID(object.getEntity(), lastRowID++);
-            m_lastRowIDs.put(getTableName(object.getEntity()), lastRowID);
+            lastRowIDs.put(getTableName(object.getEntity()), lastRowID);
 
             objectIDs.add(id);
         }
@@ -492,11 +490,11 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         private static final String METADATA_COLUMN_VERSION = "version";
         private static final String METADATA_COLUMN_UUID = "uuid";
 
-        ObjectModel m_model;
+        ObjectModel model;
 
         DatabaseHelper(Context context, File path, ObjectModel model) {
             super(context, path, DEBUG_QUERIES ? new SQLiteCursorLoggerFactory() : null, model.getVersion());
-            m_model = model;
+            this.model = model;
         }
 
         @Override
@@ -510,7 +508,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             tableBuilder.column(METADATA_COLUMN_UUID, ColumnType.TEXT);
             tableBuilder.createTable(db);
 
-            for (EntityDescription<?> entity : m_model.getEntities()) {
+            for (EntityDescription<?> entity : model.getEntities()) {
                 tableBuilder = new SqlTableBuilder();
                 tableBuilder.tableName(getTableName(entity));
                 tableBuilder.primaryKey(COLUMN_ID_NAME, ColumnType.INTEGER);
@@ -556,7 +554,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             UUID uuid = UUID.randomUUID();
 
             ContentValues metadataValues = new ContentValues();
-            metadataValues.put(METADATA_COLUMN_VERSION, m_model.getVersion());
+            metadataValues.put(METADATA_COLUMN_VERSION, model.getVersion());
             metadataValues.put(METADATA_COLUMN_UUID, uuid.toString());
             db.insert(METADATA_TABLE_NAME, null, metadataValues);
 

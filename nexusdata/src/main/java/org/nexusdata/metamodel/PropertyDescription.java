@@ -4,32 +4,32 @@ package org.nexusdata.metamodel;
 // TODO: make it use generic type <T>?
 public abstract class PropertyDescription {
 
-    private final EntityDescription<?> m_entity;
-    private final String m_name;
-    private final Class<?> m_type;      //TODO: should this be moved to AttributeDescription, as it doesn't really make sense for relationships
-    private final boolean m_isRequired;
+    private final EntityDescription<?> entity;
+    private final String name;
+    private final Class<?> type;      //TODO: should this be moved to AttributeDescription, as it doesn't really make sense for relationships
+    private final boolean isRequired;
 
     public PropertyDescription(EntityDescription<?> entity, String name, Class<?> type, boolean isRequired) {
-        m_entity = entity;
-        m_name = name;
-        m_type = type;
-        m_isRequired = isRequired;
+        this.entity = entity;
+        this.name = name;
+        this.type = type;
+        this.isRequired = isRequired;
     }
 
     public EntityDescription<?> getEntity() {
-        return m_entity;
+        return entity;
     }
 
     public Class<?> getType() {
-        return m_type;
+        return type;
     }
 
     public String getName() {
-        return m_name;
+        return name;
     }
 
     public boolean isRequired() {
-        return m_isRequired;
+        return isRequired;
     }
 
     public abstract boolean isRelationship();
@@ -38,9 +38,9 @@ public abstract class PropertyDescription {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_entity == null) ? 0 : m_entity.hashCode());
-        result = prime * result + ((m_name == null) ? 0 : m_name.hashCode());
-        result = prime * result + ((m_type == null) ? 0 : m_type.hashCode());
+        result = prime * result + ((entity == null) ? 0 : entity.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -53,20 +53,20 @@ public abstract class PropertyDescription {
         if (getClass() != obj.getClass())
             return false;
         PropertyDescription other = (PropertyDescription) obj;
-        if (m_entity == null) {
-            if (other.m_entity != null)
+        if (entity == null) {
+            if (other.entity != null)
                 return false;
-        } else if (!m_entity.equals(other.m_entity))
+        } else if (!entity.equals(other.entity))
             return false;
-        if (m_name == null) {
-            if (other.m_name != null)
+        if (name == null) {
+            if (other.name != null)
                 return false;
-        } else if (!m_name.equals(other.m_name))
+        } else if (!name.equals(other.name))
             return false;
-        if (m_type == null) {
-            if (other.m_type != null)
+        if (type == null) {
+            if (other.type != null)
                 return false;
-        } else if (!m_type.equals(other.m_type))
+        } else if (!type.equals(other.type))
             return false;
         return true;
     }

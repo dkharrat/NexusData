@@ -8,46 +8,45 @@ import java.util.List;
 import java.util.Set;
 
 import org.nexusdata.metamodel.RelationshipDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
 
 class FaultingSet<E extends ManagedObject> implements Set<E> {
 
-    private final ManagedObject m_parent;
-    private Set<E> m_backingSet = new LinkedHashSet<E>();
-    private boolean m_isFault = false;
-    private final RelationshipDescription m_relationship;
+    private final ManagedObject parent;
+    private Set<E> backingSet = new LinkedHashSet<E>();
+    private boolean isFault = false;
+    private final RelationshipDescription relationship;
 
     FaultingSet(ManagedObject parent, RelationshipDescription relationship, Collection<E> objects) {
-        m_parent = parent;
-        m_relationship = relationship;
-        m_isFault = !m_parent.isNew() && objects == null;
+        this.parent = parent;
+        this.relationship = relationship;
+        isFault = !this.parent.isNew() && objects == null;
         if (objects != null) {
             setObjects(objects);
         }
     }
 
     private ObjectContext getContext() {
-        return m_parent.getObjectContext();
+        return parent.getObjectContext();
     }
 
     void fulfillFaultIfNecessary() {
         if (isFault()) {
-            getContext().faultInObjectRelationship(m_parent, m_relationship);
-            m_isFault = false;
+            getContext().faultInObjectRelationship(parent, relationship);
+            isFault = false;
         }
     }
 
     public boolean isFault() {
-        return m_isFault;
+        return isFault;
     }
 
     public void refresh() {
-        m_isFault = !m_parent.isNew();
-        m_backingSet = new LinkedHashSet<E>();
+        isFault = !parent.isNew();
+        backingSet = new LinkedHashSet<E>();
     }
 
     void setObjects(Collection<E> objects) {
-        m_backingSet = new LinkedHashSet<E>(objects);
+        backingSet = new LinkedHashSet<E>(objects);
     }
 
     /**
@@ -67,18 +66,18 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
             }
         }
 
-        FaultingSet<E> relatedObjectsSet = new FaultingSet<E>(otherContext.objectWithID(m_parent.getID()), m_relationship, relatedObjects);
+        FaultingSet<E> relatedObjectsSet = new FaultingSet<E>(otherContext.objectWithID(parent.getID()), relationship, relatedObjects);
         return relatedObjectsSet;
     }
 
     private void setInverseRelationshipValue(ManagedObject relatedObject) {
-        relatedObject.setValueDirectly(m_relationship.getInverse(), m_parent);
-        m_parent.notifyManagedObjectContextOfChange();
+        relatedObject.setValueDirectly(relationship.getInverse(), parent);
+        parent.notifyManagedObjectContextOfChange();
     }
 
     private void clearInverseRelationshipValue(ManagedObject relatedObject) {
-        relatedObject.setValueDirectly(m_relationship.getInverse(), null);
-        m_parent.notifyManagedObjectContextOfChange();
+        relatedObject.setValueDirectly(relationship.getInverse(), null);
+        parent.notifyManagedObjectContextOfChange();
     }
 
     @Override
@@ -100,7 +99,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
         }
         object.notifyManagedObjectContextOfChange();
 
-        return m_backingSet.add(object);
+        return backingSet.add(object);
     }
 
     @Override
@@ -116,35 +115,35 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
     public void clear() {
         fulfillFaultIfNecessary();
 
-        for (E object : m_backingSet) {
+        for (E object : backingSet) {
             clearInverseRelationshipValue(object);
         }
 
-        m_backingSet.clear();
+        backingSet.clear();
     }
 
     @Override
     public boolean contains(Object object) {
         fulfillFaultIfNecessary();
-        return m_backingSet.contains(object);
+        return backingSet.contains(object);
     }
 
     @Override
     public boolean containsAll(Collection<?> objects) {
         fulfillFaultIfNecessary();
-        return m_backingSet.containsAll(objects);
+        return backingSet.containsAll(objects);
     }
 
     @Override
     public boolean isEmpty() {
         fulfillFaultIfNecessary();
-        return m_backingSet.isEmpty();
+        return backingSet.isEmpty();
     }
 
     @Override
     public Iterator<E> iterator() {
         fulfillFaultIfNecessary();
-        return m_backingSet.iterator();
+        return backingSet.iterator();
     }
 
     @Override
@@ -161,7 +160,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
             }
         }
 
-        return m_backingSet.remove(o);
+        return backingSet.remove(o);
     }
 
     @Override
@@ -181,29 +180,29 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
     @Override
     public int size() {
         fulfillFaultIfNecessary();
-        return m_backingSet.size();
+        return backingSet.size();
 
     }
 
     @Override
     public Object[] toArray() {
         fulfillFaultIfNecessary();
-        return m_backingSet.toArray();
+        return backingSet.toArray();
     }
 
     @Override
     public <T> T[] toArray(T[] array) {
         fulfillFaultIfNecessary();
-        return m_backingSet.toArray(array);
+        return backingSet.toArray(array);
     }
 
     @Override
     public String toString() {
         if (isFault()) {
-            return "Relationship '"+m_relationship.getName()+"' fault on object "+m_parent.toObjectReferenceString();
+            return "Relationship '"+ relationship.getName()+"' fault on object "+ parent.toObjectReferenceString();
         } else {
-            return "Relationship '"+m_relationship.getName()+"' on object "+m_parent.toObjectReferenceString()+";\n"+
-                    "   values: "+m_backingSet.toString();
+            return "Relationship '"+ relationship.getName()+"' on object "+ parent.toObjectReferenceString()+";\n"+
+                    "   values: "+ backingSet.toString();
         }
     }
 
@@ -211,7 +210,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
         fulfillFaultIfNecessary();
 
         Set<ObjectID> objectIDs = new LinkedHashSet<ObjectID>();
-        for (ManagedObject object : m_backingSet) {
+        for (ManagedObject object : backingSet) {
             objectIDs.add(object.getID());
         }
         return objectIDs;
@@ -221,9 +220,9 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((m_backingSet == null)   ? 0 : m_backingSet.hashCode());
-        result = prime * result + ((m_parent == null)       ? 0 : m_parent.hashCode());
-        result = prime * result + ((m_relationship == null) ? 0 : m_relationship.hashCode());
+        result = prime * result + ((backingSet == null)   ? 0 : backingSet.hashCode());
+        result = prime * result + ((parent == null)       ? 0 : parent.hashCode());
+        result = prime * result + ((relationship == null) ? 0 : relationship.hashCode());
         return result;
     }
 
@@ -236,20 +235,20 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
         if (getClass() != obj.getClass())
             return false;
         FaultingSet<?> other = (FaultingSet<?>) obj;
-        if (m_backingSet == null) {
-            if (other.m_backingSet != null)
+        if (backingSet == null) {
+            if (other.backingSet != null)
                 return false;
-        } else if (!m_backingSet.equals(other.m_backingSet))
+        } else if (!backingSet.equals(other.backingSet))
             return false;
-        if (m_parent == null) {
-            if (other.m_parent != null)
+        if (parent == null) {
+            if (other.parent != null)
                 return false;
-        } else if (!m_parent.equals(other.m_parent))
+        } else if (!parent.equals(other.parent))
             return false;
-        if (m_relationship == null) {
-            if (other.m_relationship != null)
+        if (relationship == null) {
+            if (other.relationship != null)
                 return false;
-        } else if (!m_relationship.equals(other.m_relationship))
+        } else if (!relationship.equals(other.relationship))
             return false;
         return true;
     }
