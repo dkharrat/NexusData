@@ -90,7 +90,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
         ObjectID objectID = this.createObjectID(entity, id);
-        T object = context.objectWithID(objectID);
+        T object = (T)context.objectWithID(objectID);
 
         StoreCacheNode cacheNode = getStoreNodeFromCursor(objectID, cursor, context);
         Map<Long,StoreCacheNode> entityCache = cache.get(entity.getType());

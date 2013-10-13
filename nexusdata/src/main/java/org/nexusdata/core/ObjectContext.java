@@ -26,12 +26,21 @@ import android.os.Message;
 
 import org.nexusdata.metamodel.RelationshipDescription;
 
-// TODO: ObjectContext changes
-//  * unregister objects when they are no longer referenced
-//  * Implement custom Exception classes to identify different error types
-//  * Add support to query objects of super entity type
-//  * Check for null for required properties
+// TODO: unregister objects when they are no longer referenced
+// TODO: Implement custom Exception classes to identify different error types
+// TODO: Add support to query objects of super entity type
+// TODO: Check for null for required properties
 
+/**
+ * An ObjectContext keeps track and manages a collection of objects that are in-use and in-memory. Objects are pulled to
+ * memory from the persistence store on-demand to the Object Context. When the context's save operation is called,
+ * changes to objects are persisted, newly created objects are added, and removed objects are deleted from the
+ * persistence store. Every managed object is registered with an ObjectContext. You can also have multiple Object
+ * Contexts. An object can exist in multiple Object Contexts. However, each context will maintain its own copy of the
+ * object. This means, an object can be edited in more than one context simultaneously. Note that, merge resolution is
+ * currently not supported. So, if two contexts track an object, each having different changes to the object, then
+ * saving the second context after the first one is saved, will override any changes from the first.
+ */
 public class ObjectContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(ObjectContext.class);
@@ -48,6 +57,12 @@ public class ObjectContext {
     //TODO: abstract this away for multi-platform support (use Futures?)
     private final Handler messageHandler;
 
+    /**
+     * Creates a new ObjectContext instance that is associated with a persistence store coordinator.
+     *
+     * @param storeCoordinator the associated PersistenceStoreCoordinator that will be used to retrieve objects and
+     *                         save objects to
+     */
     public ObjectContext(PersistentStoreCoordinator storeCoordinator) {
         this.storeCoordinator = storeCoordinator;
 
@@ -59,14 +74,36 @@ public class ObjectContext {
         messageHandler = new ObjectContextMessageHandler(looper, this);
     }
 
+    /**
+     * @return  The associated persistent store coordinator
+     */
     public PersistentStoreCoordinator getPersistentStoreCoordinator() {
         return storeCoordinator;
     }
 
+    /**
+     * Returns a fetch request builder for the specified entity type, which can be used to build upon more constraints
+     * if desired.
+     *
+     * @param entityType    the type of the entity to be fetched
+     * @param <T>           parameterized type of the entity
+     * @return              a fetch request builder for the specified entity type
+     */
     public <T extends ManagedObject> FetchRequest.Builder<T> newFetchRequestBuilder(Class<T> entityType) {
         return FetchRequest.Builder.forEntity(storeCoordinator.getModel().getEntity(entityType));
     }
 
+    /**
+     * Fetches all objects that match the specified criteria from the persistence store coordinator. If the fetch
+     * request does not contain a predicate, all objects for the specified entity will be returned. Returned objects
+     * will maintain whatever state they are in before the fetch operation (i.e. objects will have the changes that
+     * have been made within the context, if any, and not the state from the persistence store). Objects pending
+     * deletion in the context will not be included in the returned results.
+     *
+     * @param fetchRequest      the fetch request that specifies the criteria
+     * @param <T>               parameterized type of the entity to be fetched
+     * @return                  a list of objects that match the criteria
+     */
     @SuppressWarnings("unchecked")
     public <T extends ManagedObject> List<T> executeFetchOperation(FetchRequest<T> fetchRequest) {
 
@@ -95,10 +132,25 @@ public class ObjectContext {
         return results;
     }
 
+    /**
+     * Returns all objects of the specified entity type from the persistent store.
+     *
+     * @param type  The class type of the entity to retrieve
+     * @param <T>   parameterized type of the entity to be fetched
+     * @return      a list of all the objects that match the specified entity type
+     */
     public <T extends ManagedObject> List<T> findAll(Class<T> type) {
         return findAll(type, null);
     }
 
+    /**
+     * Returns all objects of the specified entity type from the persistent store that match a predicate.
+     *
+     * @param type      The class type of the entity to retrieve
+     * @param <T>       parameterized type of the entity to be fetched
+     * @param predicate The predicate to test against
+     * @return          a list of all the objects that match the specified entity type and predicate
+     */
     public <T extends ManagedObject> List<T> findAll(Class<T> type, Predicate predicate) {
         EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
         FetchRequest<T> fetchRequest = new FetchRequest<T>(entity);
@@ -106,9 +158,16 @@ public class ObjectContext {
         return this.executeFetchOperation(fetchRequest);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends ManagedObject> T objectWithID(ObjectID id) {
-        T object = (T) objects.get(id);
+    /**
+     * Returns the object that has the specified ID. If the object is not registered with the context, a new instance
+     * will be created and returned as a fault. It is assumed that the object exists in the persistence store. If not,
+     * an exception will be thrown when a fault is triggered (e.g. by accessing any property in the object).
+     *
+     * @param id    The object's ID
+     * @return      The object with the specified ID
+     */
+    public ManagedObject objectWithID(ObjectID id) {
+        ManagedObject object = objects.get(id);
 
         if (object == null) {
             object = ManagedObject.newObject(id);
@@ -118,28 +177,60 @@ public class ObjectContext {
         return object;
     }
 
+    /**
+     * Similar to {@link ObjectContext#objectWithID(ObjectID)} except this method uses the URI representation for
+     * the ID.
+     *
+     * @param objectIDUri   The URI representation of the object ID
+     * @return              The object with the specified ID
+     */
     public ManagedObject objectWithID(URI objectIDUri) {
         ObjectID id = storeCoordinator.objectIDFromUri(objectIDUri);
         return objectWithID(id);
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends ManagedObject> T getExistingObject(ObjectID id) {
-        T object = (T) objects.get(id);
+    /**
+     * Returns the object that has the specified ID. If the object is not registered with the context, it is fetched
+     * from the persistence store and faulted into the context. An exception will be thrown if the object does not
+     * exist.
+     *
+     * @param id    The object's ID
+     * @return      The object with the specified ID
+     */
+    public ManagedObject getExistingObject(ObjectID id) {
+        ManagedObject object = objects.get(id);
 
         if (object == null) {
             object = objectWithID(id);
+        }
+
+        if (object.isFault()) {
             faultInObject(object);
         }
 
         return object;
     }
 
+    /**
+     * Similar to {@link ObjectContext#getExistingObject(ObjectID)} except this method uses the URI representation for
+     * the ID.
+     *
+     * @param objectIDUri   The URI representation of the object ID
+     * @return              The object with the specified ID
+     */
     public ManagedObject getExistingObject(URI objectIDUri) {
         ObjectID id = storeCoordinator.objectIDFromUri(objectIDUri);
         return getExistingObject(id);
     }
 
+    /**
+     * Creates a new object of the specified type. The object will automatically be inserted into this context, to be
+     * saved to the persistence store the next time the context is saved. Therefore, it is not necessary to call
+     * {@link #insert(ManagedObject)} for the object.
+     *
+     * @param type  the class type of the entity to create
+     * @return      a new object instance
+     */
     public <T extends ManagedObject> T newObject(Class<T> type) {
         EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
         ObjectID id = new ObjectID(null, entity, UUID.randomUUID());
@@ -212,6 +303,11 @@ public class ObjectContext {
         }
     }
 
+    /**
+     * Returns the objects that are registered with this context.
+     *
+     * @return the set of objects that are registered with this context
+     */
     public Set<ManagedObject> getRegisteredObjects() {
         return new HashSet<ManagedObject>(objects.values());
     }
@@ -307,9 +403,17 @@ public class ObjectContext {
         }
     }
 
+    /**
+     * Specifies that the object is to be inserted into the persistence store the next time the context is saved.
+     * If the object was already inserted into this context, the operation is ignored.
+     *
+     * @param object    the object to be inserted
+     * @throws IllegalArgumentException     if the object is already associated with another context, or if the object
+     *                                      was not created from a context
+     */
     public void insert(ManagedObject object) {
         if (object.getEntity() == null || object.getID() == null) {
-            throw new RuntimeException("Managed object " + object + " must be created through a context");
+            throw new IllegalStateException("Managed object " + object + " must be created through a context");
         }
 
         // check that the object is not associated with another context
@@ -333,19 +437,26 @@ public class ObjectContext {
         }
     }
 
+    /**
+     * Specifies that the object is to be removed from its persistence store the next time the context is
+     * saved. If the object was already marked for deletion in this context, the operation is ignored. If the object
+     * has not been saved to the persistence store yet, the object is simply deleted from the context.
+     *
+     * @param object    the object to be inserted
+     */
     public void delete(ManagedObject object) {
         changedObjects.objectDeleted(object, false);
-        if (!object.isNew()) {
-            registerObject(object);
-        } else {
+        if (object.isNew()) {
             unregisterObject(object);
+        } else {
+            registerObject(object);
         }
 
         objectsChangedSinceLastNotification.objectDeleted(object, true);
         sendObjectsChangedNotification();
     }
 
-    public void markObjectAsRefreshed(ManagedObject object) {
+    void markObjectAsRefreshed(ManagedObject object) {
         objectsChangedSinceLastNotification.objectRefreshed(object);
         sendObjectsChangedNotification();
     }
@@ -356,7 +467,15 @@ public class ObjectContext {
         objects.put(newID, object);
     }
 
-    public <T extends ManagedObject> void obtainPermanentIDsForObjects(Collection<T> objects) {
+    /**
+     * Assigns permanent IDs for the specified objects. Objects that already have a permanent ID are ignored. A
+     * permanent ID is used to uniquely identify an object in the persistence store. Usually, newly created objects
+     * will have temporary IDs. It is not necessary to call this method directly on newly created objects, as
+     * permanent IDs will be obtained for them before they are persisted to the store.
+     *
+     * @param objects   The list of objects
+     */
+    public void obtainPermanentIDsForObjects(Collection<ManagedObject> objects) {
         //FIXME: properly route the save to the right store for each object
         PersistentStore store = getPersistentStoreCoordinator().getPersistentStores().get(0);
 
@@ -377,6 +496,9 @@ public class ObjectContext {
         }
     }
 
+    /**
+     * Commits all unsaved changes of the registered objects to their associated persistence store.
+     */
     public void save() {
         if (!changedObjects.hasChanges()) {
             return;
@@ -408,27 +530,57 @@ public class ObjectContext {
         changedObjects.clear();
     }
 
+    /**
+     * Indicates whether there are any unsaved changes to any object in this context.
+     *
+     * @return true if there are unsaved changes, or false otherwise.
+     */
     public boolean hasChanges() {
         return changedObjects.hasChanges();
     }
 
+    /**
+     * Returns the set of objects that are pending insertion to the persistence store.
+     *
+     * @return the set of objects that are pending insertion to the persistence store
+     */
     public Set<ManagedObject> getInsertedObjects() {
         return Collections.unmodifiableSet(changedObjects.getInsertedObjects());
     }
 
+    /**
+     * Returns the set of objects that have unsaved changes and haven't been persisted yet.
+     *
+     * @return the set of objects that have unsaved changes
+     */
     public Set<ManagedObject> getUpdatedObjects() {
         return Collections.unmodifiableSet(changedObjects.getUpdatedObjects());
     }
 
+    /**
+     * Returns the set of objects that are pending deletion from the persistence store.
+     *
+     * @return the set of objects that are pending deletion from the persistence store
+     */
     public Set<ManagedObject> getDeletedObjects() {
         return Collections.unmodifiableSet(changedObjects.getDeletedObjects());
     }
 
+    /**
+     * Discards all the unsaved changes made to the objects in this context, including objects that are pending
+     * insertion or deletion.
+     */
     public void reset() {
         changedObjects.clear();
         unregisterAllObjects();
     }
 
+    /**
+     * Merges all the changes that been made through another context. This is done by refreshing any objects that have
+     * been updated outside of this context, faulting-in newly inserted objects, and removing deleted objects.
+     *
+     * @param changedObjects    the <code>ChangedObjectsSet</code> that was received from a save notification
+     */
     public void mergeChangesFromSaveNotification(ChangedObjectsSet changedObjects) {
         //TODO: this should run in the same thread that was used to create the context (use Handler to do that)
 
@@ -470,7 +622,7 @@ public class ObjectContext {
 
         for (ManagedObject o : changedObjects.getDeletedObjects()) {
             ManagedObject object = objectWithID(o.getID());
-            delete(object);
+            unregisterObject(object);
             objectsChangedSinceLastNotification.objectDeleted(object, false);
         }
 
@@ -485,7 +637,7 @@ public class ObjectContext {
     /**
      * Clones the specified object. The cloned object is then inserted into this context.
      * <p>
-     * Note: Only the object attributes are copied over; relationships are ignored
+     * Note: Only the object attributes are copied over; relationships are skipped.
      *
      * @param otherObject   The object to copy from.
      * @return the cloned and newly inserted object
@@ -500,15 +652,15 @@ public class ObjectContext {
         return object;
     }
 
-    public boolean isInserted(ManagedObject object) {
+    boolean isInserted(ManagedObject object) {
         return changedObjects.isInserted(object);
     }
 
-    public boolean isUpdated(ManagedObject object) {
+    boolean isUpdated(ManagedObject object) {
         return changedObjects.isUpdated(object);
     }
 
-    public boolean isDeleted(ManagedObject object) {
+    boolean isDeleted(ManagedObject object) {
         return changedObjects.isDeleted(object);
     }
 

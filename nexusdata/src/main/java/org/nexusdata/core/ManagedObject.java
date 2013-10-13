@@ -272,18 +272,43 @@ public class ManagedObject {
         return id.isTemporary() || isInserted();
     }
 
+    /**
+     * Returns true if this object has been inserted into an object context and is pending insertion to its
+     * persistence store
+     *
+     * @return  true if the object has been inserted into this context, or false otherwise
+     */
     public boolean isInserted() {
         return getObjectContext() != null && getObjectContext().isInserted(this);
     }
 
+    /**
+     * Returns true if this object has been updated in that any of its properties have changed since it was last
+     * saved.
+     *
+     * @return  true if the object has been updated, or false otherwise
+     */
     public boolean isUpdated() {
         return getObjectContext() != null && getObjectContext().isUpdated(this);
     }
 
+    /**
+     * Returns true if this object is pending deletion from from its persistence store during the next save
+     *
+     * @return  true if the object is pending deletion, or false otherwise
+     */
     public boolean isDeleted() {
         return getObjectContext() != null && getObjectContext().isDeleted(this);
     }
 
+    /**
+     * Returns true if this object has been inserted, changed, or deleted.
+     *
+     * @see #isInserted()
+     * @see #isUpdated()
+     * @see #isDeleted()
+     * @return
+     */
     public boolean hasChanges() {
         return isInserted() || isDeleted() || isUpdated();
     }
