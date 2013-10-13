@@ -28,9 +28,7 @@ public class ChangedObjectsSet {
 
     void objectInserted(ManagedObject object) {
         if (!object.isDeleted()) {
-            synchronized(insertedObjects) {
-                insertedObjects.add(object);
-            }
+            insertedObjects.add(object);
         }
         deletedObjects.remove(object);
     }
@@ -42,9 +40,7 @@ public class ChangedObjectsSet {
     }
 
     void objectDeleted(ManagedObject object, boolean trackDeletionEvenIfNew) {
-        synchronized(insertedObjects) {
-            insertedObjects.remove(object);
-        }
+        insertedObjects.remove(object);
         updatedObjects.remove(object);
         if (!object.isNew() || trackDeletionEvenIfNew) {
             deletedObjects.add(object);
@@ -52,9 +48,7 @@ public class ChangedObjectsSet {
     }
 
     void clear() {
-        synchronized(insertedObjects) {
-            insertedObjects.clear();
-        }
+        insertedObjects.clear();
         deletedObjects.clear();
         updatedObjects.clear();
     }
