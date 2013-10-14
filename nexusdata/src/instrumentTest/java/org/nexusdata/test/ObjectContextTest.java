@@ -148,7 +148,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
 
         // we need the 'google' object to be  based on the mainContext, since that's the context we're using to
         // create the predicate
-        google = mainContext.objectWithID(google.getID());
+        google = (Company)mainContext.objectWithID(google.getID());
 
         FetchRequest<Employee> fetchRequest = new FetchRequest<Employee>(employeeEntity);
         fetchRequest.setPredicate(ExpressionBuilder.field("company").eq(google).getPredicate());
@@ -226,8 +226,8 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         context.save();
 
         List<Employee> employees = mainContext.findAll(Employee.class);
-        employee = mainContext.objectWithID(employee.getID());
-        google = mainContext.objectWithID(google.getID());
+        employee = (Employee)mainContext.objectWithID(employee.getID());
+        google = (Company)mainContext.objectWithID(google.getID());
 
         google.setName("Google, Inc.");
         employee.setFirstName("Johnny");

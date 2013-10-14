@@ -19,7 +19,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
     FaultingSet(ManagedObject parent, RelationshipDescription relationship, Collection<E> objects) {
         this.parent = parent;
         this.relationship = relationship;
-        isFault = !this.parent.isNew() && objects == null;
+        isFault = !this.parent.isInserted() && objects == null;
         if (objects != null) {
             setObjects(objects);
         }
@@ -41,7 +41,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
     }
 
     public void refresh() {
-        isFault = !parent.isNew();
+        isFault = !parent.isInserted();
         backingSet = new LinkedHashSet<E>();
     }
 
@@ -86,7 +86,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
             throw new UnsupportedOperationException("Cannot add an object that belongs to another context");
         }
 
-        if (!object.isNew() && object.getObjectContext() == null) {
+        if (!object.isInserted() && object.getObjectContext() == null) {
             throw new UnsupportedOperationException("Cannot add an object that is not registered with a context");
         }
 
@@ -94,7 +94,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
 
         setInverseRelationshipValue(object);
 
-        if (object.isNew()) {
+        if (object.isInserted()) {
             getContext().insert(object);
         }
         object.notifyManagedObjectContextOfChange();
@@ -153,7 +153,7 @@ class FaultingSet<E extends ManagedObject> implements Set<E> {
         if (o instanceof ManagedObject) {
             ManagedObject object = (ManagedObject)o;
             clearInverseRelationshipValue(object);
-            if (object.isNew()) {
+            if (object.isInserted()) {
                 getContext().delete(object);
             } else {
                 object.notifyManagedObjectContextOfChange();

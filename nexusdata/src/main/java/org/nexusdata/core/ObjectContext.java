@@ -32,14 +32,15 @@ import org.nexusdata.metamodel.RelationshipDescription;
 // TODO: Check for null for required properties
 
 /**
- * An ObjectContext keeps track and manages a collection of objects that are in-use and in-memory. Objects are pulled to
- * memory from the persistence store on-demand to the Object Context. When the context's save operation is called,
- * changes to objects are persisted, newly created objects are added, and removed objects are deleted from the
- * persistence store. Every managed object is registered with an ObjectContext. You can also have multiple Object
- * Contexts. An object can exist in multiple Object Contexts. However, each context will maintain its own copy of the
- * object. This means, an object can be edited in more than one context simultaneously. Note that, merge resolution is
- * currently not supported. So, if two contexts track an object, each having different changes to the object, then
- * saving the second context after the first one is saved, will override any changes from the first.
+ * An Object Context keeps track and manages a collection of objects used by an application. A context represents a
+ * "scratchpad" where changes to objects can be made. Through a context, an object can be fetched from a persistence
+ * store. Changes can be made to those objects. Also, new objects can be inserted, or existing objects can be deleted.
+ * Any such changes can be either committed to the persistence store or discarded if they are not needed anymore. Every
+ * managed object is registered with an ObjectContext. You can also have multiple object contexts. An object can exist
+ * in multiple object contexts. However, each context will maintain its own copy of the object. This means, an object
+ * can be edited in more than one context simultaneously. Note that, conflict resolution is currently not supported. So,
+ * if two contexts track an object, each having different changes to the object, then saving the second context after
+ * the first one is saved, will override any changes from the first.
  */
 public class ObjectContext {
 
@@ -446,7 +447,7 @@ public class ObjectContext {
      */
     public void delete(ManagedObject object) {
         changedObjects.objectDeleted(object, false);
-        if (object.isNew()) {
+        if (object.isInserted()) {
             unregisterObject(object);
         } else {
             registerObject(object);

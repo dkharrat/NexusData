@@ -7,6 +7,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 import org.nexusdata.core.ManagedObject;
+import org.nexusdata.core.NoSuchPropertyException;
 import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,13 +157,7 @@ class ObjectModelJsonParser {
         for (Map.Entry<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
             EntityDescription<?> entity = entityRelationPair.getKey();
             for (JsonElem.Relationship jsonRelation : entityRelationPair.getValue()) {
-                RelationshipDescription relationship;
-                try {
-                    relationship = entity.getRelationship(jsonRelation.name);
-                } catch (NoSuchFieldException ex) {
-                    // should never happen
-                    throw new AssertionError("Unable to process relationship " + jsonRelation.name);
-                }
+                RelationshipDescription relationship = entity.getRelationship(jsonRelation.name);
 
                 EntityDescription<?> destinationEntity = relationship.getDestinationEntity();
                 // TODO: pluralize inverseName for to-many relationship by default
@@ -175,7 +170,7 @@ class ObjectModelJsonParser {
                 try {
                     RelationshipDescription inverseRelationship = (RelationshipDescription) destinationEntity.getProperty(inverseName);
                     relationship.setInverse(inverseRelationship);
-                } catch (NoSuchFieldException e) {
+                } catch (NoSuchPropertyException e) {
                     throw new RuntimeException("Could not find inverse property " + inverseName + " in destination entity " + destinationEntity.getName() + " for relationship " + relationship.getName(), e);
                 }
             }

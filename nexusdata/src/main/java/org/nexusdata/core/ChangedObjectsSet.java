@@ -42,7 +42,7 @@ public class ChangedObjectsSet {
     void objectDeleted(ManagedObject object, boolean trackDeletionEvenIfNew) {
         insertedObjects.remove(object);
         updatedObjects.remove(object);
-        if (!object.isNew() || trackDeletionEvenIfNew) {
+        if (!object.isInserted() || trackDeletionEvenIfNew) {
             deletedObjects.add(object);
         }
     }

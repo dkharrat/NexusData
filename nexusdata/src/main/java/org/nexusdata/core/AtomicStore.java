@@ -159,7 +159,7 @@ public abstract class AtomicStore extends PersistentStore {
 
         for (StoreCacheNode cacheNode : getCacheNodes()) {
             ObjectID objID = cacheNode.getID();
-            T obj = context.getExistingObject(objID);
+            T obj = (T)context.getExistingObject(objID);
 
             if (objID.getType().isAssignableFrom(request.getEntity().getType())) {
                 if (request.getPredicate() == null || request.getPredicate().evaluate(obj)) {
@@ -187,7 +187,7 @@ public abstract class AtomicStore extends PersistentStore {
         }
 
         for (ManagedObject object : request.getDeletedObjects()) {
-            if (!object.isNew()) {
+            if (!object.isInserted()) {
                 StoreCacheNode cacheNode = getObjectValues(object.getID(), context);
                 removeCacheNode(cacheNode);
                 object.setManagedObjectContext(null);

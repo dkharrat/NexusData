@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.nexusdata.core.ManagedObject;
+import org.nexusdata.core.NoSuchPropertyException;
 
 public class EntityDescription<T extends ManagedObject> {
 
@@ -68,17 +69,17 @@ public class EntityDescription<T extends ManagedObject> {
         return relationships;
     }
 
-    public PropertyDescription getProperty(String name) throws NoSuchFieldException {
+    public PropertyDescription getProperty(String name) {
         PropertyDescription property = properties.get(name);
 
         if (property == null) {
-            throw new NoSuchFieldException("Could not find property named: " + name);
+            throw new NoSuchPropertyException(this, name);
         }
 
         return property;
     }
 
-    public RelationshipDescription getRelationship(String name) throws NoSuchFieldException {
+    public RelationshipDescription getRelationship(String name) {
         PropertyDescription property = getProperty(name);
         if (property instanceof RelationshipDescription) {
             return (RelationshipDescription) property;

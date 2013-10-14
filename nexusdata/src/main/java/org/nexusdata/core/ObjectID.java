@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.nexusdata.metamodel.EntityDescription;
 
+//TODO: should this be parameterized on Entity type?
 
 public class ObjectID {
     private final PersistentStore store;
