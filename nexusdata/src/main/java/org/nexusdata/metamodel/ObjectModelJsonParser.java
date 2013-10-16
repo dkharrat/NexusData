@@ -88,8 +88,9 @@ class ObjectModelJsonParser {
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
             LOG.debug("Creating entity {}", jsonEntity.name);
 
-            Class<?> entityType = getEntityType(jsonModel.packageName, jsonEntity.name);
-            EntityDescription<?> entity = new EntityDescription(model, entityType);
+            @SuppressWarnings("unchecked")
+            Class<ManagedObject> entityType = (Class<ManagedObject>)getEntityType(jsonModel.packageName, jsonEntity.name);
+            EntityDescription<ManagedObject> entity = new EntityDescription<ManagedObject>(model, entityType);
 
             setupAttributes(jsonModel, jsonEntity, entity);
 

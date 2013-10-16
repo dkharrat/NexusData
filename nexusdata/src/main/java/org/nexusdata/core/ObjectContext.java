@@ -259,7 +259,7 @@ public class ObjectContext {
             if (property.isRelationship()) {
                 RelationshipDescription relationship = (RelationshipDescription)property;
                 if (relationship.isToMany()) {
-                    value = new FaultingSet(object, relationship, null);
+                    value = new FaultingSet<ManagedObject>(object, relationship, null);
                 } else {
                     if (value != null) {
                         if (!(value instanceof ObjectID)) {
@@ -291,6 +291,7 @@ public class ObjectContext {
             }
             object.setValueDirectly(relationship, value);
         } else {    // to-many relationship
+            @SuppressWarnings("unchecked")
             FaultingSet<ManagedObject> objectsSet = (FaultingSet<ManagedObject>) object.getValueDirectly(relationship);
 
             Collection<ObjectID> ids = store.getToManyRelationshipValue(object.getID(), relationship, this);

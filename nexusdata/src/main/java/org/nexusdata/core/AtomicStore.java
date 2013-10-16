@@ -115,6 +115,7 @@ public abstract class AtomicStore extends PersistentStore {
             ObjectContext context) {
 
         StoreCacheNode cacheNode = getCacheNode(objectID);
+        @SuppressWarnings("unchecked")
         Set<ObjectID> relatedObjectIDs = (Set<ObjectID>) cacheNode.getProperty(relationship.getName());
 
         return relatedObjectIDs;
@@ -159,6 +160,7 @@ public abstract class AtomicStore extends PersistentStore {
 
         for (StoreCacheNode cacheNode : getCacheNodes()) {
             ObjectID objID = cacheNode.getID();
+            @SuppressWarnings("unchecked")
             T obj = (T)context.getExistingObject(objID);
 
             if (objID.getType().isAssignableFrom(request.getEntity().getType())) {

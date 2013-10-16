@@ -86,11 +86,11 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         return "`" + property.getName() + "`";
     }
 
-    private <T extends ManagedObject> T createObjectFromCursor(ObjectContext context, EntityDescription<T> entity, Cursor cursor) {
+    private ManagedObject createObjectFromCursor(ObjectContext context, EntityDescription<?> entity, Cursor cursor) {
 
         long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
         ObjectID objectID = this.createObjectID(entity, id);
-        T object = (T)context.objectWithID(objectID);
+        ManagedObject object = context.objectWithID(objectID);
 
         StoreCacheNode cacheNode = getStoreNodeFromCursor(objectID, cursor, context);
         Map<Long,StoreCacheNode> entityCache = cache.get(entity.getType());
@@ -180,7 +180,8 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         List<T> results = new ArrayList<T>();
         while(cursor.moveToNext()) {
-            T object = createObjectFromCursor(context, request.getEntity(), cursor);
+            @SuppressWarnings("unchecked")
+            T object = (T)createObjectFromCursor(context, request.getEntity(), cursor);
             results.add(object);
         }
 
@@ -271,11 +272,13 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         try {
             for (PropertyDescription property : objectID.getEntity().getProperties()) {
                 Object value;
+                @SuppressWarnings("unchecked")
                 Class<?> propType = property.getType();
 
                 if (property.isRelationship()) {
                     RelationshipDescription relationship = (RelationshipDescription)property;
                     if (relationship.isToOne()) {
+                        @SuppressWarnings("unchecked")
                         EntityDescription<?> assocEntity = getCoordinator().getModel().getEntity((Class<ManagedObject>)relationship.getType());
                         long relatedID = CursorUtil.getLong(cursor, relationship.getName());
                         if (relatedID != 0) {

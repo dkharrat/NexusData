@@ -171,6 +171,7 @@ public class ManagedObject {
             RelationshipDescription inverseRelationship = relationship.getInverse();
 
             if (relationship.isToMany()) {
+                @SuppressWarnings("unchecked")
                 FaultingSet<ManagedObject> relatedObjects = ((FaultingSet<ManagedObject>)newValue);
                 for (ManagedObject relatedObject : relatedObjects) {
                     if (inverseRelationship.isToOne()) {
@@ -182,13 +183,17 @@ public class ManagedObject {
             } else {    // to-one relationship
                 if (inverseRelationship.isToMany()) {
                     if (oldValue != null) {
+                        @SuppressWarnings("unchecked")
                         ManagedObject oldRelatedObject = (ManagedObject)oldValue;
+                        @SuppressWarnings("unchecked")
                         FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) oldRelatedObject.getValue(inverseRelationship.getName());
                         relatedObjects.remove(this);
                     }
 
                     if (newValue != null) {
+                        @SuppressWarnings("unchecked")
                         ManagedObject relatedObject = (ManagedObject)newValue;
+                        @SuppressWarnings("unchecked")
                         FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) relatedObject.getValue(inverseRelationship.getName());
                         relatedObjects.add(this);
                     }
@@ -218,6 +223,7 @@ public class ManagedObject {
      * @throws IllegalArgumentException if an invalid value is set for the property
      * @return true if the value was changed, or false otherwise
      */
+    @SuppressWarnings("unchecked")
     public boolean setValue(String propertyName, Object value) {
         PropertyDescription property = getEntity().getProperty(propertyName);
         boolean changed = false;
@@ -237,7 +243,7 @@ public class ManagedObject {
                             throw new IllegalArgumentException("Expected a Collection for property: " + propertyName + ", but got " + value);
                         }
                         if (!(value instanceof FaultingSet)) {
-                            value = new FaultingSet(this, relationship, (Collection<?>)value);
+                            value = new FaultingSet<ManagedObject>(this, relationship, (Collection<ManagedObject>)value);
                         }
 
                         changed = !oldRelatedObjects.equals(value);
