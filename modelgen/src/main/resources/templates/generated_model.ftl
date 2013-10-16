@@ -42,6 +42,9 @@ class _${entity.name} extends ManagedObject {
 
 <#list entity.relationships as relationship>
 <#if relationship.hasGetter>
+<#if relationship.toMany>
+    @SuppressWarnings("unchecked")
+</#if>
     public ${relationship.getJavaType()} ${relationship.getMethodNameForGetter()}() {
         return (${relationship.getJavaType()})getValue(Property.${relationship.getNameAsConstant()});
     }
