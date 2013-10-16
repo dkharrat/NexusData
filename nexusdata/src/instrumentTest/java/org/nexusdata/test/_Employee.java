@@ -78,6 +78,7 @@ class _Employee extends ManagedObject {
         setValue(Property.MANAGER, manager);
     }
 
+    @SuppressWarnings("unchecked")
     public Set<Employee> getDirectReports() {
         return (Set<Employee>)getValue(Property.DIRECT_REPORTS);
     }

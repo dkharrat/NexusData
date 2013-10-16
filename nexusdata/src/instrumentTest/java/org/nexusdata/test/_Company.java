@@ -23,6 +23,7 @@ class _Company extends ManagedObject {
     }
 
 
+    @SuppressWarnings("unchecked")
     public Set<Employee> getEmployees() {
         return (Set<Employee>)getValue(Property.EMPLOYEES);
     }
