@@ -13,7 +13,7 @@ public @interface Relationships {
     public @interface Relationship {
         String name();
         Class<?> type();
-        RelationshipDescription.Type relationshipType();
+        org.nexusdata.metamodel.Relationship.Type relationshipType();
         String inverseName();
     }
 }

@@ -9,13 +9,13 @@ import java.util.Map;
 import org.nexusdata.core.ManagedObject;
 import org.nexusdata.core.NoSuchPropertyException;
 
-public class EntityDescription<T extends ManagedObject> {
+public class Entity<T extends ManagedObject> {
 
     private final ObjectModel model;
     private final Class<T> type;
-    private final Map<String, PropertyDescription> properties = new HashMap<String,PropertyDescription>();
+    private final Map<String, Property> properties = new HashMap<String,Property>();
 
-    public EntityDescription(ObjectModel model, Class<T> type) {
+    public Entity(ObjectModel model, Class<T> type) {
         this.model = model;
         this.type = type;
     }
@@ -28,7 +28,7 @@ public class EntityDescription<T extends ManagedObject> {
         return type;
     }
 
-    void addProperty(PropertyDescription property) {
+    void addProperty(Property property) {
         if (properties.containsKey(property.getName())) {
             throw new IllegalArgumentException(property + " already exists in entity " + getName());
         }
@@ -43,34 +43,34 @@ public class EntityDescription<T extends ManagedObject> {
         return properties.containsKey(name);
     }
 
-    public Collection<PropertyDescription> getProperties() {
+    public Collection<Property> getProperties() {
         return properties.values();
     }
 
-    public Collection<AttributeDescription> getAttributes() {
-        List<AttributeDescription> attributes = new ArrayList<AttributeDescription>();
-        for (PropertyDescription property : getProperties()) {
-            if (property instanceof AttributeDescription) {
-                attributes.add((AttributeDescription)property);
+    public Collection<Attribute> getAttributes() {
+        List<Attribute> attributes = new ArrayList<Attribute>();
+        for (Property property : getProperties()) {
+            if (property instanceof Attribute) {
+                attributes.add((Attribute)property);
             }
         }
 
         return attributes;
     }
 
-    public Collection<RelationshipDescription> getRelationships() {
-        List<RelationshipDescription> relationships = new ArrayList<RelationshipDescription>();
-        for (PropertyDescription property : getProperties()) {
-            if (property instanceof RelationshipDescription) {
-                relationships.add((RelationshipDescription)property);
+    public Collection<Relationship> getRelationships() {
+        List<Relationship> relationships = new ArrayList<Relationship>();
+        for (Property property : getProperties()) {
+            if (property instanceof Relationship) {
+                relationships.add((Relationship)property);
             }
         }
 
         return relationships;
     }
 
-    public PropertyDescription getProperty(String name) {
-        PropertyDescription property = properties.get(name);
+    public Property getProperty(String name) {
+        Property property = properties.get(name);
 
         if (property == null) {
             throw new NoSuchPropertyException(this, name);
@@ -79,10 +79,10 @@ public class EntityDescription<T extends ManagedObject> {
         return property;
     }
 
-    public RelationshipDescription getRelationship(String name) {
-        PropertyDescription property = getProperty(name);
-        if (property instanceof RelationshipDescription) {
-            return (RelationshipDescription) property;
+    public Relationship getRelationship(String name) {
+        Property property = getProperty(name);
+        if (property instanceof Relationship) {
+            return (Relationship) property;
         }
 
         throw new IllegalArgumentException("Property '"+name+"' is not a relationship.");
@@ -108,7 +108,7 @@ public class EntityDescription<T extends ManagedObject> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        EntityDescription<?> other = (EntityDescription<?>) obj;
+        Entity<?> other = (Entity<?>) obj;
         if (type == null) {
             if (other.type != null)
                 return false;
@@ -119,7 +119,7 @@ public class EntityDescription<T extends ManagedObject> {
 
     @Override
     public String toString() {
-        return "EntityDescription ["
+        return "Entity ["
                 +   "name=" + getName()
                 + ", class=" + getType().getName()
                 + ", properties=" + properties.values()

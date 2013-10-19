@@ -1,17 +1,17 @@
 package org.nexusdata.metamodel;
 
 
-public class RelationshipDescription extends PropertyDescription {
+public class Relationship extends Property {
     public enum Type {
         TO_ONE,
         TO_MANY,
     }
 
     private final Type relationshipType;
-    private final EntityDescription<?> destinationEntity;
-    private RelationshipDescription inverse;
+    private final Entity<?> destinationEntity;
+    private Relationship inverse;
 
-    public RelationshipDescription(EntityDescription<?> entity, String name, Class<?> type, Type relationshipType, EntityDescription<?> destinationEntity, RelationshipDescription inverse, boolean isRequired) {
+    public Relationship(Entity<?> entity, String name, Class<?> type, Type relationshipType, Entity<?> destinationEntity, Relationship inverse, boolean isRequired) {
         super(entity, name, type, isRequired);
         this.relationshipType = relationshipType;
         this.destinationEntity = destinationEntity;
@@ -30,15 +30,15 @@ public class RelationshipDescription extends PropertyDescription {
         return relationshipType == Type.TO_MANY;
     }
 
-    public EntityDescription<?> getDestinationEntity() {
+    public Entity<?> getDestinationEntity() {
         return destinationEntity;
     }
 
-    public RelationshipDescription getInverse() {
+    public Relationship getInverse() {
         return inverse;
     }
 
-    void setInverse(RelationshipDescription inverse) {
+    void setInverse(Relationship inverse) {
         this.inverse = inverse;
     }
 

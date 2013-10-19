@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
+import org.nexusdata.metamodel.Entity;
+import org.nexusdata.metamodel.Relationship;
 
 public abstract class IncrementalStore extends PersistentStore {
 
@@ -25,16 +25,16 @@ public abstract class IncrementalStore extends PersistentStore {
     protected abstract StoreCacheNode getObjectValues(ObjectID objectID, ObjectContext context);
 
     @Override
-    protected abstract ObjectID getToOneRelationshipValue(ObjectID objectID, RelationshipDescription relationship, ObjectContext context);
+    protected abstract ObjectID getToOneRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
     @Override
-    protected abstract Collection<ObjectID> getToManyRelationshipValue(ObjectID objectID, RelationshipDescription relationship, ObjectContext context);
+    protected abstract Collection<ObjectID> getToManyRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
     @Override
     protected abstract List<ObjectID> getPermanentIDsForObjects(List<ManagedObject> objects);
 
     @Override
-    protected ObjectID createObjectID(EntityDescription<?> entity, Object referenceObject) {
+    protected ObjectID createObjectID(Entity<?> entity, Object referenceObject) {
         ObjectID id = new ObjectID(this, entity, referenceObject);
         return id;
     }

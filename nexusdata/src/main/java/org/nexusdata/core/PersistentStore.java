@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
+import org.nexusdata.metamodel.Entity;
+import org.nexusdata.metamodel.Relationship;
 
 
 public abstract class PersistentStore {
@@ -45,7 +45,7 @@ public abstract class PersistentStore {
         storeCoordinator = coordinator;
     }
 
-    ObjectID createObjectID(EntityDescription<?> entity, Object referenceObject) {
+    ObjectID createObjectID(Entity<?> entity, Object referenceObject) {
         ObjectID id = new ObjectID(this, entity, referenceObject);
         return id;
     }
@@ -58,9 +58,9 @@ public abstract class PersistentStore {
 
     abstract StoreCacheNode getObjectValues(ObjectID objectID, ObjectContext context);
 
-    abstract ObjectID getToOneRelationshipValue(ObjectID objectID, RelationshipDescription relationship, ObjectContext context);
+    abstract ObjectID getToOneRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
-    abstract Collection<ObjectID> getToManyRelationshipValue(ObjectID objectID, RelationshipDescription relationship, ObjectContext context);
+    abstract Collection<ObjectID> getToManyRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
     abstract <T extends ManagedObject> List<T> executeFetchRequest(FetchRequest<T> request, ObjectContext context);
     abstract void executeSaveRequest(SaveChangesRequest request, ObjectContext context);

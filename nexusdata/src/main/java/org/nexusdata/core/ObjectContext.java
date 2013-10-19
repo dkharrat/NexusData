@@ -12,9 +12,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.nexusdata.metamodel.AttributeDescription;
-import org.nexusdata.metamodel.EntityDescription;
-import org.nexusdata.metamodel.PropertyDescription;
+import org.nexusdata.metamodel.Attribute;
+import org.nexusdata.metamodel.Entity;
+import org.nexusdata.metamodel.Property;
+import org.nexusdata.metamodel.Relationship;
 import org.nexusdata.predicate.Predicate;
 import org.nexusdata.utils.ObjectUtil;
 import org.slf4j.Logger;
@@ -23,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import org.nexusdata.metamodel.RelationshipDescription;
 
 // TODO: unregister objects when they are no longer referenced
 // TODO: Implement custom Exception classes to identify different error types
@@ -153,7 +152,7 @@ public class ObjectContext {
      * @return          a list of all the objects that match the specified entity type and predicate
      */
     public <T extends ManagedObject> List<T> findAll(Class<T> type, Predicate predicate) {
-        EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
+        Entity<T> entity = storeCoordinator.getModel().getEntity(type);
         FetchRequest<T> fetchRequest = new FetchRequest<T>(entity);
         fetchRequest.setPredicate(predicate);
         return this.executeFetchOperation(fetchRequest);
@@ -233,7 +232,7 @@ public class ObjectContext {
      * @return      a new object instance
      */
     public <T extends ManagedObject> T newObject(Class<T> type) {
-        EntityDescription<T> entity = storeCoordinator.getModel().getEntity(type);
+        Entity<T> entity = storeCoordinator.getModel().getEntity(type);
         ObjectID id = new ObjectID(null, entity, UUID.randomUUID());
 
         T object = ManagedObject.newObject(id);
@@ -253,11 +252,11 @@ public class ObjectContext {
             throw new RuntimeException("Could not find object " + object + " in persistent store");
         }
 
-        for (PropertyDescription property : object.getEntity().getProperties()) {
+        for (Property property : object.getEntity().getProperties()) {
             Object value = cacheNode.getProperty(property.getName());
 
             if (property.isRelationship()) {
-                RelationshipDescription relationship = (RelationshipDescription)property;
+                Relationship relationship = (Relationship)property;
                 if (relationship.isToMany()) {
                     value = new FaultingSet<ManagedObject>(object, relationship, null);
                 } else {
@@ -279,7 +278,7 @@ public class ObjectContext {
         }
     }
 
-    void faultInObjectRelationship(ManagedObject object, RelationshipDescription relationship) {
+    void faultInObjectRelationship(ManagedObject object, Relationship relationship) {
         LOG.debug("Fulfilling fault on relationship " + relationship.getName() + " for objectID: " + object.getID());
         PersistentStore store = object.getID().getPersistentStore();
 
@@ -513,7 +512,7 @@ public class ObjectContext {
 
         // null-out to-one relationship references of deleted objects to ensure nothing references them
         for (ManagedObject object : changedObjects.getDeletedObjects()) {
-            for (RelationshipDescription relationship : object.getEntity().getRelationships()) {
+            for (Relationship relationship : object.getEntity().getRelationships()) {
                 if (relationship.isToOne()) {
                     object.setValue(relationship.getName(), null);
                 }
@@ -595,11 +594,11 @@ public class ObjectContext {
             ManagedObject object = objectWithID(otherObject.getID());
             if (!object.isFault()) {
                 boolean objectChanged = false;
-                for (PropertyDescription property : object.getEntity().getProperties()) {
+                for (Property property : object.getEntity().getProperties()) {
                     Object otherValue = otherObject.getValueDirectly(property);
                     Object value = otherValue;
                     if (property.isRelationship()) {
-                        RelationshipDescription relationship = (RelationshipDescription) property;
+                        Relationship relationship = (Relationship) property;
                         if (relationship.isToOne()) {
                             if (otherValue != null) {
                                 value = objectWithID(((ManagedObject)otherValue).getID());
@@ -647,7 +646,7 @@ public class ObjectContext {
     public ManagedObject cloneObject(ManagedObject otherObject) {
         ManagedObject object = newObject(otherObject.getEntity().getType());
 
-        for (AttributeDescription attribute : object.getEntity().getAttributes()) {
+        for (Attribute attribute : object.getEntity().getAttributes()) {
             object.setValue(attribute.getName(), otherObject.getValue(attribute.getName()));
         }
 

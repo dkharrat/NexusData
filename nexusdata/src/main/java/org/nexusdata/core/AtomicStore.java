@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.nexusdata.metamodel.PropertyDescription;
-import org.nexusdata.metamodel.RelationshipDescription;
+import org.nexusdata.metamodel.Property;
+import org.nexusdata.metamodel.Relationship;
 import org.nexusdata.utils.ObjectUtil;
 
 
@@ -46,10 +46,10 @@ public abstract class AtomicStore extends PersistentStore {
     }
 
     protected void updateCacheNode(StoreCacheNode cacheNode, ManagedObject object) {
-        for(PropertyDescription property : object.getEntity().getProperties()) {
+        for(Property property : object.getEntity().getProperties()) {
             Object value = object.getValue(property.getName());
             if (property.isRelationship()) {
-                RelationshipDescription relationship = (RelationshipDescription) property;
+                Relationship relationship = (Relationship) property;
                 if (relationship.isToOne()) {
                     ManagedObject relatedObject = (ManagedObject) value;
                     if (relatedObject != null) {
@@ -100,7 +100,7 @@ public abstract class AtomicStore extends PersistentStore {
     @Override
     ObjectID getToOneRelationshipValue(
             ObjectID objectID,
-            RelationshipDescription relationship,
+            Relationship relationship,
             ObjectContext context) {
 
         StoreCacheNode cacheNode = getCacheNode(objectID);
@@ -111,7 +111,7 @@ public abstract class AtomicStore extends PersistentStore {
     @Override
     Collection<ObjectID> getToManyRelationshipValue(
             ObjectID objectID,
-            RelationshipDescription relationship,
+            Relationship relationship,
             ObjectContext context) {
 
         StoreCacheNode cacheNode = getCacheNode(objectID);

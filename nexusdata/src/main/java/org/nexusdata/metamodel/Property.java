@@ -2,21 +2,21 @@ package org.nexusdata.metamodel;
 
 
 // TODO: make it use generic type <T>?
-public abstract class PropertyDescription {
+public abstract class Property {
 
-    private final EntityDescription<?> entity;
+    private final Entity<?> entity;
     private final String name;
-    private final Class<?> type;      //TODO: should this be moved to AttributeDescription, as it doesn't really make sense for relationships
+    private final Class<?> type;      //TODO: should this be moved to Attribute, as it doesn't really make sense for relationships
     private final boolean isRequired;
 
-    public PropertyDescription(EntityDescription<?> entity, String name, Class<?> type, boolean isRequired) {
+    public Property(Entity<?> entity, String name, Class<?> type, boolean isRequired) {
         this.entity = entity;
         this.name = name;
         this.type = type;
         this.isRequired = isRequired;
     }
 
-    public EntityDescription<?> getEntity() {
+    public Entity<?> getEntity() {
         return entity;
     }
 
@@ -52,7 +52,7 @@ public abstract class PropertyDescription {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        PropertyDescription other = (PropertyDescription) obj;
+        Property other = (Property) obj;
         if (entity == null) {
             if (other.entity != null)
                 return false;

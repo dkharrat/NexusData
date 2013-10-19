@@ -82,11 +82,11 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         return model.getClass().getSimpleName() + ".db";
     }
 
-    static protected String getColumnName(PropertyDescription property) {
+    static protected String getColumnName(Property property) {
         return "`" + property.getName() + "`";
     }
 
-    private ManagedObject createObjectFromCursor(ObjectContext context, EntityDescription<?> entity, Cursor cursor) {
+    private ManagedObject createObjectFromCursor(ObjectContext context, Entity<?> entity, Cursor cursor) {
 
         long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
         ObjectID objectID = this.createObjectID(entity, id);
@@ -194,12 +194,12 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         ContentValues values = new ContentValues();
 
         values.put(COLUMN_ID_NAME, getReferenceObjectForObjectID(object.getID()).toString());
-        for (PropertyDescription property : object.getEntity().getProperties()) {
+        for (Property property : object.getEntity().getProperties()) {
             Class<?> propertyType = property.getType();
             Object value = object.getValue(property.getName());
 
             if (property.isRelationship()) {
-                RelationshipDescription relationship = (RelationshipDescription)property;
+                Relationship relationship = (Relationship)property;
                 if (relationship.isToOne()) {
                     ManagedObject toOneObject = (ManagedObject) value;
                     if (toOneObject != null) {
@@ -270,16 +270,16 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         StoreCacheNode node = new StoreCacheNode(objectID);
 
         try {
-            for (PropertyDescription property : objectID.getEntity().getProperties()) {
+            for (Property property : objectID.getEntity().getProperties()) {
                 Object value;
                 @SuppressWarnings("unchecked")
                 Class<?> propType = property.getType();
 
                 if (property.isRelationship()) {
-                    RelationshipDescription relationship = (RelationshipDescription)property;
+                    Relationship relationship = (Relationship)property;
                     if (relationship.isToOne()) {
                         @SuppressWarnings("unchecked")
-                        EntityDescription<?> assocEntity = getCoordinator().getModel().getEntity((Class<ManagedObject>)relationship.getType());
+                        Entity<?> assocEntity = getCoordinator().getModel().getEntity((Class<ManagedObject>)relationship.getType());
                         long relatedID = CursorUtil.getLong(cursor, relationship.getName());
                         if (relatedID != 0) {
                             value = this.createObjectID(assocEntity, relatedID);
@@ -370,7 +370,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     @Override
     protected Collection<ObjectID> getToManyRelationshipValue(
             ObjectID objectID,
-            RelationshipDescription relationship,
+            Relationship relationship,
             ObjectContext context) {
 
         String[] columns = new String[]{COLUMN_ID_NAME};
@@ -404,7 +404,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     @Override
     protected ObjectID getToOneRelationshipValue(
             ObjectID objectID,
-            RelationshipDescription relationship,
+            Relationship relationship,
             ObjectContext context) {
 
         String fromTable = getTableName(objectID.getEntity());
@@ -479,7 +479,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         return objectIDs;
     }
 
-    static private <T extends ManagedObject> String getTableName(EntityDescription<T> entity) {
+    static private <T extends ManagedObject> String getTableName(Entity<T> entity) {
         return entity.getType().getSimpleName();
     }
 
@@ -511,17 +511,17 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             tableBuilder.column(METADATA_COLUMN_UUID, ColumnType.TEXT);
             tableBuilder.createTable(db);
 
-            for (EntityDescription<?> entity : model.getEntities()) {
+            for (Entity<?> entity : model.getEntities()) {
                 tableBuilder = new SqlTableBuilder();
                 tableBuilder.tableName(getTableName(entity));
                 tableBuilder.primaryKey(COLUMN_ID_NAME, ColumnType.INTEGER);
 
-                for (PropertyDescription property : entity.getProperties()) {
+                for (Property property : entity.getProperties()) {
                     SqlTableBuilder.ColumnType columnType;
                     Class<?> propType = property.getType();
 
                     if (property.isRelationship()) {
-                        RelationshipDescription relationship = (RelationshipDescription) property;
+                        Relationship relationship = (Relationship) property;
                         if (relationship.isToOne()) {
                             columnType = ColumnType.INTEGER;
                         } else {

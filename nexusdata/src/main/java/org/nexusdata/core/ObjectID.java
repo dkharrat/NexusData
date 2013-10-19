@@ -2,16 +2,16 @@ package org.nexusdata.core;
 
 import java.net.URI;
 
-import org.nexusdata.metamodel.EntityDescription;
+import org.nexusdata.metamodel.Entity;
 
 //TODO: should this be parameterized on Entity type?
 
 public class ObjectID {
     private final PersistentStore store;
-    private final EntityDescription<?> entity;
+    private final Entity<?> entity;
     private final Object id;
 
-    ObjectID(PersistentStore store, EntityDescription<?> entity, Object referenceObject) {
+    ObjectID(PersistentStore store, Entity<?> entity, Object referenceObject) {
         this.store = store;
         this.entity = entity;
         id = referenceObject;
@@ -25,7 +25,7 @@ public class ObjectID {
         return entity.getType();
     }
 
-    public EntityDescription<?> getEntity() {
+    public Entity<?> getEntity() {
         return entity;
     }
 

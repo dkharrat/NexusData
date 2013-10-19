@@ -11,9 +11,9 @@ import org.nexusdata.core.ManagedObject;
 public class ObjectModel {
     private final int version;
     private final String name;
-    private final Map<String,EntityDescription<?>> entities = new HashMap<String,EntityDescription<?>>();
+    private final Map<String,Entity<?>> entities = new HashMap<String,Entity<?>>();
 
-    public ObjectModel(String name, List<EntityDescription<?>> entities, int version) {
+    public ObjectModel(String name, List<Entity<?>> entities, int version) {
         this.name = name;
         this.version = version;
         initEntities(entities);
@@ -26,8 +26,8 @@ public class ObjectModel {
         initEntities(parsedModel.getEntities());
     }
 
-    private void initEntities(List<EntityDescription<?>> entities) {
-        for (EntityDescription<?> entity : entities) {
+    private void initEntities(List<Entity<?>> entities) {
+        for (Entity<?> entity : entities) {
             this.entities.put(entity.getName(), entity);
         }
     }
@@ -40,16 +40,16 @@ public class ObjectModel {
         return name;
     }
 
-    public List<EntityDescription<?>> getEntities() {
-        return new ArrayList<EntityDescription<?>>(entities.values());
+    public List<Entity<?>> getEntities() {
+        return new ArrayList<Entity<?>>(entities.values());
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends ManagedObject> EntityDescription<T> getEntity(Class<T> type) {
-        return (EntityDescription<T>) getEntity(type.getSimpleName());
+    public <T extends ManagedObject> Entity<T> getEntity(Class<T> type) {
+        return (Entity<T>) getEntity(type.getSimpleName());
     }
 
-    public EntityDescription<?> getEntity(String name) {
+    public Entity<?> getEntity(String name) {
         return entities.get(name);
     }
 }

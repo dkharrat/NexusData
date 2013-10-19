@@ -1,6 +1,5 @@
 package org.nexusdata.test;
 
-import java.lang.RuntimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +17,7 @@ import org.nexusdata.core.ObjectContextNotifier.DefaultObjectContextListener;
 import org.nexusdata.core.ObjectContextNotifier.ObjectContextListener;
 import org.nexusdata.core.PersistentStore;
 import org.nexusdata.core.PersistentStoreCoordinator;
-import org.nexusdata.metamodel.EntityDescription;
+import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.ObjectModel;
 import org.nexusdata.predicate.ExpressionBuilder;
 
@@ -118,7 +117,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         context.save();
 
         @SuppressWarnings("unchecked")
-        EntityDescription<Employee> employeeEntity = (EntityDescription<Employee>) employee1.getEntity();
+        Entity<Employee> employeeEntity = (Entity<Employee>) employee1.getEntity();
 
 
         FetchRequest<Employee> fetchRequest = new FetchRequest<Employee>(employeeEntity);
@@ -144,7 +143,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         context.save();
 
         @SuppressWarnings("unchecked")
-        EntityDescription<Employee> employeeEntity = (EntityDescription<Employee>) employee1.getEntity();
+        Entity<Employee> employeeEntity = (Entity<Employee>) employee1.getEntity();
 
         // we need the 'google' object to be  based on the mainContext, since that's the context we're using to
         // create the predicate

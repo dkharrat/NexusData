@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.nexusdata.metamodel.EntityDescription;
+import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.ObjectModel;
 import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class PersistentStoreCoordinator {
         }
 
         UUID storeUuid = UUID.fromString(objectIDUri.getAuthority());
-        EntityDescription<?> entity = model.getEntity(parts[1]);
+        Entity<?> entity = model.getEntity(parts[1]);
         Object referenceObject = parts[2];
         try {
             referenceObject = Long.parseLong(parts[2]);

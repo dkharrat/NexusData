@@ -7,16 +7,16 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.nexusdata.metamodel.RelationshipDescription;
+import org.nexusdata.metamodel.Relationship;
 
 class FaultingSet<E extends ManagedObject> implements Set<E> {
 
     private final ManagedObject parent;
     private Set<E> backingSet = new LinkedHashSet<E>();
     private boolean isFault = false;
-    private final RelationshipDescription relationship;
+    private final Relationship relationship;
 
-    FaultingSet(ManagedObject parent, RelationshipDescription relationship, Collection<E> objects) {
+    FaultingSet(ManagedObject parent, Relationship relationship, Collection<E> objects) {
         this.parent = parent;
         this.relationship = relationship;
         isFault = !this.parent.isInserted() && objects == null;

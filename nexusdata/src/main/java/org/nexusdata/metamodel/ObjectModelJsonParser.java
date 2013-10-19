@@ -19,9 +19,9 @@ class ObjectModelJsonParser {
     static class ParsedModel {
         private String name;
         private int version;
-        private List<EntityDescription<?>> entities;
+        private List<Entity<?>> entities;
 
-        ParsedModel(String name, int version, List<EntityDescription<?>> entities) {
+        ParsedModel(String name, int version, List<Entity<?>> entities) {
             this.name = name;
             this.version = version;
             this.entities = entities;
@@ -35,7 +35,7 @@ class ObjectModelJsonParser {
             return version;
         }
 
-        List<EntityDescription<?>> getEntities() {
+        List<Entity<?>> getEntities() {
             return entities;
         }
     }
@@ -50,14 +50,14 @@ class ObjectModelJsonParser {
         JsonElem.Model jsonModel = gson.fromJson(modelJsonObj, JsonElem.Model.class);
         int modelVersion = jsonModel.version;
 
-        HashMap<String, EntityDescription<?>> entities = setupEntities(jsonModel, model);
+        HashMap<String, Entity<?>> entities = setupEntities(jsonModel, model);
 
         // Setup mapping between entity and relationship info
-        Map<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationMap = setupEntityRelationshipMapping(jsonModel, entities);
+        Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = setupEntityRelationshipMapping(jsonModel, entities);
 
         setupRelationships(entityRelationMap, entities);
 
-        EntityDescription<?>[] entitiesArray = entities.values().toArray(new EntityDescription<?>[0]);
+        Entity<?>[] entitiesArray = entities.values().toArray(new Entity<?>[0]);
         LOG.debug("Done parsing model");
         return new ParsedModel(jsonModel.name, modelVersion, Arrays.asList(entitiesArray));
     }
@@ -82,15 +82,15 @@ class ObjectModelJsonParser {
         }
     }
 
-    static private HashMap<String, EntityDescription<?>> setupEntities(JsonElem.Model jsonModel, ObjectModel model) {
-        HashMap<String, EntityDescription<?>> entities = new HashMap<String, EntityDescription<?>>();
+    static private HashMap<String, Entity<?>> setupEntities(JsonElem.Model jsonModel, ObjectModel model) {
+        HashMap<String, Entity<?>> entities = new HashMap<String, Entity<?>>();
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
             LOG.debug("Creating entity {}", jsonEntity.name);
 
             @SuppressWarnings("unchecked")
             Class<ManagedObject> entityType = (Class<ManagedObject>)getEntityType(jsonModel.packageName, jsonEntity.name);
-            EntityDescription<ManagedObject> entity = new EntityDescription<ManagedObject>(model, entityType);
+            Entity<ManagedObject> entity = new Entity<ManagedObject>(model, entityType);
 
             setupAttributes(jsonModel, jsonEntity, entity);
 
@@ -100,12 +100,12 @@ class ObjectModelJsonParser {
         return entities;
     }
 
-    static private Map<EntityDescription<?>, List<JsonElem.Relationship>> setupEntityRelationshipMapping(JsonElem.Model jsonModel, final HashMap<String, EntityDescription<?>> entities) {
-        Map<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationMap = new HashMap<EntityDescription<?>, List<JsonElem.Relationship>>();
+    static private Map<Entity<?>, List<JsonElem.Relationship>> setupEntityRelationshipMapping(JsonElem.Model jsonModel, final HashMap<String, Entity<?>> entities) {
+        Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = new HashMap<Entity<?>, List<JsonElem.Relationship>>();
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
             for (JsonElem.Relationship jsonRelation : jsonEntity.relationships) {
-                EntityDescription<?> entity = entities.get(jsonEntity.name);
+                Entity<?> entity = entities.get(jsonEntity.name);
                 List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(entity);
                 if (jsonRelations == null) {
                     jsonRelations = new ArrayList<JsonElem.Relationship>();
@@ -118,7 +118,7 @@ class ObjectModelJsonParser {
         return entityRelationMap;
     }
 
-    static private void setupAttributes(JsonElem.Model jsonModel, JsonElem.Entity jsonEntity, EntityDescription<?> entity) {
+    static private void setupAttributes(JsonElem.Model jsonModel, JsonElem.Entity jsonEntity, Entity<?> entity) {
         for (JsonElem.Attribute jsonAttr : jsonEntity.attributes) {
             Class<?> attrType = JsonElem.Attribute.primTypeToJavaType.get(jsonAttr.type);
             if (attrType == null) {
@@ -127,21 +127,21 @@ class ObjectModelJsonParser {
                     throw new RuntimeException("Unknown type '" + jsonAttr.type + "' for " + jsonEntity.name + "#" + jsonAttr.name);
                 }
             }
-            AttributeDescription attr = new AttributeDescription(entity, jsonAttr.name, attrType, jsonAttr.required, jsonAttr.getDefaultValue());
+            Attribute attr = new Attribute(entity, jsonAttr.name, attrType, jsonAttr.required, jsonAttr.getDefaultValue());
             LOG.debug("Adding attribute: " + jsonAttr.name);
             entity.addProperty(attr);
         }
     }
 
-    static private void setupRelationships(final Map<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationMap,
-                                           final HashMap<String, EntityDescription<?>> entities) {
-        for (Map.Entry<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
-            EntityDescription<?> entity = entityRelationPair.getKey();
+    static private void setupRelationships(final Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap,
+                                           final HashMap<String, Entity<?>> entities) {
+        for (Map.Entry<Entity<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
+            Entity<?> entity = entityRelationPair.getKey();
             for (JsonElem.Relationship jsonRelation : entityRelationPair.getValue()) {
-                EntityDescription<?> destinationEntity = entities.get(jsonRelation.destinationEntity);
-                RelationshipDescription.Type relationshipType = jsonRelation.getRelationshipType();
-                Class<?> relationClassType = (relationshipType == RelationshipDescription.Type.TO_MANY) ? Set.class : destinationEntity.getType();
-                RelationshipDescription relationship = new RelationshipDescription(
+                Entity<?> destinationEntity = entities.get(jsonRelation.destinationEntity);
+                Relationship.Type relationshipType = jsonRelation.getRelationshipType();
+                Class<?> relationClassType = (relationshipType == Relationship.Type.TO_MANY) ? Set.class : destinationEntity.getType();
+                Relationship relationship = new Relationship(
                         entity,
                         jsonRelation.name,
                         relationClassType,
@@ -155,12 +155,12 @@ class ObjectModelJsonParser {
         }
 
         // make another pass to setup the inverse relationships
-        for (Map.Entry<EntityDescription<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
-            EntityDescription<?> entity = entityRelationPair.getKey();
+        for (Map.Entry<Entity<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
+            Entity<?> entity = entityRelationPair.getKey();
             for (JsonElem.Relationship jsonRelation : entityRelationPair.getValue()) {
-                RelationshipDescription relationship = entity.getRelationship(jsonRelation.name);
+                Relationship relationship = entity.getRelationship(jsonRelation.name);
 
-                EntityDescription<?> destinationEntity = relationship.getDestinationEntity();
+                Entity<?> destinationEntity = relationship.getDestinationEntity();
                 // TODO: pluralize inverseName for to-many relationship by default
                 String inverseName = entity.getName().toLowerCase(Locale.ENGLISH);
 
@@ -169,7 +169,7 @@ class ObjectModelJsonParser {
                 }
 
                 try {
-                    RelationshipDescription inverseRelationship = (RelationshipDescription) destinationEntity.getProperty(inverseName);
+                    Relationship inverseRelationship = (Relationship) destinationEntity.getProperty(inverseName);
                     relationship.setInverse(inverseRelationship);
                 } catch (NoSuchPropertyException e) {
                     throw new RuntimeException("Could not find inverse property " + inverseName + " in destination entity " + destinationEntity.getName() + " for relationship " + relationship.getName(), e);
@@ -241,8 +241,8 @@ class JsonElem {
         String inverseName;
         boolean toMany;
 
-        RelationshipDescription.Type getRelationshipType() {
-            return toMany ? RelationshipDescription.Type.TO_MANY : RelationshipDescription.Type.TO_ONE;
+        org.nexusdata.metamodel.Relationship.Type getRelationshipType() {
+            return toMany ? org.nexusdata.metamodel.Relationship.Type.TO_MANY : org.nexusdata.metamodel.Relationship.Type.TO_ONE;
         }
     }
 }

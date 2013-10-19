@@ -8,14 +8,14 @@ import java.util.Map;
 
 import org.nexusdata.metamodel.*;
 import org.nexusdata.utils.ObjectUtil;
-import org.nexusdata.metamodel.PropertyDescription;
+import org.nexusdata.metamodel.Property;
 
 
 // TODO: handle case when object is unregistered from context (e.g. return null values on gets)
 
 /**
  * A managed object is the base type of any object instance in Nexus Data. It stores the object's properties defined by
- * its associated {@link EntityDescription}. Each object is uniquely identified by a global ID represented by {@link
+ * its associated {@link org.nexusdata.metamodel.Entity}. Each object is uniquely identified by a global ID represented by {@link
  * ObjectID}.
  * <p>
  * An object is managed by an {@link ObjectContext} and can be persisted in a persistence store. Typically, it is
@@ -71,7 +71,7 @@ public class ManagedObject {
      * overridden.
      */
     protected void init() {
-        for (AttributeDescription attr : getEntity().getAttributes()) {
+        for (Attribute attr : getEntity().getAttributes()) {
             if (attr.getDefaultValue() != null) {
                 values.put(attr.getName(), attr.getDefaultValue());
             }
@@ -97,7 +97,7 @@ public class ManagedObject {
      *
      * @return the object's associated entity
      */
-    public EntityDescription<?> getEntity() {
+    public Entity<?> getEntity() {
         return id.getEntity();
     }
 
@@ -136,12 +136,12 @@ public class ManagedObject {
     public Object getValue(String propertyName) {
         fulfillFaultIfNecessary();
 
-        PropertyDescription property = getEntity().getProperty(propertyName);
+        Property property = getEntity().getProperty(propertyName);
 
         Object value = getValueDirectly(property);
 
         if (value == null && property.isRelationship()) {
-            RelationshipDescription relationship = (RelationshipDescription)property;
+            Relationship relationship = (Relationship)property;
             if (relationship.isToMany()) {
                 value = new FaultingSet<ManagedObject>(this, relationship, null);
                 setValueDirectly(property, value);
@@ -151,11 +151,11 @@ public class ManagedObject {
         return value;
     }
 
-    Object getValueDirectly(PropertyDescription property) {
+    Object getValueDirectly(Property property) {
         return values.get(property.getName());
     }
 
-    void setValueDirectly(PropertyDescription property, Object value) {
+    void setValueDirectly(Property property, Object value) {
         String propertyName = property.getName();
         if (value != null && !property.getType().isAssignableFrom(value.getClass())) {
             throw new IllegalArgumentException("Invalid value "+value+" for property: " + propertyName + " of entity " + getEntity().getName());
@@ -163,12 +163,12 @@ public class ManagedObject {
         values.put(propertyName, value);
     }
 
-    private void setValue(PropertyDescription property, Object newValue, Object oldValue) {
+    private void setValue(Property property, Object newValue, Object oldValue) {
         setValueDirectly(property, newValue);
 
         if (property.isRelationship()) {
-            RelationshipDescription relationship = (RelationshipDescription)property;
-            RelationshipDescription inverseRelationship = relationship.getInverse();
+            Relationship relationship = (Relationship)property;
+            Relationship inverseRelationship = relationship.getInverse();
 
             if (relationship.isToMany()) {
                 @SuppressWarnings("unchecked")
@@ -225,7 +225,7 @@ public class ManagedObject {
      */
     @SuppressWarnings("unchecked")
     public boolean setValue(String propertyName, Object value) {
-        PropertyDescription property = getEntity().getProperty(propertyName);
+        Property property = getEntity().getProperty(propertyName);
         boolean changed = false;
 
         Object oldValue = getValue(propertyName);       // this should trigger a fault if necessary
@@ -233,7 +233,7 @@ public class ManagedObject {
             changed = true;
 
             if (property.isRelationship()) {
-                RelationshipDescription relationship = (RelationshipDescription)property;
+                Relationship relationship = (Relationship)property;
                 if (relationship.isToMany()) {
                     FaultingSet<?> oldRelatedObjects = (FaultingSet<?>)oldValue;
                     if (value == null && !oldRelatedObjects.isEmpty()) {
@@ -271,7 +271,7 @@ public class ManagedObject {
     public Map<String,Object> getAttributeValues() {
         Map<String,Object> values = new HashMap<String,Object>();
 
-        for (PropertyDescription property : getEntity().getAttributes()) {
+        for (Property property : getEntity().getAttributes()) {
             values.put(property.getName(), getValue(property.getName()));
         }
 
@@ -287,7 +287,7 @@ public class ManagedObject {
     public Map<String,Object> getValues() {
         Map<String,Object> values = new HashMap<String,Object>();
 
-        for (PropertyDescription property : getEntity().getProperties()) {
+        for (Property property : getEntity().getProperties()) {
             values.put(property.getName(), getValue(property.getName()));
         }
 
@@ -296,7 +296,7 @@ public class ManagedObject {
 
     void setValuesDirectly(Map<String,Object> values) {
         for (String propertyName : values.keySet()) {
-            PropertyDescription property = getEntity().getProperty(propertyName);
+            Property property = getEntity().getProperty(propertyName);
 
             Object value = values.get(propertyName);
             setValueDirectly(property, value);
@@ -325,7 +325,7 @@ public class ManagedObject {
             isFault = true;
             values.clear();
 
-            for (RelationshipDescription relationship : getEntity().getRelationships()) {
+            for (Relationship relationship : getEntity().getRelationships()) {
                 refreshRelationship(relationship.getName());
             }
 
@@ -389,7 +389,7 @@ public class ManagedObject {
      * @param relationshipName the name of the relationship to refresh
      */
     public void refreshRelationship(String relationshipName) {
-        RelationshipDescription relationship = getEntity().getRelationship(relationshipName);
+        Relationship relationship = getEntity().getRelationship(relationshipName);
 
         Object value = getValueDirectly(relationship);
         if (value != null) {
@@ -446,12 +446,12 @@ public class ManagedObject {
         } else {
             sb.append("{\n");
 
-            for (PropertyDescription property : getEntity().getProperties()) {
+            for (Property property : getEntity().getProperties()) {
                 sb.append("   ").append(property.getName()).append(" = ");
 
                 final Object propertyValue = getValue(property.getName());
                 if (property.isRelationship()) {
-                    RelationshipDescription relationship = ((RelationshipDescription)property);
+                    Relationship relationship = ((Relationship)property);
                     if (relationship.isToMany()) {
                         FaultingSet<?> relatedObjects = ((FaultingSet<?>)propertyValue);
                         if (relatedObjects.isFault()) {

@@ -3,23 +3,23 @@ package org.nexusdata.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nexusdata.metamodel.EntityDescription;
+import org.nexusdata.metamodel.Entity;
 import org.nexusdata.predicate.Predicate;
 
 public class FetchRequest<T extends ManagedObject> extends PersistentStoreRequest {
 
-    private final EntityDescription<T> entity;
+    private final Entity<T> entity;
     private Predicate predicate;
     private final List<SortDescriptor> sortDescriptors = new ArrayList<SortDescriptor>();
     private int limit = Integer.MAX_VALUE;
     private boolean includesPendingChanges = true;
     private boolean returnsObjectsAsFaults = true;
 
-    public FetchRequest(EntityDescription<T> entity) {
+    public FetchRequest(Entity<T> entity) {
         this.entity = entity;
     }
 
-    public EntityDescription<T> getEntity() {
+    public Entity<T> getEntity() {
         return entity;
     }
 
@@ -80,7 +80,7 @@ public class FetchRequest<T extends ManagedObject> extends PersistentStoreReques
     public static class Builder<T extends ManagedObject> {
         private final FetchRequest<T> fetchRequest;
 
-        public static <S extends ManagedObject> Builder<S> forEntity(EntityDescription<S> entity) {
+        public static <S extends ManagedObject> Builder<S> forEntity(Entity<S> entity) {
             return new Builder<S>(new FetchRequest<S>(entity));
         }
 
