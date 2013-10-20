@@ -12,8 +12,8 @@ public class ExpressionBuilder {
         return curExpression;
     }
 
-    public static PredicateBuilder constant(Object value) {
-        return new PredicateBuilder(new ConstantExpression(value));
+    public static <T> PredicateBuilder constant(T value) {
+        return new PredicateBuilder(new ConstantExpression<T>(value));
     }
 
     public static PredicateBuilder field(String fieldPath) {

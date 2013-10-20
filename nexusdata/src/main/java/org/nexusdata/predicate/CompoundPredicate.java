@@ -2,7 +2,7 @@ package org.nexusdata.predicate;
 
 
 public class CompoundPredicate implements Predicate {
-    public enum Operator {
+    public static enum Operator {
         AND,
         OR,
     }
@@ -29,7 +29,7 @@ public class CompoundPredicate implements Predicate {
     }
 
     @Override
-    public boolean evaluate(Object object) {
+    public Boolean evaluate(Object object) {
         boolean lhsValue = lhs.evaluate(object);
         boolean rhsValue = rhs.evaluate(object);
 

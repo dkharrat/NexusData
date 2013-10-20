@@ -12,7 +12,7 @@ class NotPredicate implements Predicate {
     }
 
     @Override
-    public boolean evaluate(Object object) {
+    public Boolean evaluate(Object object) {
         return !predicate.evaluate(object);
     }
 }

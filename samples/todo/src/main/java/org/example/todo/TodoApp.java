@@ -2,12 +2,12 @@ package org.example.todo;
 
 import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 import org.nexusdata.core.*;
 import org.nexusdata.metamodel.ObjectModel;
+import org.nexusdata.predicate.Predicate;
+import org.nexusdata.predicate.parser.PredicateParser;
 import org.nexusdata.store.AndroidSqlPersistentStore;
-import org.nexusdata.store.AndroidSqlPersistentStore;
-
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class TodoApp extends Application {

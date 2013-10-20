@@ -1,17 +1,19 @@
 package org.nexusdata.predicate;
 
 
+import org.nexusdata.predicate.parser.PredicateParser;
+
 public class PredicateBuilder {
 
     private final Predicate curPredicate;
-    private final Expression curExpression;
+    private final Expression<?> curExpression;
 
     PredicateBuilder(Predicate curPredicate) {
         this.curPredicate = curPredicate;
         this.curExpression = null;
     }
 
-    PredicateBuilder(Expression curExpression) {
+    PredicateBuilder(Expression<?> curExpression) {
         this.curExpression = curExpression;
         this.curPredicate = null;
     }
@@ -20,11 +22,16 @@ public class PredicateBuilder {
         return curPredicate;
     }
 
-    Expression getExpression() {
+    public static Predicate parse(String expr) {
+        PredicateParser parser = new PredicateParser(expr);
+        return parser.parse();
+    }
+
+    Expression<?> getExpression() {
         return curExpression;
     }
 
-    public PredicateBuilder gt(Expression rhs) {
+    public PredicateBuilder gt(Expression<?> rhs) {
         return new PredicateBuilder(new ComparisonPredicate(curExpression, ComparisonPredicate.Operator.GREATER_THAN, rhs));
     }
 
@@ -32,8 +39,8 @@ public class PredicateBuilder {
         return gt(rhs.getExpression());
     }
 
-    public PredicateBuilder gt(Object value) {
-        return gt(new ConstantExpression(value));
+    public <T> PredicateBuilder gt(T value) {
+        return gt(new ConstantExpression<T>(value));
     }
 
     public PredicateBuilder lt(Expression rhs) {
@@ -44,11 +51,11 @@ public class PredicateBuilder {
         return lt(rhs.getExpression());
     }
 
-    public PredicateBuilder lt(Object value) {
-        return lt(new ConstantExpression(value));
+    public <T> PredicateBuilder lt(T value) {
+        return lt(new ConstantExpression<T>(value));
     }
 
-    public PredicateBuilder eq(Expression rhs) {
+    public PredicateBuilder eq(Expression<?> rhs) {
         return new PredicateBuilder(new ComparisonPredicate(curExpression, ComparisonPredicate.Operator.EQUAL, rhs));
     }
 
@@ -56,8 +63,8 @@ public class PredicateBuilder {
         return eq(rhs.getExpression());
     }
 
-    public PredicateBuilder eq(Object value) {
-        return eq(new ConstantExpression(value));
+    public <T> PredicateBuilder eq(T value) {
+        return eq(new ConstantExpression<T>(value));
     }
 
     public PredicateBuilder and(PredicateBuilder rhs) {

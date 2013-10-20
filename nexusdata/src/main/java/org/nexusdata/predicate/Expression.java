@@ -1,7 +1,7 @@
 package org.nexusdata.predicate;
 
 
-public interface Expression {
+public interface Expression<T> {
 
-    public Object evaluate(Object object);
+    public T evaluate(Object object);
 }

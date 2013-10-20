@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 import org.nexusdata.core.ManagedObject;
 
-public class FieldPathExpression implements Expression {
+public class FieldPathExpression implements Expression<Object> {
 
     private final String fieldPath;
 

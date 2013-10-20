@@ -1,5 +1,7 @@
 package org.nexusdata.predicate;
 
+import org.nexusdata.utils.ObjectUtil;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
@@ -7,22 +9,23 @@ public class ComparisonPredicate implements Predicate {
 
     public enum Operator {
         EQUAL,
+        NOT_EQUAL,
         GREATER_THAN,
         GREATER_THAN_OR_EQUAL,
         LESS_THAN,
         LESS_THAN_OR_EQUAL,
     }
 
-    private final Expression lhs, rhs;
+    private final Expression<?> lhs, rhs;
     private final Operator op;
 
-    public ComparisonPredicate(Expression lhs, Operator op, Expression rhs) {
+    public ComparisonPredicate(Expression<?> lhs, Operator op, Expression<?> rhs) {
         this.lhs = lhs;
         this.op = op;
         this.rhs = rhs;
     }
 
-    public Expression getLhs() {
+    public Expression<?> getLhs() {
         return lhs;
     }
 
@@ -30,21 +33,19 @@ public class ComparisonPredicate implements Predicate {
         return op;
     }
 
-    public Expression getRhs() {
+    public Expression<?> getRhs() {
         return rhs;
     }
 
     @Override
-    public boolean evaluate(Object object) {
+    public Boolean evaluate(Object object) {
         Object lhsValue = lhs.evaluate(object);
         Object rhsValue = rhs.evaluate(object);
 
         if (op == Operator.EQUAL) {
-            if (lhsValue == null) {
-                return rhsValue == null;
-            } else {
-                return lhsValue.equals(rhsValue);
-            }
+            return ObjectUtil.objectsEqual(lhsValue, rhsValue);
+        } else if (op == Operator.NOT_EQUAL) {
+            return !ObjectUtil.objectsEqual(lhsValue, rhsValue);
         }
 
         if (!(lhsValue instanceof Number) || !(rhsValue instanceof Number)) {

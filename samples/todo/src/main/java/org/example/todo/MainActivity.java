@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import org.nexusdata.core.FetchRequest;
 import org.nexusdata.core.ObjectContext;
 import org.nexusdata.predicate.ExpressionBuilder;
+import org.nexusdata.predicate.Predicate;
 import org.nexusdata.predicate.PredicateBuilder;
+import org.nexusdata.predicate.parser.PredicateParser;
 
 import java.util.Arrays;
 import java.util.List;
@@ -93,10 +96,8 @@ public class MainActivity extends Activity {
 
         boolean displayCompleted = (displayMode == DisplayMode.COMPLETED);
         FetchRequest<Task> fetchRequest = ctx.newFetchRequestBuilder(Task.class).
-                predicate(ExpressionBuilder.
-                        field(Task.Property.COMPLETED).eq(displayCompleted).
-                        getPredicate()).
-                build();
+                predicate(PredicateBuilder.parse("completed == "+displayCompleted))
+                .build();
         List<Task> tasks = ctx.executeFetchOperation(fetchRequest);
 
         if (listAdapter == null) {

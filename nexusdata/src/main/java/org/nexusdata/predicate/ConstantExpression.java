@@ -1,19 +1,19 @@
 package org.nexusdata.predicate;
 
-public class ConstantExpression implements Expression {
+public class ConstantExpression<T> implements Expression<T> {
 
-    private final Object value;
+    private final T value;
 
-    public ConstantExpression(Object value) {
+    public ConstantExpression(T value) {
         this.value = value;
     }
 
-    public Object getValue() {
+    public T getValue() {
         return value;
     }
 
     @Override
-    public Object evaluate(Object object) {
+    public T evaluate(Object object) {
         return getValue();
     }
 
