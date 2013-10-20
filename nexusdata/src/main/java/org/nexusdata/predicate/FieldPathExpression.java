@@ -35,4 +35,21 @@ public class FieldPathExpression implements Expression<Object> {
     public String toString() {
         return fieldPath;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FieldPathExpression that = (FieldPathExpression) o;
+
+        if (!fieldPath.equals(that.fieldPath)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return fieldPath.hashCode();
+    }
 }

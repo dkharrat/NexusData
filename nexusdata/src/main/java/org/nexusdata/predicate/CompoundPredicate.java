@@ -47,4 +47,26 @@ public class CompoundPredicate implements Predicate {
     public String toString() {
         return "(" + lhs + " " + op + " " + rhs + ")";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CompoundPredicate that = (CompoundPredicate) o;
+
+        if (!lhs.equals(that.lhs)) return false;
+        if (op != that.op) return false;
+        if (!rhs.equals(that.rhs)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = lhs.hashCode();
+        result = 31 * result + rhs.hashCode();
+        result = 31 * result + op.hashCode();
+        return result;
+    }
 }
