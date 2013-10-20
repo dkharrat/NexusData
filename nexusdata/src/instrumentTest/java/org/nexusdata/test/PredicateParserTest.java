@@ -18,8 +18,8 @@ public class PredicateParserTest extends TestCase {
     }
 
     public void testWithEquality() throws Throwable {
-        Predicate actual = PredicateBuilder.parse("1 == 2");
-        Predicate expected = ExpressionBuilder.constant(1).eq(2).getPredicate();
+        Predicate actual = PredicateBuilder.parse("1 == 256");
+        Predicate expected = ExpressionBuilder.constant(1).eq(256).getPredicate();
         assertEquals(expected, actual);
     }
 
@@ -31,9 +31,9 @@ public class PredicateParserTest extends TestCase {
 
     public void testWithString() throws Throwable {
         //TODO: this test hangs; fix
-        //Predicate actual = PredicateBuilder.parse("1 == \"2\"");
-        //Predicate expected = ExpressionBuilder.constant(1).eq("2").getPredicate();
-        //assertEquals(expected, actual);
+        Predicate actual = PredicateBuilder.parse("1 == \"2\"");
+        Predicate expected = ExpressionBuilder.constant(1).eq("2").getPredicate();
+        assertEquals(expected, actual);
     }
 
     public void testComparison() throws Throwable {

@@ -16,6 +16,8 @@ public class ConstantParselet implements PrefixParselet<TokenType,Expression<?>>
             value = true;
         } else if (valueStr.equals("false")) {
             value = false;
+        } else if (valueStr.startsWith("\"")) {
+            value = valueStr.substring(1,valueStr.length()-1);   // remove quotes from string
         } else {
             value = Integer.parseInt(valueStr);
         }
