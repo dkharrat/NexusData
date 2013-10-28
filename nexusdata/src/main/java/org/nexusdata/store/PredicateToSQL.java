@@ -14,15 +14,13 @@ import java.util.List;
 class DatabaseQueryService {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseQueryService.class);
 
-    public static <T extends ManagedObject> Cursor query(SQLiteDatabase db, IncrementalStore store, String tableName, FetchRequest<T> request) {
+    public static <T extends ManagedObject> Cursor query(SQLiteDatabase db, final IncrementalStore store, String tableName, FetchRequest<T> request) {
 
         LOG.debug("Constructing SQL query for request: " + request);
 
         String limit = null;
         if (request.getLimit() != Integer.MAX_VALUE || request.getOffset() != 0) {
-            limit = String.valueOf(request.getLimit());
-
-            limit += "," + request.getOffset();
+            limit = String.valueOf(request.getOffset()) + "," + request.getLimit();
         }
 
         String orderBy = null;
@@ -36,10 +34,15 @@ class DatabaseQueryService {
             orderBy = StringUtil.join(orderBys, ",");
         }
 
-        QueryString queryString = buildQuery(request.getPredicate());
 
-        String selection = queryString.stringBuilder.length() == 0 ? null : queryString.stringBuilder.toString();
-        String[] selectionArgs = queryString.params.isEmpty() ? null : queryString.params.toArray(new String[0]);
+        String selection = null;
+        String[] selectionArgs = null;
+        if (request.getPredicate() != null) {
+            QueryParts queryParts = buildQuery(store, request.getPredicate());
+
+            selection = queryParts.stringBuilder.toString();
+            selectionArgs = queryParts.params.isEmpty() ? null : queryParts.params.toArray(new String[0]);
+        }
 
         Cursor cursor = db.query(
                 false,          // not distinct
@@ -55,54 +58,63 @@ class DatabaseQueryService {
         return cursor;
     }
 
-    private static QueryString buildQuery(Predicate predicate) {
-        return new QueryBuilder().visit(predicate);
+    private static QueryParts buildQuery(IncrementalStore store, Predicate predicate) {
+        return new QueryBuilder(store).visit(predicate);
     }
 
-    static class QueryString {
-        final StringBuilder stringBuilder = new StringBuilder();
-        final ArrayList<String> params = new ArrayList<String>();
+    private static class QueryParts {
+        private final StringBuilder stringBuilder = new StringBuilder();
+        private final ArrayList<String> params = new ArrayList<String>();
     }
 
-    static class QueryBuilder implements ExpressionVisitor<QueryString> {
+    private static class QueryBuilder implements ExpressionVisitor<QueryParts> {
 
-        final QueryString queryString = new QueryString();
+        final IncrementalStore store;
+        final QueryParts queryParts = new QueryParts();
+
+        QueryBuilder(IncrementalStore store) {
+            this.store = store;
+        }
 
         @Override
-        public QueryString visit(ConstantExpression<?> expression) {
+        public QueryParts visit(ConstantExpression<?> expression) {
             Object value = expression.getValue();
-            if (value.getClass().isAssignableFrom(Boolean.class) || value.getClass().isAssignableFrom(boolean.class)) {
+            if (value instanceof ManagedObject) {
+                ManagedObject relatedObject = (ManagedObject)value;
+                value = store.getReferenceObjectForObjectID(relatedObject.getID()).toString();
+            } else if (value.getClass().isAssignableFrom(Boolean.class) || value.getClass().isAssignableFrom(boolean.class)) {
                 value = ((Boolean)value) ? "1" : "0";
             }
-            queryString.stringBuilder.append(value);
-            return queryString;
+            queryParts.params.add(value.toString());
+            queryParts.stringBuilder.append("?");
+            return queryParts;
         }
 
         @Override
-        public QueryString visit(FieldPathExpression expression) {
-            queryString.stringBuilder.append(expression.getFieldPath());
-            return queryString;
+        public QueryParts visit(FieldPathExpression expression) {
+            queryParts.stringBuilder.append(expression.getFieldPath());
+            return queryParts;
         }
 
         @Override
-        public QueryString visit(CompoundPredicate predicate) {
+        public QueryParts visit(CompoundPredicate predicate) {
             String op = null;
             switch(predicate.getOperator()) {
                 case AND:   op = " AND "; break;
                 case OR:    op = " OR "; break;
             }
 
-            queryString.stringBuilder.append("(");
+            queryParts.stringBuilder.append("(");
             visit(predicate.getLhs());
-            queryString.stringBuilder.append(op);
+            queryParts.stringBuilder.append(op);
             visit(predicate.getRhs());
-            queryString.stringBuilder.append(")");
+            queryParts.stringBuilder.append(")");
 
-            return queryString;
+            return queryParts;
         }
 
         @Override
-        public QueryString visit(ComparisonPredicate predicate) {
+        public QueryParts visit(ComparisonPredicate predicate) {
             String op = null;
             switch(predicate.getOperator()) {
                 case EQUAL:                 op = " = "; break;
@@ -113,25 +125,25 @@ class DatabaseQueryService {
                 case NOT_EQUAL:             op = " != "; break;
             }
 
-            queryString.stringBuilder.append("(");
+            queryParts.stringBuilder.append("(");
             visit(predicate.getLhs());
-            queryString.stringBuilder.append(op);
+            queryParts.stringBuilder.append(op);
             visit(predicate.getRhs());
-            queryString.stringBuilder.append(")");
+            queryParts.stringBuilder.append(")");
 
-            return queryString;
+            return queryParts;
         }
 
         @Override
-        public QueryString visit(NotPredicate predicate) {
-            queryString.stringBuilder
+        public QueryParts visit(NotPredicate predicate) {
+            queryParts.stringBuilder
                     .append("NOT (")
                     .append(visit(predicate.getPredicate()))
                     .append(")");
-            return queryString;
+            return queryParts;
         }
 
-        QueryString visit(Predicate predicate) {
+        QueryParts visit(Predicate predicate) {
             if (predicate instanceof CompoundPredicate) {
                 return visit((CompoundPredicate)predicate);
             } else if (predicate instanceof ComparisonPredicate) {
@@ -143,7 +155,7 @@ class DatabaseQueryService {
             }
         }
 
-        QueryString visit(Expression expression) {
+        QueryParts visit(Expression expression) {
             if (expression instanceof ConstantExpression) {
                 return visit((ConstantExpression)expression);
             } else if (expression instanceof FieldPathExpression) {
