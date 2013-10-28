@@ -23,7 +23,7 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
 
-    private static final boolean DEBUG_QUERIES = true;
+    private static final boolean DEBUG_QUERIES = false;
 
     private static final String METADATA_TABLE_NAME = "nxs_metadata";
     private static final String METADATA_COLUMN_VERSION = "version";
