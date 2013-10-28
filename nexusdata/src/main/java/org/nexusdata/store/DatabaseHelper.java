@@ -3,7 +3,10 @@ package org.nexusdata.store;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 import org.nexusdata.core.ManagedObject;
 import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.ObjectModel;
@@ -29,10 +32,10 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
     private static final String METADATA_COLUMN_VERSION = "version";
     private static final String METADATA_COLUMN_UUID = "uuid";
 
-    ObjectModel model;
+    private ObjectModel model;
 
     DatabaseHelper(Context context, File path, ObjectModel model) {
-        super(context, path, DEBUG_QUERIES ? new AndroidSqlPersistentStore.SQLiteCursorLoggerFactory() : null, model.getVersion());
+        super(context, path, DEBUG_QUERIES ? new SQLiteCursorLoggerFactory() : null, model.getVersion());
         this.model = model;
     }
 
@@ -93,7 +96,7 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
         generateMetadata(db);
     }
 
-    UUID generateMetadata(SQLiteDatabase db) {
+    private UUID generateMetadata(SQLiteDatabase db) {
         UUID uuid = UUID.randomUUID();
 
         ContentValues metadataValues = new ContentValues();
@@ -112,12 +115,12 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
         clearDatabase(db);
     }
 
-    void clearDatabase(SQLiteDatabase db) {
+    private void clearDatabase(SQLiteDatabase db) {
         dropTables(db);
         onCreate(db);
     }
 
-    static void dropTables(SQLiteDatabase db) {
+    private static void dropTables(SQLiteDatabase db) {
         String TABLES_SQL = "select 'drop table if exists ' || name || ';' from sqlite_master where type='table' "+
                 "and name not like 'android%' "+
                 "and name not like 'sqlite%';"+
@@ -137,5 +140,18 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
             uuid = UUID.fromString(CursorUtil.getString(cursor, METADATA_COLUMN_UUID));
         }
         return uuid;
+    }
+
+    private static class SQLiteCursorLoggerFactory implements SQLiteDatabase.CursorFactory {
+
+        @SuppressWarnings("deprecation")
+        @Override
+        public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
+                                String editTable, SQLiteQuery query) {
+            LOG.debug(query.toString());
+
+            // non-deprecated API is only available in API 11
+            return new SQLiteCursor(db, masterQuery, editTable, query);
+        }
     }
 }

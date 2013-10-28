@@ -15,11 +15,7 @@ import org.slf4j.LoggerFactory;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
-import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.database.sqlite.SQLiteQuery;
 
 import org.nexusdata.core.*;
 import org.nexusdata.metamodel.*;
@@ -37,14 +33,14 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
     static final String COLUMN_ID_NAME = "_ID";
 
-    DatabaseHelper databaseHelper;
-    Map<String,Long> lastRowIDs = new HashMap<String,Long>();
-    Context context;
+    private DatabaseHelper databaseHelper;
+    private Map<String,Long> lastRowIDs = new HashMap<String,Long>();
+    private Context context;
 
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
 
     // TODO: use a MRU cache and also remove objects if they are unregistered from all contexts
-    Map<Class<?>, Map<Long,StoreCacheNode>> cache = new HashMap<Class<?>, Map<Long,StoreCacheNode>>();
+    private Map<Class<?>, Map<Long,StoreCacheNode>> cache = new HashMap<Class<?>, Map<Long,StoreCacheNode>>();
 
     public AndroidSqlPersistentStore(Context context, File path) {
         super(path);
@@ -390,18 +386,5 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         }
 
         return objectIDs;
-    }
-
-    static class SQLiteCursorLoggerFactory implements CursorFactory {
-
-        @SuppressWarnings("deprecation")
-        @Override
-        public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
-                                String editTable, SQLiteQuery query) {
-            LOG.debug(query.toString());
-
-            // non-deprecated API is only available in API 11
-            return new SQLiteCursor(db, masterQuery, editTable, query);
-        }
     }
 }
