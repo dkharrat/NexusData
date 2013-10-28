@@ -40,6 +40,11 @@ public abstract class IncrementalStore extends PersistentStore {
     }
 
     @Override
+    public Object getReferenceObjectForObjectID(ObjectID objectID) {
+        return super.getReferenceObjectForObjectID(objectID);
+    }
+
+    @Override
     protected void contextRegisteredObjectIDs(Collection<ObjectID> objectIDs) {
 
     }

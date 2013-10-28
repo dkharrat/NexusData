@@ -29,6 +29,11 @@ public class CompoundPredicate implements Predicate {
     }
 
     @Override
+    public <T> T accept(ExpressionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public Boolean evaluate(Object object) {
         boolean lhsValue = lhs.evaluate(object);
         boolean rhsValue = rhs.evaluate(object);

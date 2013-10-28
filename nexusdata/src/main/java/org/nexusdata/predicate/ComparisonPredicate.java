@@ -38,6 +38,11 @@ public class ComparisonPredicate implements Predicate {
     }
 
     @Override
+    public <T> T accept(ExpressionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public Boolean evaluate(Object object) {
         Object lhsValue = lhs.evaluate(object);
         Object rhsValue = rhs.evaluate(object);

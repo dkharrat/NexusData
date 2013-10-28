@@ -1,6 +1,6 @@
 package org.nexusdata.predicate;
 
-class NotPredicate implements Predicate {
+public class NotPredicate implements Predicate {
     private final Predicate predicate;
 
     public NotPredicate(Predicate predicate) {
@@ -9,6 +9,11 @@ class NotPredicate implements Predicate {
 
     public Predicate getPredicate() {
         return predicate;
+    }
+
+    @Override
+    public <T> T accept(ExpressionVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 
     @Override

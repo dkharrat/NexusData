@@ -8,11 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import org.nexusdata.metamodel.*;
-import org.nexusdata.utils.StringUtil;
-import org.nexusdata.utils.android.SQLiteDatabaseHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,22 +21,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
 
-import org.nexusdata.core.FetchRequest;
-import org.nexusdata.core.IncrementalStore;
-import org.nexusdata.core.ManagedObject;
-import org.nexusdata.core.ObjectContext;
-import org.nexusdata.core.ObjectID;
-import org.nexusdata.core.SaveChangesRequest;
-import org.nexusdata.core.SortDescriptor;
-import org.nexusdata.core.StoreCacheNode;
-import org.nexusdata.predicate.ComparisonPredicate;
-import org.nexusdata.predicate.FieldPathExpression;
-import org.nexusdata.predicate.Predicate;
+import org.nexusdata.core.*;
+import org.nexusdata.metamodel.*;
 import org.nexusdata.utils.android.CursorUtil;
 import org.nexusdata.utils.DateUtil;
-import org.nexusdata.utils.SqlTableBuilder;
-import org.nexusdata.utils.SqlTableBuilder.ColumnType;
-import org.nexusdata.utils.SqlTableBuilder.ConflictAction;
 
 /* TODO: AndroidSqlPersistentStore changes
  *  - improve memory-management
@@ -103,80 +87,9 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         return object;
     }
 
-    private <T extends ManagedObject> Cursor performQuery(SQLiteDatabase db, FetchRequest<T> request) {
-
-        // TODO: this is a pretty crude and limited predicate-to-SQL converter; need to build a proper one
-
-        String limit = null;
-        if (request.getLimit() != Integer.MAX_VALUE) {
-            limit = String.valueOf(request.getLimit());
-        }
-
-        String orderBy = null;
-        if (request.hasSortDescriptors()) {
-            List<String> orderBys = new ArrayList<String>();
-            for (SortDescriptor sortDesc : request.getSortDescriptors()) {
-                String orderType = sortDesc.isAscending() ? " ASC" : " DESC";
-                orderBys.add(sortDesc.getAttributeName() + orderType);
-            }
-
-            orderBy = StringUtil.join(orderBys, ",");
-        }
-
-        String selection = "";
-        ArrayList<String> selectionArgs = new ArrayList<String>();
-        if (request.getPredicate() != null) {
-            Predicate predicate = request.getPredicate();
-
-            if (predicate instanceof ComparisonPredicate) {
-                ComparisonPredicate comparison = (ComparisonPredicate)predicate;
-
-                if (comparison.getLhs() instanceof FieldPathExpression) {
-                    selection += "`" + ((FieldPathExpression)comparison.getLhs()).getFieldPath() + "`";
-                    switch (comparison.getOperator()) {
-                        case EQUAL:
-                            selection += "=?";
-                            break;
-                        default:
-                            throw new UnsupportedOperationException("Not yet implemented");
-                    }
-                    Object rhs = comparison.getRhs().evaluate(null);
-                    if (rhs instanceof ManagedObject) {
-                        ManagedObject relatedObject = (ManagedObject)rhs;
-                        selectionArgs.add(getReferenceObjectForObjectID(relatedObject.getID()).toString());
-                    } else {
-                        String value = rhs.toString();
-                        if (rhs.getClass().isAssignableFrom(Boolean.class) || rhs.getClass().isAssignableFrom(boolean.class)) {
-                            value = ((Boolean)rhs) ? "1" : "0";
-                        }
-                        selectionArgs.add(value);
-                    }
-                }
-            }
-        }
-
-        if (selection.isEmpty()) {
-            selection = null;
-            selectionArgs = null;
-        }
-
-        Cursor cursor = db.query(
-                false,          // not distinct
-                getTableName(request.getEntity()),
-                null, // columns
-                selection,      // selection
-                selectionArgs == null ? null : selectionArgs.toArray(new String[0]),           // selectionArgs
-                null,           // groupBy
-                null,           // having
-                orderBy,        // orderBy
-                limit);         // limit
-
-        return cursor;
-    }
-
     @Override
     protected <T extends ManagedObject> List<T> executeFetchRequest(FetchRequest<T> request, ObjectContext context) {
-        Cursor cursor = performQuery(db, request);
+        Cursor cursor = DatabaseQueryService.query(db, this, DatabaseHelper.getTableName(request.getEntity()), request);
 
         List<T> results = new ArrayList<T>();
         while(cursor.moveToNext()) {
@@ -233,13 +146,13 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             for (ManagedObject object : request.getInsertedObjects()) {
                 ContentValues values = getContentValues(object);
                 //TODO: log inserts, updates & deletes
-                db.insertOrThrow(getTableName(object.getEntity()), null, values);
+                db.insertOrThrow(DatabaseHelper.getTableName(object.getEntity()), null, values);
             }
 
             for (ManagedObject object : request.getUpdatedObjects()) {
                 ContentValues values = getContentValues(object);
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
-                db.update(getTableName(object.getEntity()), values, "_ID = " + id, null);
+                db.update(DatabaseHelper.getTableName(object.getEntity()), values, "_ID = " + id, null);
 
                 Map<Long, StoreCacheNode> entityCache = cache.get(object.getEntity().getType());
                 if (entityCache != null) {
@@ -250,7 +163,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
             for (ManagedObject object : request.getDeletedObjects()) {
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
-                db.delete(getTableName(object.getEntity()), "_ID = " + id, null);
+                db.delete(DatabaseHelper.getTableName(object.getEntity()), "_ID = " + id, null);
 
                 Map<Long, StoreCacheNode> entityCache = cache.get(object.getEntity().getType());
                 if (entityCache != null) {
@@ -343,7 +256,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         Cursor cursor = db.query(
                 false,          // not distinct
-                getTableName(objectID.getEntity()),
+                DatabaseHelper.getTableName(objectID.getEntity()),
                 null,           // columns
                 COLUMN_ID_NAME + "=?",           // selection
                 new String[]{String.valueOf(id)},           // selectionArgs
@@ -374,7 +287,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             ObjectContext context) {
 
         String[] columns = new String[]{COLUMN_ID_NAME};
-        String table = getTableName(relationship.getDestinationEntity());
+        String table = DatabaseHelper.getTableName(relationship.getDestinationEntity());
         String selection = relationship.getInverse().getName()+"=?";
         String[] selectionArgs = new String[]{getReferenceObjectForObjectID(objectID).toString()};
 
@@ -407,8 +320,8 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             Relationship relationship,
             ObjectContext context) {
 
-        String fromTable = getTableName(objectID.getEntity());
-        String toTable = getTableName(relationship.getDestinationEntity());
+        String fromTable = DatabaseHelper.getTableName(objectID.getEntity());
+        String toTable = DatabaseHelper.getTableName(relationship.getDestinationEntity());
 
         String table = fromTable + " t1," + toTable + " t2";
         String[] columns = new String[]{"t1" + "." + COLUMN_ID_NAME};
@@ -465,139 +378,18 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         for (ManagedObject object : objects) {
             ObjectID id;
 
-            String tableName = getTableName(object.getEntity());
+            String tableName = DatabaseHelper.getTableName(object.getEntity());
             Long lastRowID = lastRowIDs.get(tableName);
             if (lastRowID == null) {
                 lastRowID = getLastRowIDFromDatabase(db, tableName);
             }
             id = createObjectID(object.getEntity(), lastRowID++);
-            lastRowIDs.put(getTableName(object.getEntity()), lastRowID);
+            lastRowIDs.put(DatabaseHelper.getTableName(object.getEntity()), lastRowID);
 
             objectIDs.add(id);
         }
 
         return objectIDs;
-    }
-
-    static private <T extends ManagedObject> String getTableName(Entity<T> entity) {
-        return entity.getType().getSimpleName();
-    }
-
-    static class DatabaseHelper extends SQLiteDatabaseHelper {
-
-        private static final Logger LOG = LoggerFactory.getLogger(DatabaseHelper.class);
-
-        private static final boolean DEBUG_QUERIES = false;
-
-        private static final String METADATA_TABLE_NAME = "nxs_metadata";
-        private static final String METADATA_COLUMN_VERSION = "version";
-        private static final String METADATA_COLUMN_UUID = "uuid";
-
-        ObjectModel model;
-
-        DatabaseHelper(Context context, File path, ObjectModel model) {
-            super(context, path, DEBUG_QUERIES ? new SQLiteCursorLoggerFactory() : null, model.getVersion());
-            this.model = model;
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            LOG.info("Creating database: " + db.getPath());
-
-            // create the metadata table
-            SqlTableBuilder tableBuilder = new SqlTableBuilder();
-            tableBuilder.tableName(METADATA_TABLE_NAME);
-            tableBuilder.column(METADATA_COLUMN_VERSION, ColumnType.INTEGER).setUnique(ConflictAction.ABORT);
-            tableBuilder.column(METADATA_COLUMN_UUID, ColumnType.TEXT);
-            tableBuilder.createTable(db);
-
-            for (Entity<?> entity : model.getEntities()) {
-                tableBuilder = new SqlTableBuilder();
-                tableBuilder.tableName(getTableName(entity));
-                tableBuilder.primaryKey(COLUMN_ID_NAME, ColumnType.INTEGER);
-
-                for (Property property : entity.getProperties()) {
-                    SqlTableBuilder.ColumnType columnType;
-                    Class<?> propType = property.getType();
-
-                    if (property.isRelationship()) {
-                        Relationship relationship = (Relationship) property;
-                        if (relationship.isToOne()) {
-                            columnType = ColumnType.INTEGER;
-                        } else {
-                            continue;
-                        }
-                    }
-                    else if (int.class.isAssignableFrom(propType) || Integer.class.isAssignableFrom(propType) ||
-                            long.class.isAssignableFrom(propType) || Long.class.isAssignableFrom(propType)) {
-                        columnType = ColumnType.INTEGER;
-                    } else if (String.class.isAssignableFrom(propType) || Enum.class.isAssignableFrom(propType)) {
-                        columnType = ColumnType.TEXT;
-                    } else if (boolean.class.isAssignableFrom(propType) || Boolean.class.isAssignableFrom(propType)) {
-                        columnType = ColumnType.BOOLEAN;
-                    } else if (Date.class.isAssignableFrom(property.getType())) {
-                        columnType = ColumnType.DATETIME;
-                    } else {
-                        throw new UnsupportedOperationException("Unsupported field type " + property.getType() + " for " + entity.getType());
-                    }
-
-                    tableBuilder.column(property.getName(), columnType);
-                    if (property.isRequired()) {
-                        tableBuilder.setNullable(false);
-                    }
-                }
-
-                tableBuilder.createTable(db);
-            }
-
-            generateMetadata(db);
-        }
-
-        UUID generateMetadata(SQLiteDatabase db) {
-            UUID uuid = UUID.randomUUID();
-
-            ContentValues metadataValues = new ContentValues();
-            metadataValues.put(METADATA_COLUMN_VERSION, model.getVersion());
-            metadataValues.put(METADATA_COLUMN_UUID, uuid.toString());
-            db.insert(METADATA_TABLE_NAME, null, metadataValues);
-
-            return uuid;
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            LOG.info("Upgrading DB from " + oldVersion + " to " + newVersion);
-
-            //TODO: ideally, DB should be migrated to newer version as opposed to re-creating it
-            clearDatabase(db);
-        }
-
-        void clearDatabase(SQLiteDatabase db) {
-            dropTables(db);
-            onCreate(db);
-        }
-
-        static void dropTables(SQLiteDatabase db) {
-            String TABLES_SQL = "select 'drop table if exists ' || name || ';' from sqlite_master where type='table' "+
-                    "and name not like 'android%' "+
-                    "and name not like 'sqlite%';"+
-                    "and name not like '"+METADATA_TABLE_NAME+"';";
-            Cursor c = db.rawQuery(TABLES_SQL, null);
-            while(c.moveToNext()) {
-                String dropTableSql = c.getString(0);
-                LOG.info("Executing: " + dropTableSql);
-                db.execSQL(dropTableSql);
-            }
-        }
-
-        static UUID getDatabaseUuid(SQLiteDatabase db, int version) {
-            UUID uuid = null;
-            Cursor cursor = db.query(METADATA_TABLE_NAME, null, METADATA_COLUMN_VERSION+"=?", new String[]{String.valueOf(version)}, null, null, null);
-            if (cursor.moveToFirst()) {
-                uuid = UUID.fromString(CursorUtil.getString(cursor, METADATA_COLUMN_UUID));
-            }
-            return uuid;
-        }
     }
 
     static class SQLiteCursorLoggerFactory implements CursorFactory {

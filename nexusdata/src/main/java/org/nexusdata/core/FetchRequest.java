@@ -12,6 +12,7 @@ public class FetchRequest<T extends ManagedObject> extends PersistentStoreReques
     private Predicate predicate;
     private final List<SortDescriptor> sortDescriptors = new ArrayList<SortDescriptor>();
     private int limit = Integer.MAX_VALUE;
+    private int offset = 0;
     private boolean includesPendingChanges = true;
     private boolean returnsObjectsAsFaults = true;
 
@@ -37,6 +38,14 @@ public class FetchRequest<T extends ManagedObject> extends PersistentStoreReques
 
     public void setLimit(int limit) {
         this.limit = limit;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
     }
 
     public List<SortDescriptor> getSortDescriptors() {
@@ -111,5 +120,16 @@ public class FetchRequest<T extends ManagedObject> extends PersistentStoreReques
         public FetchRequest<T> build() {
             return fetchRequest;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "FetchRequest{" +
+                "entity=" + entity.getName() +
+                ", predicate=" + predicate +
+                ", sortDescriptors=" + sortDescriptors +
+                ", limit=" + limit +
+                ", offset=" + offset +
+                '}';
     }
 }

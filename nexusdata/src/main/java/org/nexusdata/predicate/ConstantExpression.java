@@ -18,6 +18,11 @@ public class ConstantExpression<T> implements Expression<T> {
     }
 
     @Override
+    public <T> T accept(ExpressionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public String toString() {
         return value == null ? null : value.toString();
     }

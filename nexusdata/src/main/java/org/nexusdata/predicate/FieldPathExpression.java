@@ -17,6 +17,11 @@ public class FieldPathExpression implements Expression<Object> {
     }
 
     @Override
+    public <T> T accept(ExpressionVisitor<T> visitor) {
+        return visitor.visit(this);
+    }
+
+    @Override
     public Object evaluate(Object object) {
         try {
             if (object instanceof ManagedObject) {

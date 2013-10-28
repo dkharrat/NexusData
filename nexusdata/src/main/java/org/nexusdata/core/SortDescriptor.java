@@ -17,4 +17,12 @@ public class SortDescriptor {
     public boolean isAscending() {
         return isAscending;
     }
+
+    @Override
+    public String toString() {
+        return "SortDescriptor{" +
+                "attributeName='" + attributeName + '\'' +
+                ", isAscending=" + isAscending +
+                '}';
+    }
 }
