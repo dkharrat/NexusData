@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.DataSetObserver;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -112,6 +113,8 @@ public class MainActivity extends Activity {
 
     public class TaskListAdapter extends ArrayAdapter<Task> {
 
+        Handler handler = new Handler();
+
         public TaskListAdapter(Context context, List<Task> entries) {
             super(context, 0, entries);
         }
@@ -147,6 +150,16 @@ public class MainActivity extends Activity {
                         setStrikeThroughView(detailsView, false);
                     }
                     TodoApp.getMainObjectContext().save();
+
+                    if (displayMode == DisplayMode.COMPLETED && !task.isCompleted() ||
+                            displayMode == DisplayMode.TODO && task.isCompleted()) {
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                listAdapter.remove(task);
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        }, 1500);
+                    }
                 }
             });
 
