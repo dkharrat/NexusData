@@ -58,10 +58,6 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         setUuid(DatabaseHelper.getDatabaseUuid(db, model.getVersion()));
     }
 
-    static protected String getDatabaseName(ObjectModel model) {
-        return model.getClass().getSimpleName() + ".db";
-    }
-
     static protected String getColumnName(Property property) {
         return "`" + property.getName() + "`";
     }
