@@ -97,7 +97,7 @@ public class MainActivity extends Activity {
 
         boolean displayCompleted = (displayMode == DisplayMode.COMPLETED);
         FetchRequest<Task> fetchRequest = ctx.newFetchRequestBuilder(Task.class).
-                predicate(PredicateBuilder.parse("completed == "+displayCompleted))
+                predicate("completed == "+displayCompleted)
                 .build();
         List<Task> tasks = ctx.executeFetchOperation(fetchRequest);
 

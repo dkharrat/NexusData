@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.nexusdata.metamodel.Entity;
 import org.nexusdata.predicate.Predicate;
+import org.nexusdata.predicate.PredicateBuilder;
 
 public class FetchRequest<T extends ManagedObject> extends PersistentStoreRequest {
 
@@ -99,6 +100,11 @@ public class FetchRequest<T extends ManagedObject> extends PersistentStoreReques
 
         public Builder<T> predicate(Predicate predicate) {
             fetchRequest.setPredicate(predicate);
+            return this;
+        }
+
+        public Builder<T> predicate(String predicateToParse) {
+            fetchRequest.setPredicate(PredicateBuilder.parse(predicateToParse));
             return this;
         }
 
