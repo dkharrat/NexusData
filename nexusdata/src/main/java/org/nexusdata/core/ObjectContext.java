@@ -86,7 +86,7 @@ public class ObjectContext {
      * if desired.
      *
      * @param entityType    the type of the entity to be fetched
-     * @param <T>           parameterized type of the entity
+     * @param <T>           parametrized type of the entity
      * @return              a fetch request builder for the specified entity type
      */
     public <T extends ManagedObject> FetchRequest.Builder<T> newFetchRequestBuilder(Class<T> entityType) {
@@ -101,7 +101,7 @@ public class ObjectContext {
      * deletion in the context will not be included in the returned results.
      *
      * @param fetchRequest      the fetch request that specifies the criteria
-     * @param <T>               parameterized type of the entity to be fetched
+     * @param <T>               parametrized type of the entity to be fetched
      * @return                  a list of objects that match the criteria
      */
     @SuppressWarnings("unchecked")
@@ -136,7 +136,7 @@ public class ObjectContext {
      * Returns all objects of the specified entity type from the persistent store.
      *
      * @param type  The class type of the entity to retrieve
-     * @param <T>   parameterized type of the entity to be fetched
+     * @param <T>   parametrized type of the entity to be fetched
      * @return      a list of all the objects that match the specified entity type
      */
     public <T extends ManagedObject> List<T> findAll(Class<T> type) {
@@ -147,7 +147,7 @@ public class ObjectContext {
      * Returns all objects of the specified entity type from the persistent store that match a predicate.
      *
      * @param type      The class type of the entity to retrieve
-     * @param <T>       parameterized type of the entity to be fetched
+     * @param <T>       parametrized type of the entity to be fetched
      * @param predicate The predicate to test against
      * @return          a list of all the objects that match the specified entity type and predicate
      */

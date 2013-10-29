@@ -67,7 +67,9 @@ public class ManagedObject {
     /**
      * Initializes the object after it's created. The object context calls this method whenever an instance is
      * instantiated to initialize the state of the object. Subclasses can override this method to provide further
-     * initialization if needed. Subclasses must call the super class's implementation of this method when it's
+     * initialization if needed.
+     * <p>
+     * <b>Note:</b> Subclasses must call the super class's implementation of this method when it's
      * overridden.
      */
     protected void init() {
