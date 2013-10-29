@@ -4,8 +4,11 @@ import java.net.URI;
 
 import org.nexusdata.metamodel.Entity;
 
-//TODO: should this be parameterized on Entity type?
-
+/**
+ * An ObjectID represents a global identifier that uniquely identifies a {@link ManagedObject}. It is persisted across
+ * multiple runs of the application. Two different instances of a ManagedObject referring to the same backing record in
+ * the persistence store will have the same unique ObjectID.
+ */
 public class ObjectID {
     private final PersistentStore store;
     private final Entity<?> entity;
@@ -17,6 +20,11 @@ public class ObjectID {
         id = referenceObject;
     }
 
+    /**
+     * Returns the persistence store associated with this ObjectID
+     *
+     * @return the persistence store associated with this ObjectID
+     */
     public PersistentStore getPersistentStore() {
         return store;
     }
@@ -25,6 +33,11 @@ public class ObjectID {
         return entity.getType();
     }
 
+    /**
+     * Returns the corresponding entity of this ObjectID
+     *
+     * @return the corresponding entity of this ObjectID
+     */
     public Entity<?> getEntity() {
         return entity;
     }
@@ -33,8 +46,34 @@ public class ObjectID {
         return id;
     }
 
+    /**
+     * Indicates whether this ObjectID is a temporary one and can change at some point in the future. When inserting a
+     * new {@link ManagedObject} into an ObjectContext, it is assigned a temporary ID until it is saved, after which it
+     * is allocated a unique permanent ID by the persistence store. When the ObjectID is temporary, do not keep a
+     * permanent reference to it, since it is not guaranteed to stay the same. If you need a permanent ID assigned for
+     * an object, you can request one from {@link ObjectContext#obtainPermanentIDsForObjects(java.util.Collection)}.
+     *
+     * @return true if this ObjectID is a temporary one, or false otherwise
+     */
     public boolean isTemporary() {
         return store == null;
+    }
+
+    /**
+     * Returns a URI-representation of this ObjectID, which can be used for persistence purposes. If the ObjectID is
+     * temporary, this representation can change after the corresponding ManagedObject is saved.
+     *
+     * <code>nexusdata://&lt;&gt;</code>
+     *
+     * @return a URI-representation of this ObjectID
+     */
+    public URI getUriRepresentation() {
+        StringBuilder sb = new StringBuilder("nexusdata://");
+        if (store != null) {
+            sb.append(store.getUuid());
+        }
+        sb.append("/").append(entity.getName()).append("/").append(id.toString());
+        return URI.create(sb.toString());
     }
 
     @Override
@@ -47,6 +86,13 @@ public class ObjectID {
         return result;
     }
 
+    /**
+     * Determines whether this ObjectID is equivalent to another ObjectID.
+     *
+     * @param obj   the other object to compare against. If a non-ObjectID is passed, this method returns false.
+     *
+     * @return true if this ObjectID is equivalent to the other specified ObjectID, or false otherwise
+     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -72,15 +118,6 @@ public class ObjectID {
         } else if (!store.equals(other.store))
             return false;
         return true;
-    }
-
-    public URI getUriRepresentation() {
-        StringBuilder sb = new StringBuilder("nexusdata://");
-        if (store != null) {
-            sb.append(store.getUuid());
-        }
-        sb.append("/").append(entity.getName()).append("/").append(id.toString());
-        return URI.create(sb.toString());
     }
 
     @Override

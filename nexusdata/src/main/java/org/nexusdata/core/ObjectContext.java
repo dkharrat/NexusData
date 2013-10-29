@@ -40,6 +40,11 @@ import android.os.Message;
  * can be edited in more than one context simultaneously. Note that, conflict resolution is currently not supported. So,
  * if two contexts track an object, each having different changes to the object, then saving the second context after
  * the first one is saved, will override any changes from the first.
+ * <p>
+ * An ObjectContext is not thread-safe, thus it must not be shared between multiple threads. Instead, create a new
+ * context for each thread that needs to work with ManagedObjects. This implies that each thread will maintain their own
+ * copies of the ManagedObjects to work with. Object changes from each context can be reflected on other contexts
+ * through merging the changes upon receiving an {@link ObjectsChangedNotification}.
  */
 public class ObjectContext {
 

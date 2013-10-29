@@ -15,7 +15,8 @@ import org.nexusdata.metamodel.Property;
 
 /**
  * A managed object is the base type of any object instance in Nexus Data. It stores the object's properties defined by
- * its associated {@link org.nexusdata.metamodel.Entity}. Each object is uniquely identified by a global ID represented by {@link
+ * its associated {@link org.nexusdata.metamodel.Entity}. It is essentially a manifestation of the backing record in the
+ * persistence store. Each object is uniquely identified by a global ID represented by {@link
  * ObjectID}.
  * <p>
  * An object is managed by an {@link ObjectContext} and can be persisted in a persistence store. Typically, it is
@@ -27,6 +28,15 @@ import org.nexusdata.metamodel.Property;
  * actually needed. When any of the object's properties is accessed, a fault is fired to retrieve the data from the
  * persistence store. This entire process is fully transparent to an application and it does not directly need to know
  * about it.
+ * <p>
+ * It is possible to have multiple instances of a ManagedObject that all refer to the same backing record in the
+ * persistence store (e.g. multiple ObjectContexts have a reference to the object). Thus, you cannot compare equality
+ * of two ManagedObject instances to determine if they refer to the same record. Instead, the ManagedObject's ObjectID
+ * can be compared to determine equality.
+ * <p>
+ * An instance of a ManagedObject is not thread-safe. Therefore, you must not use the same instance across multiple
+ * threads. If you need to pass objects between multiple threads, pass the ObjectID of the ManagedObject instead. Then,
+ * the ObjectContext used by the other thread can retrieve its own instance of the object through that ObjectID.
  */
 public class ManagedObject {
 
