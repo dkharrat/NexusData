@@ -516,7 +516,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         // register a listener before we save, which will merge changes after a save
         ObjectContextListener listener = new DefaultObjectContextListener() {
             @Override
-            public void contextDidSave(ObjectContext context, ChangedObjectsSet changedObjects) {
+            public void onPostSave(ObjectContext context, ChangedObjectsSet changedObjects) {
                 mainContext.mergeChangesFromSaveNotification(changedObjects);
             }
         };

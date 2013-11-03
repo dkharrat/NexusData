@@ -47,7 +47,7 @@ public class TodoApp extends Application {
 
             ObjectContextNotifier.registerListener(new ObjectContextNotifier.DefaultObjectContextListener() {
                 @Override
-                public void contextDidSave(ObjectContext context, ChangedObjectsSet changedObjects) {
+                public void onPostSave(ObjectContext context, ChangedObjectsSet changedObjects) {
                     if (context != mainObjectContext && context.getPersistentStoreCoordinator() == mainObjectContext.getPersistentStoreCoordinator()) {
                         mainObjectContext.mergeChangesFromSaveNotification(changedObjects);
                     }

@@ -13,14 +13,25 @@ import org.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * A PersistentStoreCoordinator is a mediator between a {@link ObjectContext} and other {@link PersistentStore}s.
+ * It is used by an {@link ObjectContext} to obtain model information and save the object graph. From the perspective of
+ * the ObjectContext, a PersistentStoreCoordinator such that a group of PersistentStores appear as one virtual store.
+ * This allows the ObjectContext to create the corresponding object graph from the union of the persistence stores that
+ * this coordinator covers.
+ */
 public class PersistentStoreCoordinator {
 
     private static final Logger LOG = LoggerFactory.getLogger(PersistentStoreCoordinator.class);
 
-    private final Map<UUID, PersistentStore> storeUuidToPersisentStore = new LinkedHashMap<UUID, PersistentStore>();
+    private final Map<UUID, PersistentStore> storeUuidToPersistentStore = new LinkedHashMap<UUID, PersistentStore>();
     private final ObjectModel model;
 
+    /**
+     * Creates a PersistentStoreCoordinator associated with the specific model.
+     *
+     * @param model the model that this PersistentStoreCoordinator will use
+     */
     public PersistentStoreCoordinator(ObjectModel model) {
         this.model = model;
     }
@@ -36,22 +47,22 @@ public class PersistentStoreCoordinator {
             throw new RuntimeException("Did not get permanent UUID from store: " + store);
         }
 
-        storeUuidToPersisentStore.put(store.getUuid(), store);
+        storeUuidToPersistentStore.put(store.getUuid(), store);
 
         LOG.info("Added persistent store " + store);
     }
 
     public void removeStore(PersistentStore store) {
-        storeUuidToPersisentStore.remove(store.getUuid());
+        storeUuidToPersistentStore.remove(store.getUuid());
         store.setPersistentStoreCoordinator(null);
     }
 
     public PersistentStore getPersistentStore(UUID uuid) {
-        return storeUuidToPersisentStore.get(uuid);
+        return storeUuidToPersistentStore.get(uuid);
     }
 
     public List<PersistentStore> getPersistentStores() {
-        return new ArrayList<PersistentStore>(storeUuidToPersisentStore.values());
+        return new ArrayList<PersistentStore>(storeUuidToPersistentStore.values());
     }
 
     public ObjectModel getModel() {
@@ -79,13 +90,15 @@ public class PersistentStoreCoordinator {
             // ignore; treat ref object as string
         }
 
-        return new ObjectID(storeUuidToPersisentStore.get(storeUuid), entity, referenceObject);
+        return new ObjectID(storeUuidToPersistentStore.get(storeUuid), entity, referenceObject);
     }
 
+    //TODO: implement - must be synchronized?
     void executeFetchRequest() {
 
     }
 
+    //TODO: implement - must be synchronized?
     void save(SaveChangesRequest saveRequest) {
 
     }

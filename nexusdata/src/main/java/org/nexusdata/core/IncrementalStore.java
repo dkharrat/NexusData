@@ -7,6 +7,11 @@ import java.util.List;
 import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.Relationship;
 
+/**
+ * An IncrementalStore represents a persistence store in which data is loaded or saved incrementally as needed. It is
+ * typically used when the entire data set cannot fit in-memory, and must be "paged-in" into memory on-demand. This is
+ * an abstract class that can be implemented to provide support for such persistence stores.
+ */
 public abstract class IncrementalStore extends PersistentStore {
 
     public IncrementalStore(File location) {

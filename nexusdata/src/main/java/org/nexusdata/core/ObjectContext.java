@@ -510,7 +510,7 @@ public class ObjectContext {
             return;
         }
 
-        ObjectContextNotifier.notifyListenersOfWillSave(this);
+        ObjectContextNotifier.notifyListenersOfPreSave(this);
 
         //FIXME: properly route the save to the right store for each object
         PersistentStore store = getPersistentStoreCoordinator().getPersistentStores().get(0);
@@ -529,7 +529,7 @@ public class ObjectContext {
         SaveChangesRequest request = new SaveChangesRequest(changedObjects);
         store.executeSaveRequest(request, this);
 
-        ObjectContextNotifier.notifyListenersOfDidSave(this, new ChangedObjectsSet(changedObjects));
+        ObjectContextNotifier.notifyListenersOfPostSave(this, new ChangedObjectsSet(changedObjects));
 
         unregisterObjects(changedObjects.getDeletedObjects());
 
@@ -686,7 +686,7 @@ public class ObjectContext {
             switch (msg.what) {
                 case NOTIFY_OBJECTS_CHANGED: {
                     if (context != null) {
-                        ObjectContextNotifier.notifyListenersOfObjectsDidChange(context, context.objectsChangedSinceLastNotification);
+                        ObjectContextNotifier.notifyListenersOfObjectsChanged(context, context.objectsChangedSinceLastNotification);
                         context.objectsChangedSinceLastNotification.clear();
                     }
                     break;

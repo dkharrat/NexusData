@@ -3,7 +3,12 @@ package org.nexusdata.core;
 import java.util.HashSet;
 import java.util.Set;
 
-
+/**
+ * Represents the event that is sent when a set of objects in an {@link ObjectContext} have changed. This event is sent
+ * out from {@link ObjectContextNotifier}.
+ *
+ * @see ObjectContextNotifier.ObjectContextListener#notifyListenersOfObjectsChanged(ObjectContext, ObjectsChangedNotification)
+ */
 public class ObjectsChangedNotification extends ChangedObjectsSet {
 
     private final Set<ManagedObject> refreshedObjects;

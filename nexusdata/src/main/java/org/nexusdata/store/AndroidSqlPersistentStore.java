@@ -135,13 +135,13 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     protected void executeSaveRequest(SaveChangesRequest request, ObjectContext context) {
         db.beginTransaction();
         try {
-            for (ManagedObject object : request.getInsertedObjects()) {
+            for (ManagedObject object : request.getChanges().getInsertedObjects()) {
                 ContentValues values = getContentValues(object);
                 //TODO: log inserts, updates & deletes
                 db.insertOrThrow(DatabaseHelper.getTableName(object.getEntity()), null, values);
             }
 
-            for (ManagedObject object : request.getUpdatedObjects()) {
+            for (ManagedObject object : request.getChanges().getUpdatedObjects()) {
                 ContentValues values = getContentValues(object);
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
                 db.update(DatabaseHelper.getTableName(object.getEntity()), values, "_ID = " + id, null);
@@ -153,7 +153,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 }
             }
 
-            for (ManagedObject object : request.getDeletedObjects()) {
+            for (ManagedObject object : request.getChanges().getDeletedObjects()) {
                 long id = (Long)getReferenceObjectForObjectID(object.getID());
                 db.delete(DatabaseHelper.getTableName(object.getEntity()), "_ID = " + id, null);
 

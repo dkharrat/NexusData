@@ -10,7 +10,15 @@ import java.util.UUID;
 import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.Relationship;
 
-
+/**
+ * A PersistentStore represents the data store where the object graph is persisted. A persistence store is uniquely
+ * identified by a UUID, which is also persisted in the store along with other metadata. To create a persistence store,
+ * use a concrete implementation. There are two kinds of PersistentStore:
+ * <ul>
+ *     <li>{@link AtomicStore}: A store in which the object graph is loaded and saved together all at once.</li>
+ *     <li>{@link IncrementalStore}: A store in which the object graph is loaded and saved in chunks, as needed.</li>
+ * </ul>
+ */
 public abstract class PersistentStore {
 
     private static final String UUID_KEY    = "_UUID";

@@ -15,7 +15,10 @@ import org.nexusdata.metamodel.Property;
 import org.nexusdata.metamodel.Relationship;
 import org.nexusdata.utils.ObjectUtil;
 
-
+/**
+ * An AtomicStore is a persistence store in which data is loaded and saved all at once. It is useful when the data set
+ * is small enough to fit in memory and good performance is needed.
+ */
 public abstract class AtomicStore extends PersistentStore {
 
     private final Map<ObjectID, StoreCacheNode> idsToCacheNodes = new HashMap<ObjectID, StoreCacheNode>();
@@ -183,12 +186,12 @@ public abstract class AtomicStore extends PersistentStore {
 
     @Override
     void executeSaveRequest(SaveChangesRequest request, ObjectContext context) {
-        for (ManagedObject object : request.getInsertedObjects()) {
+        for (ManagedObject object : request.getChanges().getInsertedObjects()) {
             StoreCacheNode cacheNode = createCacheNode(object);
             addCacheNode(cacheNode);
         }
 
-        for (ManagedObject object : request.getDeletedObjects()) {
+        for (ManagedObject object : request.getChanges().getDeletedObjects()) {
             if (!object.isInserted()) {
                 StoreCacheNode cacheNode = getObjectValues(object.getID(), context);
                 removeCacheNode(cacheNode);
@@ -196,7 +199,7 @@ public abstract class AtomicStore extends PersistentStore {
             }
         }
 
-        for (ManagedObject object : request.getUpdatedObjects()) {
+        for (ManagedObject object : request.getChanges().getUpdatedObjects()) {
             StoreCacheNode cacheNode = getObjectValues(object.getID(), context);
             updateCacheNode(cacheNode, object);
         }
