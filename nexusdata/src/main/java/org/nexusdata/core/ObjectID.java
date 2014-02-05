@@ -5,9 +5,9 @@ import java.net.URI;
 import org.nexusdata.metamodel.Entity;
 
 /**
- * An ObjectID represents a global identifier that uniquely identifies a {@link ManagedObject}. It is persisted across
- * multiple runs of the application. Two different instances of a ManagedObject referring to the same backing record in
- * the persistence store will have the same unique ObjectID.
+ * An ObjectID represents a global identifier that uniquely identifies a {@link ManagedObject}. The identifier is
+ * persisted across multiple runs of the application for the same ManagedObject. Moreover, two different instances of a
+ * ManagedObject referring to the same backing record in the persistence store will have the same unique ObjectID.
  */
 public class ObjectID {
     private final PersistentStore store;

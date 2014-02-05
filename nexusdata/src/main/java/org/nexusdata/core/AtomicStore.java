@@ -1,15 +1,8 @@
 package org.nexusdata.core;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.net.URL;
+import java.util.*;
 
 import org.nexusdata.metamodel.Property;
 import org.nexusdata.metamodel.Relationship;
@@ -23,6 +16,15 @@ public abstract class AtomicStore extends PersistentStore {
 
     private final Map<ObjectID, StoreCacheNode> idsToCacheNodes = new HashMap<ObjectID, StoreCacheNode>();
 
+    /**
+     * Constructs a new Atomic store
+     *
+     * @param location  the location in which to save the data persistence file
+     */
+    public AtomicStore(URL location) {
+        super(location);
+    }
+
     public AtomicStore(File location) {
         super(location);
     }
@@ -33,7 +35,7 @@ public abstract class AtomicStore extends PersistentStore {
 
     @Override
     protected void loadMetadata() {
-        // TODO Auto-generated method stub
+        setUuid(UUID.randomUUID());
     }
 
     Set<StoreCacheNode> getCacheNodes() {

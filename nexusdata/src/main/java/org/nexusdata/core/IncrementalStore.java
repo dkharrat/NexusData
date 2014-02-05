@@ -1,6 +1,7 @@
 package org.nexusdata.core;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collection;
 import java.util.List;
 
@@ -14,6 +15,10 @@ import org.nexusdata.metamodel.Relationship;
  */
 public abstract class IncrementalStore extends PersistentStore {
 
+    public IncrementalStore(URL location) {
+        super(location);
+    }
+
     public IncrementalStore(File location) {
         super(location);
     }
@@ -23,8 +28,7 @@ public abstract class IncrementalStore extends PersistentStore {
     List<T> executeFetchRequest(FetchRequest<T> request, ObjectContext context);
 
     @Override
-    protected abstract
-    void executeSaveRequest(SaveChangesRequest request, ObjectContext context);
+    protected abstract void executeSaveRequest(SaveChangesRequest request, ObjectContext context);
 
     @Override
     protected abstract StoreCacheNode getObjectValues(ObjectID objectID, ObjectContext context);

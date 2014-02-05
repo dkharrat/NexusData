@@ -15,11 +15,6 @@ public class InMemoryPersistentStore extends AtomicStore {
     }
 
     @Override
-    protected void loadMetadata() {
-        setUuid(UUID.randomUUID());
-    }
-
-    @Override
     public void load() {
         // Nothing to load
     }

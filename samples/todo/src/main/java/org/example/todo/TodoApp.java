@@ -9,6 +9,7 @@ import org.nexusdata.predicate.Predicate;
 import org.nexusdata.predicate.parser.PredicateParser;
 import org.nexusdata.store.AndroidSqlPersistentStore;
 import java.io.IOException;
+import java.net.URL;
 
 public class TodoApp extends Application {
 

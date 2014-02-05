@@ -1,6 +1,7 @@
 package org.nexusdata.store;
 
 import java.io.File;
+import java.net.URL;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,15 +43,20 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     // TODO: use a MRU cache and also remove objects if they are unregistered from all contexts
     private Map<Class<?>, Map<Long,StoreCacheNode>> cache = new HashMap<Class<?>, Map<Long,StoreCacheNode>>();
 
-    public AndroidSqlPersistentStore(Context context, File path) {
+    public AndroidSqlPersistentStore(Context context, URL path) {
         super(path);
+        this.context = context;
+    }
+
+    public AndroidSqlPersistentStore(Context context, File location) {
+        super(location);
         this.context = context;
     }
 
     @Override
     protected void loadMetadata() {
         ObjectModel model = getCoordinator().getModel();
-        databaseHelper = new DatabaseHelper(context, getLocation(), model);
+        databaseHelper = new DatabaseHelper(context, new File(getLocation().getPath()), model);
 
         // TODO: does the DB need to be closed at some point?
         db = databaseHelper.getWritableDatabase();
