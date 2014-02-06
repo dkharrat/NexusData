@@ -3,11 +3,7 @@ package org.nexusdata.core;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.Relationship;
@@ -38,6 +34,11 @@ public abstract class PersistentStore {
         this.location = location;
     }
 
+    /**
+     * Constructs a new PersistentStore
+     *
+     * @param location  the location in which to save the data persistence file
+     */
     PersistentStore(File location) {
         URL url;
         try {
@@ -137,24 +138,60 @@ public abstract class PersistentStore {
      *
      * @param objects   the list of objects that shall get permanent IDs.
      *
-     * @return
+     * @return the corresponding ObjectIDs of the specified ManagedObjects
      */
     abstract List<ObjectID> getPermanentIDsForObjects(List<ManagedObject> objects);
 
+    /**
+     * Returns the associated cache node of the specified ObjectID.
+     *
+     * @param objectID  the ObjectID
+     * @param context   the context to which the data will be returned
+     *
+     * @return the associated cache node of the specified ObjectID, or {@code null} if no such object exists
+     */
     abstract StoreCacheNode getObjectValues(ObjectID objectID, ObjectContext context);
 
+    /**
+     * Returns the ObjectID of the related object for the to-one relationship.
+     *
+     * @param objectID      the objectID of the source object for which the relationship is requested
+     * @param relationship  the relationship property to retrieve
+     * @param context       the context to which the data will be returned
+     *
+     * @return the ObjectID of the related object, or {@code null} if there is no related object
+     */
     abstract ObjectID getToOneRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
-    abstract Collection<ObjectID> getToManyRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
+    /**
+     * Returns the set of ObjectIDs of the related objects for the to-many relationship.
+     *
+     * @param objectID      the objectID of the source object for which the relationship is requested
+     * @param relationship  the relationship property to retrieve
+     * @param context       the context to which the data will be returned
+     *
+     * @return the set of ObjectIDs of the related objects. The returned collection may be empty if no related objects
+     *         exist.
+     */
+    abstract Set<ObjectID> getToManyRelationshipValue(ObjectID objectID, Relationship relationship, ObjectContext context);
 
+    /**
+     * Queries the persistent store's records based on the specified criteria.
+     *
+     * @param request   the request that describes the criteria to query
+     * @param context   the context to which the data will be returned
+     *
+     * @return the list of objects that match the query criteria
+     */
     abstract <T extends ManagedObject> List<T> executeFetchRequest(FetchRequest<T> request, ObjectContext context);
+
+    /**
+     * Saves the specified changes to the persistent store.
+     *
+     * @param request   the request that describes the changes to save
+     * @param context   the context that is requesting the save
+     */
     abstract void executeSaveRequest(SaveChangesRequest request, ObjectContext context);
-
-    void contextRegisteredObjectIDs(Collection<ObjectID> objectIDs) {
-    }
-
-    void contextUnregisteredObjectIDs(Collection<ObjectID> objectIDs) {
-    }
 
     @Override
     public String toString() {

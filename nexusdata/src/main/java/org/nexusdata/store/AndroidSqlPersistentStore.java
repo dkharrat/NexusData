@@ -3,12 +3,7 @@ package org.nexusdata.store;
 import java.io.File;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -279,7 +274,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     }
 
     @Override
-    protected Collection<ObjectID> getToManyRelationshipValue(
+    protected Set<ObjectID> getToManyRelationshipValue(
             ObjectID objectID,
             Relationship relationship,
             ObjectContext context) {
@@ -301,7 +296,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 null);          // limit
 
 
-        List<ObjectID> results = new ArrayList<ObjectID>();
+        Set<ObjectID> results = new HashSet<ObjectID>();
         while(cursor.moveToNext()) {
             long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
             ObjectID relatedObject = this.createObjectID(relationship.getDestinationEntity(), id);

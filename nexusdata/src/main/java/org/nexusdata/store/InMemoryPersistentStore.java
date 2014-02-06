@@ -1,5 +1,6 @@
 package org.nexusdata.store;
 
+import java.io.File;
 import java.util.UUID;
 
 import org.nexusdata.core.AtomicStore;
@@ -11,7 +12,7 @@ public class InMemoryPersistentStore extends AtomicStore {
     long lastUnusedId = 1;
 
     public InMemoryPersistentStore() {
-        super(null);
+        super((File)null);
     }
 
     @Override

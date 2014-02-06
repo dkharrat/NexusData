@@ -114,7 +114,7 @@ public abstract class AtomicStore extends PersistentStore {
     }
 
     @Override
-    Collection<ObjectID> getToManyRelationshipValue(
+    Set<ObjectID> getToManyRelationshipValue(
             ObjectID objectID,
             Relationship relationship,
             ObjectContext context) {
