@@ -9,12 +9,15 @@ import org.nexusdata.metamodel.Entity;
 import org.nexusdata.metamodel.Relationship;
 
 /**
- * A PersistentStore represents the data store where the object graph is persisted. A persistence store is uniquely
- * identified by a UUID, which is also persisted in the store along with other metadata. To create a persistence store,
- * use a concrete implementation. There are two kinds of PersistentStore:
+ * A PersistentStore represents the data store where the object graph is persisted. A persistent store is uniquely
+ * identified by a UUID, which is also persisted in the store along with other metadata. There are two kinds of
+ * PersistentStore:
  * <ul>
- *     <li>{@link AtomicStore}: A store in which the object graph is loaded and saved together all at once.</li>
- *     <li>{@link IncrementalStore}: A store in which the object graph is loaded and saved in chunks, as needed.</li>
+ *     <li>{@link AtomicStore}: A store in which the entire object graph is loaded into memory and saved together all at
+ *     once. This is useful when the data set is small enough where optimal performance is required </li>
+ *     <li>{@link IncrementalStore}: A store in which the object graph is loaded and saved incrementally, on demand.
+ *     This is useful when working against a large dataset that is expensive to load entirely into memory, though this
+ *     comes at the cost of some performance.</li>
  * </ul>
  */
 public abstract class PersistentStore {
@@ -65,9 +68,9 @@ public abstract class PersistentStore {
     }
 
     /**
-     * Returns the location where this persistence store is saved.
+     * Returns the location where this persistent store is saved.
      *
-     * @return the file where this persistence store is saved
+     * @return the file where this persistent store is saved
      */
     public URL getLocation() {
         return location;
@@ -75,7 +78,7 @@ public abstract class PersistentStore {
 
     /**
      * Returns the store's unique identifier. This is persisted with the store, so it's useful to identify specific
-     * store instances. Note that nothing prevents a user from copying a persistence store (and thus it's associated
+     * store instances. Note that nothing prevents a user from copying a persistent store (and thus it's associated
      * UUID). Therefore, you may technically encounter two stores with the same UUID if one manually made a copy of
      * the store.
      *
@@ -98,9 +101,9 @@ public abstract class PersistentStore {
     }
 
     /**
-     * Sets the associated persistence store coordinator.
+     * Sets the associated persistent store coordinator.
      *
-     * @param coordinator the persistence store coordinator to use
+     * @param coordinator the persistent store coordinator to use
      */
     void setPersistentStoreCoordinator(PersistentStoreCoordinator coordinator) {
         storeCoordinator = coordinator;
