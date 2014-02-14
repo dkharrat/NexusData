@@ -16,8 +16,8 @@ repositories {
 
 dependencies {
   compile project(':nexusdata')
-  compile 'com.github.tony19:logback-android-core:1.0.10-2'
-  compile 'com.github.tony19:logback-android-classic:1.0.10-2'
+  compile 'com.github.tony19:logback-android-core:1.1.1-1'
+  compile 'com.github.tony19:logback-android-classic:1.1.1-1'
 }
 
 android {
@@ -29,5 +29,9 @@ android {
       java.srcDirs = ['src/main/java']
       resources.srcDirs = ['src/main/resources']
     }
+  }
+
+  lintOptions {
+    abortOnError false
   }
 }

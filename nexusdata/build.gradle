@@ -15,11 +15,11 @@ repositories {
 }
 
 dependencies {
-  compile 'org.slf4j:slf4j-api:1.7.5'
+  compile 'org.slf4j:slf4j-api:1.7.6'
   compile 'com.google.code.gson:gson:2.2.4'
 
-  instrumentTestCompile 'com.github.tony19:logback-android-core:1.0.10-2'
-  instrumentTestCompile 'com.github.tony19:logback-android-classic:1.0.10-2'
+  instrumentTestCompile 'com.github.tony19:logback-android-core:1.1.1-1'
+  instrumentTestCompile 'com.github.tony19:logback-android-classic:1.1.1-1'
 }
 
 android {
