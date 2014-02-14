@@ -90,8 +90,8 @@ public class MainActivity extends Activity {
         ObjectContext ctx = TodoApp.getMainObjectContext();
 
         boolean displayCompleted = (displayMode == DisplayMode.COMPLETED);
-        FetchRequest<Task> fetchRequest = ctx.newFetchRequestBuilder(Task.class).
-                predicate("completed == "+displayCompleted)
+        FetchRequest<Task> fetchRequest = ctx.newFetchRequestBuilder(Task.class)
+                .predicate("completed == "+displayCompleted)
                 .build();
         List<Task> tasks = ctx.executeFetchOperation(fetchRequest);
 
