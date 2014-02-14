@@ -21,7 +21,7 @@ public class ObjectID {
     }
 
     /**
-     * Returns the persistence store associated with this ObjectID
+     * Returns the persistence store associated with this ObjectID.
      *
      * @return the persistence store associated with this ObjectID
      */
@@ -34,7 +34,7 @@ public class ObjectID {
     }
 
     /**
-     * Returns the corresponding entity of this ObjectID
+     * Returns the corresponding entity of this ObjectID.
      *
      * @return the corresponding entity of this ObjectID
      */
@@ -61,7 +61,8 @@ public class ObjectID {
 
     /**
      * Returns a URI-representation of this ObjectID, which can be used for persistence purposes. If the ObjectID is
-     * temporary, this representation can change after the corresponding ManagedObject is saved.
+     * temporary, this representation can change after the corresponding ManagedObject is saved. Persisted objects or
+     * objects that have a permanent ID are guaranteed to return the same representation.
      *
      * <code>nexusdata://&lt;&gt;</code>
      *

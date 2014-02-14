@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 /**
  * A PersistentStoreCoordinator is a mediator between a {@link ObjectContext} and other {@link PersistentStore}s.
  * It is used by an {@link ObjectContext} to obtain model information and save the object graph. From the perspective of
- * the ObjectContext, a PersistentStoreCoordinator such that a group of PersistentStores appear as one virtual store.
- * This allows the ObjectContext to create the corresponding object graph from the union of the persistence stores that
- * this coordinator covers.
+ * the ObjectContext, a PersistentStoreCoordinator behaves such that a group of PersistentStores appear as one virtual
+ * store. This allows the ObjectContext to create the corresponding object graph from the union of the persistence
+ * stores that this coordinator covers.
  */
 public class PersistentStoreCoordinator {
 
@@ -36,6 +36,11 @@ public class PersistentStoreCoordinator {
         this.model = model;
     }
 
+    /**
+     * Adds a persistent store to this coordinator. A persistent store cannot belong to multiple coordinators.
+     *
+     * @param store the persistent store to add
+     */
     public void addStore(PersistentStore store) {
         if (store.getCoordinator() != null && store.getCoordinator() != this) {
             throw new IllegalStateException("PersistentStore " + store + " already assigned to another coordinator");
@@ -52,23 +57,54 @@ public class PersistentStoreCoordinator {
         LOG.info("Added persistent store " + store);
     }
 
+    /**
+     * Removes the specified persistent store from this coordinator.
+     *
+     * @param store the store to remove
+     */
     public void removeStore(PersistentStore store) {
         storeUuidToPersistentStore.remove(store.getUuid());
         store.setPersistentStoreCoordinator(null);
     }
 
+    /**
+     * Returns the persistent store contained in this coordinator that is identified by the specified ID.
+     *
+     * @param uuid  the UUID of the persistent store to return
+     *
+     * @return the persistent store in this coordinator that matches the specified ID. If no such store exists,
+     *         {@code null} is returned.
+     */
     public PersistentStore getPersistentStore(UUID uuid) {
         return storeUuidToPersistentStore.get(uuid);
     }
 
+    /**
+     * Returns all the persistent stores contained within this coordinator.
+     *
+     * @return all the persistent stores contained within this coordinator
+     */
     public List<PersistentStore> getPersistentStores() {
         return new ArrayList<PersistentStore>(storeUuidToPersistentStore.values());
     }
 
+    /**
+     * Returns the model associated with this coordinator.
+     *
+     * @return the model associated with this coordinator
+     */
     public ObjectModel getModel() {
         return model;
     }
 
+    /**
+     * Returns the ObjectID from the corresponding URI representation.
+     *
+     * @param objectIDUri   the URI that represents the ObjectID
+     *
+     * @return  the ObjectID represented by the specified URI
+     * @throws {@link IllegalArgumentException} if the URI represents a temporary ID or the URI is invalid
+     */
     public ObjectID objectIDFromUri(URI objectIDUri) {
         if (!objectIDUri.getScheme().equals("nexusdata")) {
             throw new IllegalArgumentException("");

@@ -17,18 +17,16 @@ public class ObjectsChangedNotification extends ChangedObjectsSet {
         this(new HashSet<ManagedObject>(), new HashSet<ManagedObject>(), new HashSet<ManagedObject>(), new HashSet<ManagedObject>());
     }
 
-    ObjectsChangedNotification(
-            Set<ManagedObject> insertedObjects,
-            Set<ManagedObject> updatedObjects,
-            Set<ManagedObject> deletedObjects,
-            Set<ManagedObject> refreshedObjects) {
+    ObjectsChangedNotification(Set<ManagedObject> insertedObjects,
+                               Set<ManagedObject> updatedObjects,
+                               Set<ManagedObject> deletedObjects,
+                               Set<ManagedObject> refreshedObjects) {
         super(insertedObjects, updatedObjects, deletedObjects);
         this.refreshedObjects = refreshedObjects;
     }
 
-    ObjectsChangedNotification(
-            ChangedObjectsSet changedObjects,
-            Set<ManagedObject> refreshedObjects) {
+    ObjectsChangedNotification(ChangedObjectsSet changedObjects,
+                               Set<ManagedObject> refreshedObjects) {
         this(changedObjects.getInsertedObjects(), changedObjects.getUpdatedObjects(), changedObjects.getDeletedObjects(), refreshedObjects);
     }
 
@@ -38,6 +36,12 @@ public class ObjectsChangedNotification extends ChangedObjectsSet {
         refreshedObjects.clear();
     }
 
+    /**
+     * Returns the objects that have been refreshed in the context (see {@link ManagedObject#refresh()} for details on
+     * refreshed objects.
+     *
+     * @return the set of objects that have been refreshed
+     */
     public Set<ManagedObject> getRefreshedObjects() {
         return refreshedObjects;
     }
@@ -46,6 +50,13 @@ public class ObjectsChangedNotification extends ChangedObjectsSet {
         refreshedObjects.add(object);
     }
 
+    /**
+     * Indicates whether the specified object has been refreshed.
+     *
+     * @param object    the object to check whether it was refreshed
+     *
+     * @return  true if the specified object has been refreshed, or false otherwise
+     */
     public boolean isRefreshed(ManagedObject object) {
         return refreshedObjects.contains(object);
     }

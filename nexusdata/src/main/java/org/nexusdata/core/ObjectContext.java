@@ -328,23 +328,11 @@ public class ObjectContext {
 
         object.setManagedObjectContext(this);
         objects.put(object.getID(), object);
-
-        //FIXME: temporary object won't have a store assign yet
-        /* List<ObjectID<?>> objectIDs = new ArrayList<ObjectID<?>>();
-        objectIDs.add(object.getID());
-        store.contextRegisteredObjectIDs(objectIDs); */
     }
 
     private void unregisterObject(ManagedObject object) {
         object.setManagedObjectContext(null);
         objects.remove(object.getID());
-
-        PersistentStore store = object.getID().getPersistentStore();
-
-        //FIXME: temporary object won't have a store assign yet
-        /*List<ObjectID<?>> objectIDs = new ArrayList<ObjectID<?>>();
-        objectIDs.add(object.getID());
-        store.contextUnregisteredObjectIDs(objectIDs);*/
     }
 
     private void registerObjects(Collection<ManagedObject> objects) {
@@ -356,12 +344,6 @@ public class ObjectContext {
                 this.objects.put(object.getID(), object);
                 objectIDs.add(object.getID());
             }
-
-            //TODO: need to fix
-            /*
-            PersistentStore store = object.getID().getPersistentStore();
-            store.contextRegisteredObjectIDs(objectIDs);
-            */
         }
     }
 
@@ -374,12 +356,6 @@ public class ObjectContext {
                 this.objects.remove(object.getID());
                 objectIDs.add(object.getID());
             }
-
-            //TODO: need to fix
-            /*
-            PersistentStore store = object.getID().getPersistentStore();
-            store.contextUnregisteredObjectIDs(objectIDs);
-            */
         }
     }
 
@@ -390,12 +366,6 @@ public class ObjectContext {
                 object.setManagedObjectContext(null);
             }
             objects.clear();
-
-            // TODO: need to fix
-            /*
-            PersistentStore store = object.getID().getPersistentStore();
-                store.contextUnregisteredObjectIDs(objectIDs);
-            */
         }
     }
 
