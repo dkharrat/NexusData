@@ -1,35 +1,63 @@
 NexusData
-===========
+=========
 **Core Data for Android**
 
-NexusData is an object graph persistence framework for Android. Essentially, it brings Core Data functionality from
-iOS to Android. The goal is not intended to be a straight port of Core Data. Instead, it aims to bring the best from
-Core Data's while having the flexibility to evolve independently, leveraging modern software architecture developments.
+NexusData is an object graph and persistence framework for Android. It allows for organizing and managing relational
+data and serializing it to SQLite or custom stores. The data can be accessed or modified using higher level objects
+representing entities and their relationships. NexusData manages all the objects in the persistence store, tracks
+changes, and maintains consistency in relationships.
+
+Essentially, it brings Core Data functionality from iOS to Android. However, the library is not intended to be a
+straight port of Core Data. Instead, it aims to leverage Core Data's concepts, while having the flexibility to evolve
+independently.
+
+NexusData is not an ORM in that it's more higher-level and is not tied to a specific storage engine. The query interface
+is oblivious to the underlying persistence store.
 
 NexusData supports Android API 10+. This library follows [semantic versioning](http://semver.org/). Note that this
 library is still active in development, and is missing a lot of features. New releases might introduce
 interface-breaking changes, which will be indicated in the changelog. NexusData 1.0.0 will be the first stable release.
 
-A Simple Example
-----------------
-TODO
+Samples
+-------
 
-For more examples, browse the [samples](http://github.com/dkharrat/NexusData/tree/master/samples) directory.
+For sample projects that use NexusData, browse the [samples](http://github.com/dkharrat/NexusData/tree/master/samples)
+directory.
 
 Features
 --------
-TODO
+* Change tracking and management of objects.
+* Relationship maintenance by automatically propagating related changes to maintain consistency.
+* Support for one-to-one and one-to-many relationships.
+* Lazy loading of the object graph to reduce memory overhead.
+* Flexible query interface that is independent of the underlying storage engine.
+* Support for different and extensible persistence storage. Currently, two storage engines are provided:
+  * In-memory
+  * SQLite
+* Support for atomic and incremental persistence stores.
+* Built-in support for basic attribute types:
+  * Short
+  * Integer
+  * Boolean
+  * String
+  * Enum
+  * Date
 
 Apps Using NexusData
-----------------------
+--------------------
 Do you have an app that's utilizing NexusData? [Let me know](mailto:dkharrat@gmail.com) and I'll add a link to it here!
 
 Limitations
-----------------
+-----------
 The framework is constantly being improved and new features are being implemented. Since it's very early stage, it
 currently has some limitations:
 
-* TODO
+* Undo/Redo is not supported.
+* Query syntax is currently limited to comparisons and boolean logic. Operations like aggregations and joining are not
+  supported yet.
+* Framework is not yet optimized for large data sets in terms of performance and memory. This is due to the early
+  development of the project and will be improved at some point.
+* Custom data types are not supported yet.
 
 How to Add NexusData to Your Project
 --------------------------------------
@@ -64,9 +92,7 @@ TODO
 Download the jar file from [TBD] and place it under the libs/ directory in your project.
 
 How to Use NexusData
-----------------------
-TODO
-
+--------------------
 Please browse through the samples included with the project for examples on how NexusData can be used.
 
 Documentation
