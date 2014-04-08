@@ -98,8 +98,8 @@ public class Relationship extends Property {
     @Override
     public String toString() {
         return super.toString() + "["
-                +   "destinationEntity=" + getDestinationEntity().getName()
-                + ", inverseRelationship=" + getInverse().getName() +
-                "]";
+                +   "destinationEntity=" + (getDestinationEntity() == null ? "<null>" : getDestinationEntity().getName())
+                + ", inverseRelationship=" + (getInverse() == null ? "<null>" : getInverse().getName())
+                + "]";
     }
 }
