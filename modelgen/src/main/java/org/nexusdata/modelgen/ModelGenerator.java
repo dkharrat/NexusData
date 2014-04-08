@@ -27,7 +27,7 @@ public class ModelGenerator {
         }
         Configuration cfg = new Configuration();
         cfg.setObjectWrapper(ObjectWrapper.BEANS_WRAPPER);
-        cfg.setDirectoryForTemplateLoading(getTemplatesPath());
+        cfg.setClassForTemplateLoading(this.getClass(), "/templates");
         cfg.setDefaultEncoding("UTF-8");
         cfg.setWhitespaceStripping(true);
         cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
@@ -64,15 +64,6 @@ public class ModelGenerator {
             } catch (TemplateException ex) {
                 throw new RuntimeException("Could not generate class files", ex);
             }
-        }
-    }
-
-    File getTemplatesPath() {
-        URL url = this.getClass().getClassLoader().getResource("templates");
-        try {
-            return new File(url.toURI());
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Unable to open templates directory");
         }
     }
 
