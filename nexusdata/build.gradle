@@ -1,10 +1,10 @@
 buildscript {
-  repositories {
-    mavenCentral()
-  }
+    repositories {
+        mavenCentral()
+    }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:0.8+'
+    classpath 'com.android.tools.build:gradle:0.9+'
   }
 }
 
@@ -17,13 +17,12 @@ repositories {
 dependencies {
   compile 'org.slf4j:slf4j-api:1.7.6'
   compile 'com.google.code.gson:gson:2.2.4'
-
-  instrumentTestCompile 'com.github.tony19:logback-android-core:1.1.1-1'
-  instrumentTestCompile 'com.github.tony19:logback-android-classic:1.1.1-1'
+  androidTestCompile 'com.github.tony19:logback-android-core:1.1.1-1'
+  androidTestCompile 'com.github.tony19:logback-android-classic:1.1.1-1'
 }
 
 android {
-  buildToolsVersion "19"
+  buildToolsVersion '19'
   compileSdkVersion 17
 
   sourceSets {
@@ -31,9 +30,9 @@ android {
       java.srcDirs = ['src/main/java']
       resources.srcDirs = ['src/main/resources']
     }
-    instrumentTest {
-      java.srcDirs = ['src/instrumentTest/java']
-      resources.srcDirs = ['src/instrumentTest/resources']
+    androidTest {
+      java.srcDirs = ['src/androidTest/java']
+      resources.srcDirs = ['src/androidTest/resources']
     }
   }
 
