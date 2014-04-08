@@ -31,10 +31,11 @@ Features
 * Support for one-to-one and one-to-many relationships.
 * Lazy loading of the object graph to reduce memory overhead.
 * Flexible query interface that is independent of the underlying storage engine.
-* Support for different and extensible persistence storage. Currently, two storage engines are provided:
+* Model generator that generates java classes from the model.
+* Support for atomic and incremental persistence stores.
+* Extensible to different persistence storage. Currently, two storage engines are provided out of the box:
   * In-memory
   * SQLite
-* Support for atomic and incremental persistence stores.
 * Built-in support for basic attribute types:
   * Short
   * Integer
@@ -43,24 +44,26 @@ Features
   * Enum
   * Date
 
-Apps Using NexusData
---------------------
-Do you have an app that's utilizing NexusData? [Let me know](mailto:dkharrat@gmail.com) and I'll add a link to it here!
-
 Limitations
 -----------
 The framework is constantly being improved and new features are being implemented. Since it's very early stage, it
 currently has some limitations:
 
 * Undo/Redo is not supported.
+* Many-to-many relationships are not supported yet.
+* Schema migrations are not supported yet.
 * Query syntax is currently limited to comparisons and boolean logic. Operations like aggregations and joining are not
   supported yet.
 * Framework is not yet optimized for large data sets in terms of performance and memory. This is due to the early
-  development of the project and will be improved at some point.
+  development of the project and will be improved over time.
 * Custom data types are not supported yet.
 
+Apps Using NexusData
+--------------------
+Do you have an app that's utilizing NexusData? [Let me know](mailto:dkharrat@gmail.com) and I'll add a link to it here!
+
 How to Add NexusData to Your Project
---------------------------------------
+------------------------------------
 There are multiple ways to include your project, depending on your build environment:
 
 #### Gradle
