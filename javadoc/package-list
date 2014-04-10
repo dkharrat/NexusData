@@ -1,0 +1,7 @@
+com.github.dkharrat.nexusdata.core
+com.github.dkharrat.nexusdata.metamodel
+com.github.dkharrat.nexusdata.predicate
+com.github.dkharrat.nexusdata.predicate.parser
+com.github.dkharrat.nexusdata.store
+com.github.dkharrat.nexusdata.utils
+com.github.dkharrat.nexusdata.utils.android
