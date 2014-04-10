@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.io.File;
 
 import android.test.AndroidTestCase;
 
@@ -42,7 +43,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        if (persistentStore.getLocation() != null) persistentStore.getLocation().delete();
+        if (persistentStore.getLocation() != null) new File(persistentStore.getLocation().toURI()).delete();
         persistentStore = null;
         mainContext = null;
 

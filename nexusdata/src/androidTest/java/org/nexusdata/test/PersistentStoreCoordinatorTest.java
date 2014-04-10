@@ -1,5 +1,6 @@
 package com.github.dkharrat.nexusdata.test;
 
+import java.io.File;
 import android.test.AndroidTestCase;
 import com.github.dkharrat.nexusdata.core.ObjectContext;
 import com.github.dkharrat.nexusdata.core.PersistentStore;
@@ -25,7 +26,7 @@ public class PersistentStoreCoordinatorTest extends AndroidTestCase {
 
     @Override
     protected void tearDown() throws Exception {
-        coordinator.getPersistentStores().get(0).getLocation().delete();
+        new File(coordinator.getPersistentStores().get(0).getLocation().toURI()).delete();
         coordinator = null;
         context = null;
 

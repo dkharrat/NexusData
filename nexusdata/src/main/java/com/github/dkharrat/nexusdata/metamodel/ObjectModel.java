@@ -71,8 +71,8 @@ public class ObjectModel {
      *
      * @return the set of entities defined in this model
      */
-    public Collection<Entity<?>> getEntities() {
-        return entities.values();
+    public Set<Entity<?>> getEntities() {
+        return new HashSet<Entity<?>>(entities.values());
     }
 
     /**

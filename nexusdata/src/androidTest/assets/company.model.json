@@ -3,7 +3,7 @@
   "model": {
     "name": "CompanyStructure",
     "version": 1,
-    "packageName": "org.nexusdata.test",
+    "packageName": "com.github.dkharrat.nexusdata.test",
     "entities": [{
       "name": "Company",
       "attributes": [{

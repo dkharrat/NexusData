@@ -43,11 +43,13 @@ public abstract class PersistentStore {
      * @param location  the location in which to save the data persistence file
      */
     PersistentStore(File location) {
-        URL url;
-        try {
-            url = location.toURI().toURL();
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+        URL url = null;
+        if (location != null) {
+            try {
+                url = location.toURI().toURL();
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
         this.location = url;
     }
