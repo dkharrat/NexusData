@@ -1,4 +1,4 @@
-package org.nexusdata.modelgen.metamodel;
+package com.github.dkharrat.nexusdata.modelgen.metamodel;
 
 import com.google.common.base.CaseFormat;
 import org.modeshape.common.text.Inflector;

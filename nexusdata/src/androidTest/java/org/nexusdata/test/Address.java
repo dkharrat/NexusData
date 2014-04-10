@@ -1,4 +1,4 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 public class Address extends _Address {
 

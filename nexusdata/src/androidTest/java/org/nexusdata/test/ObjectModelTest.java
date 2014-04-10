@@ -1,9 +1,7 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import junit.framework.TestCase;
-import java.io.File;
-import java.io.FileInputStream;
-import org.nexusdata.metamodel.ObjectModel;
+import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
 
 public class ObjectModelTest extends TestCase {
 

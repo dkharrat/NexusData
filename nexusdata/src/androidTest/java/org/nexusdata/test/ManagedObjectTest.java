@@ -1,14 +1,13 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import java.util.Arrays;
-import java.io.InputStream;
 import java.util.Set;
 import junit.framework.TestCase;
-import org.nexusdata.core.ObjectContext;
-import org.nexusdata.core.PersistentStore;
-import org.nexusdata.core.PersistentStoreCoordinator;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.store.InMemoryPersistentStore;
+import com.github.dkharrat.nexusdata.core.ObjectContext;
+import com.github.dkharrat.nexusdata.core.PersistentStore;
+import com.github.dkharrat.nexusdata.core.PersistentStoreCoordinator;
+import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
+import com.github.dkharrat.nexusdata.store.InMemoryPersistentStore;
 
 public class ManagedObjectTest extends TestCase {
 

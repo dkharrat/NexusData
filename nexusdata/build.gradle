@@ -47,7 +47,7 @@ android {
   }
 
   defaultConfig {
-    testPackageName "org.nexusdata.test"
+    testPackageName "com.github.dkharrat.nexusdata.test"
     testInstrumentationRunner "android.test.InstrumentationTestRunner"
   }
 }

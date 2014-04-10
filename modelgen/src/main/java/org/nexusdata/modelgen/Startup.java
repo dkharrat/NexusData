@@ -1,4 +1,4 @@
-package org.nexusdata.modelgen;
+package com.github.dkharrat.nexusdata.modelgen;
 
 import org.apache.commons.cli.*;
 

@@ -1,4 +1,4 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,17 +9,17 @@ import java.util.Set;
 
 import android.test.AndroidTestCase;
 
-import org.nexusdata.core.ChangedObjectsSet;
-import org.nexusdata.core.FetchRequest;
-import org.nexusdata.core.ObjectContext;
-import org.nexusdata.core.ObjectContextNotifier;
-import org.nexusdata.core.ObjectContextNotifier.DefaultObjectContextListener;
-import org.nexusdata.core.ObjectContextNotifier.ObjectContextListener;
-import org.nexusdata.core.PersistentStore;
-import org.nexusdata.core.PersistentStoreCoordinator;
-import org.nexusdata.metamodel.Entity;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.predicate.ExpressionBuilder;
+import com.github.dkharrat.nexusdata.core.ChangedObjectsSet;
+import com.github.dkharrat.nexusdata.core.FetchRequest;
+import com.github.dkharrat.nexusdata.core.ObjectContext;
+import com.github.dkharrat.nexusdata.core.ObjectContextNotifier;
+import com.github.dkharrat.nexusdata.core.ObjectContextNotifier.DefaultObjectContextListener;
+import com.github.dkharrat.nexusdata.core.ObjectContextNotifier.ObjectContextListener;
+import com.github.dkharrat.nexusdata.core.PersistentStore;
+import com.github.dkharrat.nexusdata.core.PersistentStoreCoordinator;
+import com.github.dkharrat.nexusdata.metamodel.Entity;
+import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
+import com.github.dkharrat.nexusdata.predicate.ExpressionBuilder;
 
 public abstract class ObjectContextTest extends AndroidTestCase {
 

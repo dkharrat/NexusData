@@ -2,14 +2,10 @@ package org.example.todo;
 
 import android.app.Application;
 import android.content.Context;
-import android.util.Log;
-import org.nexusdata.core.*;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.predicate.Predicate;
-import org.nexusdata.predicate.parser.PredicateParser;
-import org.nexusdata.store.AndroidSqlPersistentStore;
+import com.github.dkharrat.nexusdata.core.*;
+import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
+import com.github.dkharrat.nexusdata.store.AndroidSqlPersistentStore;
 import java.io.IOException;
-import java.net.URL;
 
 public class TodoApp extends Application {
 

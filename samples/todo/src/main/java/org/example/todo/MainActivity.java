@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.*;
 import android.widget.*;
-import org.nexusdata.core.FetchRequest;
-import org.nexusdata.core.ObjectContext;
+import com.github.dkharrat.nexusdata.core.FetchRequest;
+import com.github.dkharrat.nexusdata.core.ObjectContext;
 
 import java.util.Arrays;
 import java.util.List;

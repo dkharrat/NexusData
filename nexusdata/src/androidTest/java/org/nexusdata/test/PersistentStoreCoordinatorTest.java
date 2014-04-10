@@ -1,11 +1,11 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import android.test.AndroidTestCase;
-import org.nexusdata.core.ObjectContext;
-import org.nexusdata.core.PersistentStore;
-import org.nexusdata.core.PersistentStoreCoordinator;
-import org.nexusdata.metamodel.ObjectModel;
-import org.nexusdata.store.AndroidSqlPersistentStore;
+import com.github.dkharrat.nexusdata.core.ObjectContext;
+import com.github.dkharrat.nexusdata.core.PersistentStore;
+import com.github.dkharrat.nexusdata.core.PersistentStoreCoordinator;
+import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
+import com.github.dkharrat.nexusdata.store.AndroidSqlPersistentStore;
 
 public class PersistentStoreCoordinatorTest extends AndroidTestCase {
 

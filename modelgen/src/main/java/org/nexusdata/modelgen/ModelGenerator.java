@@ -1,7 +1,7 @@
-package org.nexusdata.modelgen;
+package com.github.dkharrat.nexusdata.modelgen;
 
 import com.google.gson.*;
-import org.nexusdata.modelgen.metamodel.*;
+import com.github.dkharrat.nexusdata.modelgen.metamodel.*;
 import freemarker.template.*;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 
 public class ModelGenerator {

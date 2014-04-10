@@ -1,8 +1,7 @@
-package org.nexusdata.modelgen.metamodel;
+package com.github.dkharrat.nexusdata.modelgen.metamodel;
 
 import com.google.common.base.CaseFormat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class EnumProperty extends Property {

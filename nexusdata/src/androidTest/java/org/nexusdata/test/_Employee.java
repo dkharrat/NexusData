@@ -1,10 +1,10 @@
 // THIS IS AN AUTO-GENERATED CLASS FILE. DO NOT EDIT DIRECTLY.
 
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import java.util.Date;
 import java.util.Set;
-import org.nexusdata.core.ManagedObject;
+import com.github.dkharrat.nexusdata.core.ManagedObject;
 
 class _Employee extends ManagedObject {
 

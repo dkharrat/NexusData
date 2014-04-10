@@ -10,7 +10,7 @@
 	</encoder>
     </appender>
 
-    <property name="dest.dir" value="/mnt/sdcard/org.nexusdata.test" />
+    <property name="dest.dir" value="/mnt/sdcard/com.github.dkharrat.nexusdata.test" />
     <appender name='FILE' class='ch.qos.logback.core.rolling.RollingFileAppender'>
 	<file>${dest.dir}/app.log</file>
 	<rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">

@@ -1,4 +1,4 @@
-package org.nexusdata.modelgen.metamodel;
+package com.github.dkharrat.nexusdata.modelgen.metamodel;
 
 import java.util.List;
 

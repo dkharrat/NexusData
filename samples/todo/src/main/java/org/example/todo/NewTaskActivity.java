@@ -3,13 +3,12 @@ package org.example.todo;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
 import ch.qos.logback.classic.Logger;
-import org.nexusdata.core.ObjectContext;
+import com.github.dkharrat.nexusdata.core.ObjectContext;
 
 public class NewTaskActivity extends Activity {
 

@@ -1,4 +1,4 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
 import java.util.List;
 

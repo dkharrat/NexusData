@@ -1,7 +1,7 @@
-package org.nexusdata.test;
+package com.github.dkharrat.nexusdata.test;
 
-import org.nexusdata.core.PersistentStore;
-import org.nexusdata.store.InMemoryPersistentStore;
+import com.github.dkharrat.nexusdata.core.PersistentStore;
+import com.github.dkharrat.nexusdata.store.InMemoryPersistentStore;
 
 public class ObjectContextWithInMemoryStoreTest extends ObjectContextTest {
 

@@ -3,8 +3,8 @@
 package org.example.todo;
 
 import java.util.Date;
-import java.util.Set;
-import org.nexusdata.core.ManagedObject;
+
+import com.github.dkharrat.nexusdata.core.ManagedObject;
 
 class _Task extends ManagedObject {
 

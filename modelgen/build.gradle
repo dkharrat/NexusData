@@ -3,7 +3,7 @@ apply plugin:'application'
 
 version = '1.0'
 sourceCompatibility = 1.7
-mainClassName = "org.nexusdata.modelgen.Startup"
+mainClassName = "com.github.dkharrat.nexusdata.modelgen.Startup"
 jar {
   dependsOn configurations.runtime
   from { configurations.runtime.collect { it.isDirectory() ? it : zipTree(it) } }
