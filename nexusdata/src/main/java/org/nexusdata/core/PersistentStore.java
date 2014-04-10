@@ -110,7 +110,7 @@ public abstract class PersistentStore {
     }
 
     /**
-     * Creates a new {@link ObjectID}.
+     * Creates a new {@link ObjectID} associated with a reference object.
      *
      * @param entity            the entity associated with the ObjectID
      * @param referenceObject   the reference object that uniquely identifies the object. This object must implement
@@ -118,7 +118,7 @@ public abstract class PersistentStore {
      *                          for two different instances that represent the same reference object,
      *                          {@code Object#hashCode()} must return the same value and
      *                          {@code Object#equals(Object)} must return true.
-     * @return
+     * @return the newly created id
      */
     ObjectID createObjectID(Entity<?> entity, Object referenceObject) {
         ObjectID id = new ObjectID(this, entity, referenceObject);

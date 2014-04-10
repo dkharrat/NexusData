@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * Represents a save request to a persistence store, containing all the objects that have been changed, either by
  * insertion, deletion, or updating, and are to be reflected in the persistence store. This request is sent by the
- * @{org.nexusdata.core.ObjectContext} when a save is performed.
+ * {@link org.nexusdata.core.ObjectContext} when a save is performed.
  */
 public class SaveChangesRequest implements PersistentStoreRequest {
 

@@ -271,7 +271,7 @@ public class FetchRequest<T extends ManagedObject> implements PersistentStoreReq
 
         /**
          * Returns a constructed FetchRequest from this builder.
-         * @return
+         * @return a constructed FetchRequest from this builder.
          */
         public FetchRequest<T> build() {
             return fetchRequest;
