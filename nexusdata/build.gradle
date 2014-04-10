@@ -9,6 +9,11 @@ buildscript {
 }
 
 apply plugin: 'android-library'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+version = "0.1.0"
+group = "com.github.dkharrat.nexusdata"
 
 repositories {
     mavenCentral()
@@ -52,3 +57,50 @@ android {
   }
 }
 
+if (project.hasProperty('signing')) {
+    signing {
+        required { has("release") && gradle.taskGraph.hasTask("uploadArchives") }
+        sign configurations.archives
+    }
+}
+
+if (project.hasProperty('sonatypeUsername')) {
+    uploadArchives {
+        repositories.mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: sonatypeRepo) {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            pom.project {
+                name 'NexusData'
+                packaging 'aar'
+                description 'Core Data for Android'
+                url 'https://github.com/dkharrat/NexusData'
+
+                scm {
+                    url 'scm:git@github.com:dkharrat/NexusData.git'
+                    connection 'scm:git@github.com:dkharat/NexusData.git'
+                    developerConnection 'scm:git@github.com:dkharrat/NexusData.git'
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'dkharrat'
+                        name 'Dia Kharrat'
+                        email 'dkharrat@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
