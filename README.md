@@ -102,59 +102,60 @@ For a complete example of how NexusData can be used, please browse through
 The model is used to provide NexusData with information about the entities and their properties. A model can be defined
 either programmatically or via JSON file. Here's an example of a JSON-based model file for a ToDo app:
 
-    todo.model.json:
-
-    {
-      "metaVersion": 1,
-      "model": {
-        "name": "Todo",
-        "version": 3,
-        "packageName": "org.example.todo",
-        "entities": [{
-          "name": "Task",
-          "enums": [{
-            "name": "Priority",
-            "values": ["HIGH", "MEDIUM", "LOW"]
-          }],
-          "attributes": [{
-            "name": "title",
-            "type": "String"
-          }, {
-            "name": "notes",
-            "type": "String"
-          }, {
-            "name": "dueBy",
-            "type": "Date"
-          }, {
-             "name": "completed",
-             "type": "Bool",
-             "required": true,
-             "default": false
-           }, {
-             "name": "priority",
-             "type": "Priority"
-           }],
-          "relationships": [{
-            "name": "assignedTo",
-            "destinationEntity": "User",
-            "inverseName": "tasks",
-            "toMany": false
-          }]
-        }, {
-          "name": "User",
-          "attributes": [{
-            "name": "name",
-            "type": "String"
-          }],
-          "relationships": [{
-            "name": "tasks",
-            "destinationEntity": "Task",
-            "inverseName": "assignedTo",
-            "toMany": true
-          }]
-        }]
-      }
-    }
+todo.model.json:
+```json
+{
+  "metaVersion": 1,
+  "model": {
+    "name": "Todo",
+    "version": 3,
+    "packageName": "org.example.todo",
+    "entities": [{
+      "name": "Task",
+      "enums": [{
+        "name": "Priority",
+        "values": ["HIGH", "MEDIUM", "LOW"]
+      }],
+      "attributes": [{
+        "name": "title",
+        "type": "String"
+      }, {
+        "name": "notes",
+        "type": "String"
+      }, {
+        "name": "dueBy",
+        "type": "Date"
+      }, {
+         "name": "completed",
+         "type": "Bool",
+         "required": true,
+         "default": false
+       }, {
+         "name": "priority",
+         "type": "Priority"
+       }],
+      "relationships": [{
+        "name": "assignedTo",
+        "destinationEntity": "User",
+        "inverseName": "tasks",
+        "toMany": false
+      }]
+    }, {
+      "name": "User",
+      "attributes": [{
+        "name": "name",
+        "type": "String"
+      }],
+      "relationships": [{
+        "name": "tasks",
+        "destinationEntity": "Task",
+        "inverseName": "assignedTo",
+        "toMany": true
+      }]
+    }]
+  }
+}
+```
 
 This model (named "Todo") defines two entities: `Task` and `User`. A `Task` belongs to a `User`, and a `User` has many
 `Task`s. Also, each entity has some attributes.
@@ -194,93 +195,169 @@ base class (e.g. `_Task.java`).
 Here's how the generated files look like for the `Task` entity:
 
 _Task.java:
+```java
+// THIS IS AN AUTO-GENERATED CLASS FILE. DO NOT EDIT DIRECTLY.
 
-    // THIS IS AN AUTO-GENERATED CLASS FILE. DO NOT EDIT DIRECTLY.
+package org.example.todo;
 
-    package org.example.todo;
+import java.util.Date;
+import com.github.dkharrat.nexusdata.core.ManagedObject;
 
-    import java.util.Date;
-    import com.github.dkharrat.nexusdata.core.ManagedObject;
+class _Task extends ManagedObject {
 
-    class _Task extends ManagedObject {
-
-        public interface Property {
-            final static String TITLE = "title";
-            final static String NOTES = "notes";
-            final static String DUE_BY = "dueBy";
-            final static String COMPLETED = "completed";
-            final static String PRIORITY = "priority";
-            final static String ASSIGNED_TO = "assignedTo";
-        }
-
-        public enum Priority {
-            HIGH,
-            MEDIUM,
-            LOW,
-        }
-
-        public String getTitle() {
-            return (String)getValue(Property.TITLE);
-        }
-
-        public void setTitle(String title) {
-            setValue(Property.TITLE, title);
-        }
-
-        public String getNotes() {
-            return (String)getValue(Property.NOTES);
-        }
-
-        public void setNotes(String notes) {
-            setValue(Property.NOTES, notes);
-        }
-
-        public Date getDueBy() {
-            return (Date)getValue(Property.DUE_BY);
-        }
-
-        public void setDueBy(Date dueBy) {
-            setValue(Property.DUE_BY, dueBy);
-        }
-
-        public boolean isCompleted() {
-            return (Boolean)getValue(Property.COMPLETED);
-        }
-
-        public void setCompleted(boolean completed) {
-            setValue(Property.COMPLETED, completed);
-        }
-
-        public Priority getPriority() {
-            return (Priority)getValue(Property.PRIORITY);
-        }
-
-        public void setPriority(Priority priority) {
-            setValue(Property.PRIORITY, priority);
-        }
-
-
-        public User getAssignedTo() {
-            return (User)getValue(Property.ASSIGNED_TO);
-        }
-
-        public void setAssignedTo(User assignedTo) {
-            setValue(Property.ASSIGNED_TO, assignedTo);
-        }
+    public interface Property {
+        final static String TITLE = "title";
+        final static String NOTES = "notes";
+        final static String DUE_BY = "dueBy";
+        final static String COMPLETED = "completed";
+        final static String PRIORITY = "priority";
+        final static String ASSIGNED_TO = "assignedTo";
     }
+
+    public enum Priority {
+        HIGH,
+        MEDIUM,
+        LOW,
+    }
+
+    public String getTitle() {
+        return (String)getValue(Property.TITLE);
+    }
+
+    public void setTitle(String title) {
+        setValue(Property.TITLE, title);
+    }
+
+    public String getNotes() {
+        return (String)getValue(Property.NOTES);
+    }
+
+    public void setNotes(String notes) {
+        setValue(Property.NOTES, notes);
+    }
+
+    public Date getDueBy() {
+        return (Date)getValue(Property.DUE_BY);
+    }
+
+    public void setDueBy(Date dueBy) {
+        setValue(Property.DUE_BY, dueBy);
+    }
+
+    public boolean isCompleted() {
+        return (Boolean)getValue(Property.COMPLETED);
+    }
+
+    public void setCompleted(boolean completed) {
+        setValue(Property.COMPLETED, completed);
+    }
+
+    public Priority getPriority() {
+        return (Priority)getValue(Property.PRIORITY);
+    }
+
+    public void setPriority(Priority priority) {
+        setValue(Property.PRIORITY, priority);
+    }
+
+
+    public User getAssignedTo() {
+        return (User)getValue(Property.ASSIGNED_TO);
+    }
+
+    public void setAssignedTo(User assignedTo) {
+        setValue(Property.ASSIGNED_TO, assignedTo);
+    }
+}
+```
 
 Task.java:
+```java
+package org.example.todo;
 
-    package org.example.todo;
+public class Task extends _Task {
+    public Task() {
+    }
+}
+```
 
-    public class Task extends _Task {
-        public Task() {
+### Initializing NexusData Stack
+
+To setup NexusData in your application, you'll need three main parts: `ObjectModel`, `PersistentStoreCoordinator`,
+and a `ObjectContext`. These can typically be initialized once at startup and used throughout the lifetime of the
+application.
+
+```java
+// create an ObjectModel that describes the meta model
+ObjectModel model = new ObjectModel(app.getAssets().open("todo.model.json"));
+
+// create the persistent store coordinator and its associated store
+PersistentStoreCoordinator storeCoordinator = new PersistentStoreCoordinator(model);
+Context ctx = getApplicationContext(); // the Android context
+PersistentStore cacheStore = new AndroidSqlPersistentStore(ctx, ctx.getDatabasePath("todo"));
+storeCoordinator.addStore(cacheStore);
+
+// create an ObjectContext that will be used to retrieve or save our objects
+ObjectContext mainObjectContext = new ObjectContext(storeCoordinator);
+```
+
+### Creating/Updating Objects
+
+```java
+ObjectContext objCtx = getMainObjectContext();
+Task task1 = objCtx.newObject(Task.class);
+task1.setTitle("Get groceries");
+
+Task task2 = objCtx.newObject(Task.class);
+task2.setTitle("File taxes");
+
+objCtx.save();
+```
+
+### Deleting Objects
+
+```java
+ObjectContext objCtx = getMainObjectContext().delete(task1);
+objCtx.save();
+```
+
+### Querying All Objects of Specific Type
+
+```java
+List<Task> tasks = objCtx.findAll(Task.class)
+```
+
+### Querying Objects Satisfying a Predicate
+
+For example, to query all Tasks that are complete:
+
+```java
+FetchRequest<Task> fetchRequest = objCtx.newFetchRequestBuilder(Task.class)
+    .predicate("completed == true")
+    .build();
+List<Task> tasks = objCtx.executeFetchOperation(fetchRequest);
+```
+
+### Use `ObjectContext` and `ManagedObject`s in multiple threads
+
+Similar to Core Data, `ManagedObject` and `ObjectContext` are not thread-safe, and therefore, should not be used in
+other threads. Each thread must use its own instance of `ObjectContext`. To pass objects between multiple threads,
+pass the object's `ObjectID` to the other thread, which can then retrieve the object from it's own `ObjectContext`.
+
+To synchronize multiple `ObjectContext` with any changes, register a listener and then merge the changes when receiving
+a notification, as follows:
+
+```java
+ObjectContextNotifier.registerListener(new ObjectContextNotifier.DefaultObjectContextListener() {
+    @Override public void onPostSave(ObjectContext context, ChangedObjectsSet changedObjects) {
+        // ensure that the notification we just got is not from our own context, and that it's from a context using a
+        // persistence store that our context is also using.
+        if (context != mainObjectContext && context.getPersistentStoreCoordinator() == mainObjectContext.getPersistentStoreCoordinator()) {
+            mainObjectContext.mergeChangesFromSaveNotification(changedObjects);
         }
     }
-
-### Initializing the NexusData Stack
-
-TODO
+});
+```
 
 Documentation
 -------------
