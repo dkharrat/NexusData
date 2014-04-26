@@ -317,7 +317,7 @@ objCtx.save();
 ### Deleting Objects
 
 ```java
-ObjectContext objCtx = getMainObjectContext().delete(task1);
+objCtx.delete(task1);
 objCtx.save();
 ```
 
