@@ -13,10 +13,6 @@ jar {
   }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
-}
-
 repositories {
     mavenCentral()
 }
