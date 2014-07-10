@@ -67,7 +67,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         assertSame(employees.get(0), employees2.get(0));
         assertEquals("John", employees.get(0).getFirstName());
         assertEquals("Smith", employees.get(0).getLastName());
-        assertEquals(1000, employees.get(0).getSalary());
+        assertEquals(1000, employees.get(0).getId());
         assertEquals(true, employees.get(0).isActive());
         assertEquals(new Date(999000), employees.get(0).getDateOfBirth());
     }
@@ -295,7 +295,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         List<Employee> employees = mainContext.findAll(Employee.class);
         Employee employee1 = employees.get(0);
 
-        employee1.setSalary(1000);
+        employee1.setId(1000);
         assertFalse(mainContext.getUpdatedObjects().contains(employee1));
     }
 
@@ -539,7 +539,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
     static private void assertEmployeesEqual(Employee expected, Employee actual) {
         assertEquals(expected.getFirstName(), actual.getFirstName());
         assertEquals(expected.getLastName(), actual.getLastName());
-        assertEquals(expected.getSalary(), actual.getSalary());
+        assertEquals(expected.getId(), actual.getId());
         assertEquals(expected.isActive(), actual.isActive());
         if (expected.getCompany() == null) {
             assertSame(null, actual.getCompany());
@@ -548,19 +548,19 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         }
     }
 
-    private Employee createEmployee(ObjectContext context, String firstName, String lastName, int salary, boolean active, Date dateOfBirth) {
+    private Employee createEmployee(ObjectContext context, String firstName, String lastName, int id, boolean active, Date dateOfBirth) {
         Employee employee = context.newObject(Employee.class);
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
-        employee.setSalary(salary);
+        employee.setId(id);
         employee.setActive(active);
         if (dateOfBirth != null) employee.setDateOfBirth(dateOfBirth);
 
         return employee;
     }
 
-    private Employee createEmployee(ObjectContext context, String firstName, String lastName, int salary) {
-        return createEmployee(context, firstName, lastName, salary, true, null);
+    private Employee createEmployee(ObjectContext context, String firstName, String lastName, int id) {
+        return createEmployee(context, firstName, lastName, id, true, null);
     }
 
     private Company createCompany(ObjectContext context, String name) {

@@ -15,6 +15,8 @@ public class Attribute  extends Property {
         typeToJavaType.put("Long", "Long");
         typeToJavaType.put("Bool", "Boolean");
         typeToJavaType.put("Date", "Date");
+        typeToJavaType.put("Float", "Float");
+        typeToJavaType.put("Double", "Double");
     }
 
     private static final Map<String,String> typeToPrimType = new HashMap<>();
@@ -25,6 +27,8 @@ public class Attribute  extends Property {
         typeToPrimType.put("Long", "long");
         typeToPrimType.put("Bool", "boolean");
         typeToPrimType.put("Date", "Date");
+        typeToPrimType.put("Float", "float");
+        typeToPrimType.put("Double", "double");
     }
 
     private Entity entity;

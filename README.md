@@ -40,6 +40,7 @@ Features
   * Short
   * Integer
   * Boolean
+  * Float / Double
   * String
   * Enum
   * Date

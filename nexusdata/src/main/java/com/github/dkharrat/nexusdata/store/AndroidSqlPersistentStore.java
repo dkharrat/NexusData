@@ -205,6 +205,10 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                     value = CursorUtil.getString(cursor, property.getName());
                 } else if (propType.isAssignableFrom(Boolean.class) || propType.isAssignableFrom(boolean.class)) {
                     value = CursorUtil.getBoolean(cursor, property.getName());
+                } else if (propType.isAssignableFrom(Float.class) || propType.isAssignableFrom(float.class)) {
+                    value = CursorUtil.getFloat(cursor, property.getName());
+                } else if (propType.isAssignableFrom(Double.class) || propType.isAssignableFrom(double.class)) {
+                    value = CursorUtil.getDouble(cursor, property.getName());
                 } else if (Enum.class.isAssignableFrom(propType)) {
                     String enumName = CursorUtil.getString(cursor, property.getName());
                     if (enumName != null) {

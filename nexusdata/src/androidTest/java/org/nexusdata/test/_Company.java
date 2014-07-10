@@ -2,6 +2,7 @@
 
 package com.github.dkharrat.nexusdata.test;
 
+import java.util.Date;
 import java.util.Set;
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 

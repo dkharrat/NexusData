@@ -20,6 +20,10 @@
     }, {
       "name": "Employee",
       "attributes": [{
+        "name": "id",
+        "type": "Int",
+        "required": true
+      }, {
         "name": "firstName",
         "type": "String",
         "required": true
@@ -28,10 +32,13 @@
         "type": "String",
         "required": true
       }, {
-        "name": "salary",
-        "type": "Int",
+        "name": "hourlyWage",
+        "type": "Double",
         "required": true,
-        "default": 50000
+        "default": 10.123
+      }, {
+        "name": "heightInCm",
+        "type": "Float"
       }, {
         "name": "active",
         "type": "Bool",

@@ -21,7 +21,8 @@ public class SqlTableBuilder {
         INTEGER,
         TEXT,
         BOOLEAN,
-        DATETIME
+        DATETIME,
+        REAL
     }
 
     public enum ConflictAction {

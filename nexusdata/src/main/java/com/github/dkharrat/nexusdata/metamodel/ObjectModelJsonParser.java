@@ -214,6 +214,8 @@ class JsonElem {
             primTypeToJavaType.put("Long", Long.class);
             primTypeToJavaType.put("Bool", Boolean.class);
             primTypeToJavaType.put("Date", Date.class);
+            primTypeToJavaType.put("Float", Float.class);
+            primTypeToJavaType.put("Double", Double.class);
         }
 
         String name;

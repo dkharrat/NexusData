@@ -78,6 +78,10 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
                     columnType = SqlTableBuilder.ColumnType.TEXT;
                 } else if (boolean.class.isAssignableFrom(propType) || Boolean.class.isAssignableFrom(propType)) {
                     columnType = SqlTableBuilder.ColumnType.BOOLEAN;
+                } else if (float.class.isAssignableFrom(propType) || Float.class.isAssignableFrom(propType)) {
+                    columnType = SqlTableBuilder.ColumnType.REAL;
+                } else if (double.class.isAssignableFrom(propType) || Double.class.isAssignableFrom(propType)) {
+                    columnType = SqlTableBuilder.ColumnType.REAL;
                 } else if (Date.class.isAssignableFrom(property.getType())) {
                     columnType = SqlTableBuilder.ColumnType.DATETIME;
                 } else {

@@ -9,9 +9,11 @@ import com.github.dkharrat.nexusdata.core.ManagedObject;
 class _Employee extends ManagedObject {
 
     public interface Property {
+        final static String ID = "id";
         final static String FIRST_NAME = "firstName";
         final static String LAST_NAME = "lastName";
-        final static String SALARY = "salary";
+        final static String HOURLY_WAGE = "hourlyWage";
+        final static String HEIGHT_IN_CM = "heightInCm";
         final static String ACTIVE = "active";
         final static String DATE_OF_BIRTH = "dateOfBirth";
         final static String COMPANY = "company";
@@ -20,6 +22,14 @@ class _Employee extends ManagedObject {
         final static String ADDRESS = "address";
     }
 
+
+    public int getId() {
+        return (Integer)getValue(Property.ID);
+    }
+
+    public void setId(int id) {
+        setValue(Property.ID, id);
+    }
 
     public String getFirstName() {
         return (String)getValue(Property.FIRST_NAME);
@@ -37,12 +47,20 @@ class _Employee extends ManagedObject {
         setValue(Property.LAST_NAME, lastName);
     }
 
-    public int getSalary() {
-        return (Integer)getValue(Property.SALARY);
+    public double getHourlyWage() {
+        return (Double)getValue(Property.HOURLY_WAGE);
     }
 
-    public void setSalary(int salary) {
-        setValue(Property.SALARY, salary);
+    public void setHourlyWage(double hourlyWage) {
+        setValue(Property.HOURLY_WAGE, hourlyWage);
+    }
+
+    public Float getHeightInCm() {
+        return (Float)getValue(Property.HEIGHT_IN_CM);
+    }
+
+    public void setHeightInCm(Float heightInCm) {
+        setValue(Property.HEIGHT_IN_CM, heightInCm);
     }
 
     public boolean isActive() {

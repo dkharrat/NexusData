@@ -51,6 +51,10 @@ public class StringUtil {
             result = value;
         } else if (propType.isAssignableFrom(Boolean.class) || propType.isAssignableFrom(boolean.class)) {
             result = Boolean.valueOf(value);
+        } else if (propType.isAssignableFrom(Float.class) || propType.isAssignableFrom(float.class)) {
+            result = Float.valueOf(value);
+        } else if (propType.isAssignableFrom(Double.class) || propType.isAssignableFrom(double.class)) {
+            result = Double.valueOf(value);
         } else if (Enum.class.isAssignableFrom(propType)) {
             if (value != null) {
                 result = Enum.valueOf((Class<? extends Enum>)propType, value);

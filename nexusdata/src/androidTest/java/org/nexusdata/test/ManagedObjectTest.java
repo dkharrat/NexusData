@@ -30,6 +30,7 @@ public class ManagedObjectTest extends TestCase {
         addressInJapan.setCountry("Japan");
 
         john = context.newObject(Employee.class);
+        john.setId(123);
         john.setFirstName("John");
         john.setAddress(addressInJapan);
         Employee mike = context.newObject(Employee.class);
@@ -49,7 +50,7 @@ public class ManagedObjectTest extends TestCase {
     public void testDefaultsSetWhenCreated() throws Throwable {
         Employee bob = context.newObject(Employee.class);
         assertTrue(bob.isActive());
-        assertEquals(50000, bob.getSalary());
+        assertEquals(10.123, bob.getHourlyWage());
     }
 
     public void testIsInserted() throws Throwable {
@@ -83,10 +84,14 @@ public class ManagedObjectTest extends TestCase {
     public void testSettingAttribute() throws Throwable {
         Employee bob = context.newObject(Employee.class);
         bob.setFirstName("Bob");
-        bob.setSalary(999);
+        bob.setId(999);
+        bob.setHourlyWage(38.0000000000000004);
+        bob.setHeightInCm(170.26f);
 
         assertEquals("Bob", bob.getFirstName());
-        assertEquals(999, (int)bob.getSalary());
+        assertEquals(999, bob.getId());
+        assertEquals(38.0000000000000004, bob.getHourlyWage());
+        assertEquals(170.26f, bob.getHeightInCm());
     }
 
     public void testSettingOneToOneRelationship() throws Throwable {

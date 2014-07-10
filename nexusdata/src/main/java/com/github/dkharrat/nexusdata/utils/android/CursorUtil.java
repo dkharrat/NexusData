@@ -24,6 +24,14 @@ public class CursorUtil {
         return c.getInt(c.getColumnIndex(columnName)) != 0;
     }
 
+    public static float getFloat(Cursor c, String columnName) {
+        return c.getFloat(c.getColumnIndex(columnName));
+    }
+
+    public static double getDouble(Cursor c, String columnName) {
+        return c.getDouble(c.getColumnIndex(columnName));
+    }
+
     public static boolean isNull(Cursor c, String columnName) {
         return c.isNull(c.getColumnIndex(columnName));
     }
