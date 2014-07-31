@@ -67,8 +67,24 @@ public class PredicateBuilder {
         return eq(new ConstantExpression<T>(value));
     }
 
+    public PredicateBuilder notEq(Expression<?> rhs) {
+        return new PredicateBuilder(new ComparisonPredicate(curExpression, ComparisonPredicate.Operator.NOT_EQUAL, rhs));
+    }
+
+    public PredicateBuilder notEq(ExpressionBuilder rhs) {
+        return notEq(rhs.getExpression());
+    }
+
+    public <T> PredicateBuilder notEq(T value) {
+        return notEq(new ConstantExpression<T>(value));
+    }
+
     public PredicateBuilder isNull() {
         return eq(new ConstantExpression<Object>(null));
+    }
+
+    public PredicateBuilder isNotNull() {
+        return notEq(new ConstantExpression<Object>(null));
     }
 
     public PredicateBuilder and(PredicateBuilder rhs) {

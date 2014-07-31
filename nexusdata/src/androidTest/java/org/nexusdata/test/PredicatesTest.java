@@ -76,16 +76,16 @@ public class PredicatesTest extends TestCase {
     }
 
     public void testComplexCompoundPredicateTrue() throws Throwable {
-        // 10 > 5 || (8 == 8 && 8 < 6)
+        // 10 > 5 || (8 != 9 && 8 < 6)
         Predicate p = ExpressionBuilder.constant(10).gt(5)
-                .or(ExpressionBuilder.constant(8).eq(8)
+                .or(ExpressionBuilder.constant(8).notEq(9)
                         .and(ExpressionBuilder.constant(8).lt(6))).getPredicate();
         assertTrue(p.evaluate(null));
     }
 
     public void testComplexCompoundPredicateFalse() throws Throwable {
-        // (10 > 5 || 8 == 8) && 8 < 6
-        Predicate p = (ExpressionBuilder.constant(10).gt(5).or(ExpressionBuilder.constant(8).eq(8)).and(ExpressionBuilder.constant(8).lt(6))).getPredicate();
+        // (10 > 5 || 8 != 9) && 8 < 6
+        Predicate p = (ExpressionBuilder.constant(10).gt(5).or(ExpressionBuilder.constant(8).notEq(9)).and(ExpressionBuilder.constant(8).lt(6))).getPredicate();
         assertFalse(p.evaluate(null));
     }
 }

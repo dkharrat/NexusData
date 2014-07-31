@@ -35,6 +35,12 @@ public class PredicateParserTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testInequalityWithFieldName() throws Throwable {
+        Predicate actual = PredicateBuilder.parse("pages != \"foo\"");
+        Predicate expected = ExpressionBuilder.field("pages").notEq("foo").getPredicate();
+        assertEquals(expected, actual);
+    }
+
     public void testWithString() throws Throwable {
         //TODO: this test hangs; fix
         Predicate actual = PredicateBuilder.parse("1 == \"2\"");
