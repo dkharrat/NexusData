@@ -29,6 +29,13 @@ public class PredicateParserTest extends TestCase {
         assertEquals(expected, actual);
     }
 
+    public void testNullEqualityWithFieldName() throws Throwable {
+        Predicate actual = PredicateBuilder.parse("pages == null");
+        String line = (((ComparisonPredicate)actual).getRhs().getClass().getName());
+        Predicate expected = ExpressionBuilder.field("pages").isNull().getPredicate();
+        assertEquals(expected, actual);
+    }
+
     public void testWithString() throws Throwable {
         //TODO: this test hangs; fix
         Predicate actual = PredicateBuilder.parse("1 == \"2\"");

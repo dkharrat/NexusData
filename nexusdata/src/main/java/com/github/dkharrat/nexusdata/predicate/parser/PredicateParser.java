@@ -46,7 +46,7 @@ public class PredicateParser {
         lexerGrammar.add("<=",      TokenType.LESS_THAN_OR_EQUAL);
         lexerGrammar.add(">",       TokenType.GREATER_THAN);
         lexerGrammar.add("<",       TokenType.LESS_THAN);
-        lexerGrammar.add("(\"[^\"\\\\\\r\\n]*(?:\\\\.[^\"\\\\\\r\\n]*)*\")|\\d+|true|false",       TokenType.CONSTANT);
+        lexerGrammar.add("(\"[^\"\\\\\\r\\n]*(?:\\\\.[^\"\\\\\\r\\n]*)*\")|\\d+|true|false|null|NULL",       TokenType.CONSTANT);
         lexerGrammar.add("[a-zA-Z][a-zA-Z0-9_]*",   TokenType.FIELD_NAME);
     }
 

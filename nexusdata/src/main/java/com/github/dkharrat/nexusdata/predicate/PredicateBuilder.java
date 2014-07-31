@@ -67,6 +67,10 @@ public class PredicateBuilder {
         return eq(new ConstantExpression<T>(value));
     }
 
+    public PredicateBuilder isNull() {
+        return eq(new ConstantExpression<Object>(null));
+    }
+
     public PredicateBuilder and(PredicateBuilder rhs) {
         return new PredicateBuilder(new CompoundPredicate(curPredicate, CompoundPredicate.Operator.AND, rhs.getPredicate()));
     }

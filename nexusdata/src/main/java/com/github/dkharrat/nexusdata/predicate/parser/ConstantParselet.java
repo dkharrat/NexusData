@@ -12,10 +12,12 @@ public class ConstantParselet implements PrefixParselet<TokenType,Expression<?>>
         String valueStr = token.getText();
         Object value;
 
-        if (valueStr.equals("true")) {
+        if (valueStr.equalsIgnoreCase("true")) {
             value = true;
-        } else if (valueStr.equals("false")) {
+        } else if (valueStr.equalsIgnoreCase("false")) {
             value = false;
+        } else if (valueStr.equalsIgnoreCase("null")) {
+            value = null;
         } else if (valueStr.startsWith("\"")) {
             value = valueStr.substring(1,valueStr.length()-1);   // remove quotes from string
         } else {

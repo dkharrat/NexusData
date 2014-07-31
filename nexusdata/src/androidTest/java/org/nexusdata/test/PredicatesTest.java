@@ -9,6 +9,7 @@ public class PredicatesTest extends TestCase {
 
     class Book {
         String title;
+        String authorName;
         int pages;
 
         Book(String title, int pages) {
@@ -44,6 +45,9 @@ public class PredicatesTest extends TestCase {
 
         p = ExpressionBuilder.field("pages").eq(363).getPredicate();
         assertFalse(p.evaluate(book));
+
+        p = ExpressionBuilder.field("authorName").isNull().getPredicate();
+        assertTrue(p.evaluate(book));
     }
 
     public void testSimplePredicateFalse() throws Throwable {
