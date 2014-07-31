@@ -31,7 +31,6 @@ public class PredicateParserTest extends TestCase {
 
     public void testNullEqualityWithFieldName() throws Throwable {
         Predicate actual = PredicateBuilder.parse("pages == null");
-        String line = (((ComparisonPredicate)actual).getRhs().getClass().getName());
         Predicate expected = ExpressionBuilder.field("pages").isNull().getPredicate();
         assertEquals(expected, actual);
     }
