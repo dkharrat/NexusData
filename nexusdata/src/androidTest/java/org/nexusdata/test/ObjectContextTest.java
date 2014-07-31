@@ -157,6 +157,27 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         assertEmployeesEqual(employee1, employees.get(0));
     }
 
+    public void testFetchOfSpecificObjectUsingPredicate() throws Throwable {
+        ObjectContext context = new ObjectContext(persistentStore.getCoordinator());
+        Company google = createCompany(context, "Google");
+        Company microsoft = createCompany(context, "Microsoft");
+
+        context.save();
+
+        @SuppressWarnings("unchecked")
+        Entity<Company> companyEntity = (Entity<Company>) google.getEntity();
+
+        // we need the 'google' object to be  based on the mainContext, since that's the context we're using to
+        // create the predicate
+        google = (Company)mainContext.objectWithID(google.getID());
+
+        FetchRequest<Company> fetchRequest = new FetchRequest<Company>(companyEntity);
+        fetchRequest.setPredicate(ExpressionBuilder.self().eq(google).getPredicate());
+        List<Company> companies = mainContext.executeFetchOperation(fetchRequest);
+        assertEquals(1, companies.size());
+        assertEquals(google.getName(), companies.get(0).getName());
+    }
+
     public void testFetchWithLimit() throws Throwable {
 
         ObjectContext context = new ObjectContext(persistentStore.getCoordinator());

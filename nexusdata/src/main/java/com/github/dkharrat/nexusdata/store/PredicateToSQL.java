@@ -97,6 +97,12 @@ class DatabaseQueryService {
         }
 
         @Override
+        public QueryParts visit(ThisExpression expression) {
+            queryParts.stringBuilder.append(AndroidSqlPersistentStore.COLUMN_ID_NAME);
+            return queryParts;
+        }
+
+        @Override
         public QueryParts visit(CompoundPredicate predicate) {
             String op = null;
             switch(predicate.getOperator()) {
@@ -160,6 +166,8 @@ class DatabaseQueryService {
                 return visit((ConstantExpression)expression);
             } else if (expression instanceof FieldPathExpression) {
                 return visit((FieldPathExpression)expression);
+            } else if (expression instanceof ThisExpression) {
+                return visit((ThisExpression)expression);
             } else {
                 throw new UnsupportedOperationException("Unsupported expression type: " + expression);
             }

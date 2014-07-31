@@ -19,4 +19,8 @@ public class ExpressionBuilder {
     public static PredicateBuilder field(String fieldPath) {
         return new PredicateBuilder(new FieldPathExpression(fieldPath));
     }
+
+    public static PredicateBuilder self() {
+        return new PredicateBuilder(new ThisExpression());
+    }
 }

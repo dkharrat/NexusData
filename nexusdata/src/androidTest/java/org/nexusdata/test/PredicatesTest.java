@@ -55,6 +55,15 @@ public class PredicatesTest extends TestCase {
         assertFalse(p.evaluate(null));
     }
 
+    public void testComparisonPredicateWithThis() throws Throwable {
+        Book book1 = new Book("Book one", 362);
+        Book book2 = new Book("Book two", 427);
+
+        Predicate p = ExpressionBuilder.self().eq(book1).getPredicate();
+        assertTrue(p.evaluate(book1));
+        assertFalse(p.evaluate(book2));
+    }
+
     public void testComparisonPredicateTrue() throws Throwable {
         Predicate p = ExpressionBuilder.constant(10).gt(5).getPredicate();
         assertTrue(p.evaluate(null));
