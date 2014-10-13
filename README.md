@@ -71,7 +71,7 @@ There are multiple ways to include your project, depending on your build environ
 Add the following dependency to your build.gradle file for your project:
 
     dependencies {
-      compile 'com.github.dkharrat.nexusdata:nexusdata:0.1.1'
+      compile 'com.github.dkharrat.nexusdata:nexusdata:0.1.2'
     }
 
 #### Maven
@@ -81,7 +81,7 @@ Add the following dependency to your pom.xml file for your project:
     <dependency>
         <groupId>com.github.dkharrat.nexusdata</groupId>
         <artifactId>nexusdata</artifactId>
-        <version>0.1.1</version>
+        <version>0.1.2</version>
         <type>jar</type>
     </dependency>
 
