@@ -29,8 +29,7 @@
         "required": true
       }, {
         "name": "lastName",
-        "type": "String",
-        "required": true
+        "type": "String"
       }, {
         "name": "hourlyWage",
         "type": "Double",

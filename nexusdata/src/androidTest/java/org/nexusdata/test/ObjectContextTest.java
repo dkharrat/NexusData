@@ -21,6 +21,8 @@ import com.github.dkharrat.nexusdata.core.PersistentStoreCoordinator;
 import com.github.dkharrat.nexusdata.metamodel.Entity;
 import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
 import com.github.dkharrat.nexusdata.predicate.ExpressionBuilder;
+import com.github.dkharrat.nexusdata.predicate.PredicateBuilder;
+import com.github.dkharrat.nexusdata.predicate.parser.PredicateParser;
 
 public abstract class ObjectContextTest extends AndroidTestCase {
 
@@ -236,6 +238,19 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         List<Employee> employees = mainContext.executeFetchOperation(fetchRequest);
 
         assertEquals(2, employees.size());
+    }
+
+    public void testFetchUsingPredicateHavingNullComparison() throws Throwable {
+
+        ObjectContext context = new ObjectContext(persistentStore.getCoordinator());
+        createEmployee(context, "Mike", null, 1000);
+        context.save();
+
+        FetchRequest<Employee> fetchRequest = mainContext.newFetchRequestBuilder(Employee.class).build();
+        fetchRequest.setPredicate(PredicateBuilder.parse("firstName != null && lastName == null"));
+        List<Employee> employees = mainContext.executeFetchOperation(fetchRequest);
+
+        assertEquals(1, employees.size());
     }
 
     public void testUpdateExistingObject() throws Throwable {

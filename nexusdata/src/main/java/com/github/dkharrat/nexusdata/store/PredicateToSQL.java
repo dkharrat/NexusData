@@ -79,14 +79,19 @@ class DatabaseQueryService {
         @Override
         public QueryParts visit(ConstantExpression<?> expression) {
             Object value = expression.getValue();
-            if (value instanceof ManagedObject) {
-                ManagedObject relatedObject = (ManagedObject)value;
-                value = store.getReferenceObjectForObjectID(relatedObject.getID()).toString();
-            } else if (value.getClass().isAssignableFrom(Boolean.class) || value.getClass().isAssignableFrom(boolean.class)) {
-                value = ((Boolean)value) ? "1" : "0";
+            if (value == null) {
+                queryParts.stringBuilder.append("NULL");
+            } else {
+                if (value instanceof ManagedObject) {
+                    ManagedObject relatedObject = (ManagedObject)value;
+                    value = store.getReferenceObjectForObjectID(relatedObject.getID()).toString();
+                } else if (value.getClass().isAssignableFrom(Boolean.class) || value.getClass().isAssignableFrom(boolean.class)) {
+                    value = ((Boolean)value) ? "1" : "0";
+                }
+                queryParts.stringBuilder.append("?");
+                queryParts.params.add(value.toString());
             }
-            queryParts.params.add(value.toString());
-            queryParts.stringBuilder.append("?");
+
             return queryParts;
         }
 
@@ -122,13 +127,21 @@ class DatabaseQueryService {
         @Override
         public QueryParts visit(ComparisonPredicate predicate) {
             String op = null;
-            switch(predicate.getOperator()) {
-                case EQUAL:                 op = " = "; break;
-                case GREATER_THAN:          op = " > "; break;
-                case GREATER_THAN_OR_EQUAL: op = " >= "; break;
-                case LESS_THAN:             op = " < "; break;
-                case LESS_THAN_OR_EQUAL:    op = " <= "; break;
-                case NOT_EQUAL:             op = " != "; break;
+            if (predicate.getRhs() instanceof ConstantExpression<?> && ((ConstantExpression<?>)predicate.getRhs()).getValue() == null) {
+                switch(predicate.getOperator()) {
+                    case EQUAL:                 op = " IS "; break;
+                    case NOT_EQUAL:             op = " IS NOT "; break;
+                    default: throw new UnsupportedOperationException("Invalid operator " + op + " with 'null' comparison.");
+                }
+            } else {
+                switch(predicate.getOperator()) {
+                    case EQUAL:                 op = " = "; break;
+                    case GREATER_THAN:          op = " > "; break;
+                    case GREATER_THAN_OR_EQUAL: op = " >= "; break;
+                    case LESS_THAN:             op = " < "; break;
+                    case LESS_THAN_OR_EQUAL:    op = " <= "; break;
+                    case NOT_EQUAL:             op = " != "; break;
+                }
             }
 
             queryParts.stringBuilder.append("(");
