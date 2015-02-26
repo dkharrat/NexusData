@@ -57,6 +57,7 @@ currently has some limitations:
 * Framework is not yet optimized for large data sets in terms of performance and memory. This is due to the early
   development of the project and will be improved over time.
 * Custom data types are not supported yet.
+* Entity inheritance is not supported yet.
 
 Apps Using NexusData
 --------------------
