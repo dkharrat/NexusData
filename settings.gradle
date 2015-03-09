@@ -1,2 +1,2 @@
 include 'nexusdata'
-include 'samples/todo'
+include 'samples:todo'
