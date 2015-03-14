@@ -33,7 +33,7 @@ public class StoreCacheNode {
     }
 
     /**
-     * Sets the value for the given property. For regular attributes, this will be supported objects like {@link String},
+     * Sets the value for the given property. For attributes, the value must be of type that is supported, like {@link String},
      * {@link Integer}, {@link java.util.Date}, {@link Enum}, etc. For a to-one relationship, the value must be the
      * {@link ObjectID} of the related object. For a to-many relationship, the value must be the a {@code Set<ObjectID>}
      * containing the ObjectIDs of the related objects.
@@ -46,7 +46,22 @@ public class StoreCacheNode {
     }
 
     /**
-     * Returns the value of the given property. For regular attributes, this will be supported objects like {@link String},
+     * Sets this node to have the properties specified from the input map. Previously set properties in this node will
+     * be removed.
+     *
+     * @param props  a Map containing the key/value pairs for the properties to be set. For keys representing attributes,
+     *               their value must be of type that is supported, like {@link String}, {@link Integer},
+     *               {@link java.util.Date}, {@link Enum}, etc. For keys representing a to-one relationship, the value
+     *               must be the {@link ObjectID} of the related object. For a to-many relationship, the value must be
+     *               the a {@code Set<ObjectID>} containing the ObjectIDs of the related objects.
+     */
+    public void setProperties(Map<String,Object> props) {
+        properties.clear();
+        properties.putAll(props);
+    }
+
+    /**
+     * Returns the value of the given property. For attributes, the value will be of type that is one of the supported types like {@link String},
      * {@link Integer}, {@link java.util.Date}, {@link Enum}, etc. For a to-one relationship, the value must be the
      * {@link ObjectID} of the related object. For a to-many relationship, the value must be the a {@code Set<ObjectID>}
      * containing the ObjectIDs of the related objects.
