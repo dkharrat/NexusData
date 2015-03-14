@@ -335,7 +335,7 @@ public class ObjectContext {
         objects.remove(object.getID());
     }
 
-    private void registerObjects(Collection<ManagedObject> objects) {
+    private <T extends ManagedObject> void registerObjects(Collection<T> objects) {
         if (!objects.isEmpty()) {
 
             List<ObjectID> objectIDs = new ArrayList<ObjectID>(objects.size());
@@ -347,7 +347,7 @@ public class ObjectContext {
         }
     }
 
-    private void unregisterObjects(Collection<ManagedObject> objects) {
+    private <T extends ManagedObject> void unregisterObjects(Collection<T> objects) {
         if (!objects.isEmpty()) {
 
             List<ObjectID> objectIDs = new ArrayList<ObjectID>(objects.size());
@@ -451,7 +451,7 @@ public class ObjectContext {
      *
      * @param objects   The list of objects
      */
-    public void obtainPermanentIDsForObjects(Collection<ManagedObject> objects) {
+    public <T extends ManagedObject> void obtainPermanentIDsForObjects(Collection<T> objects) {
         //FIXME: properly route the save to the right store for each object
         PersistentStore store = getPersistentStoreCoordinator().getPersistentStores().get(0);
 
