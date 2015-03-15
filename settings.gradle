@@ -1,2 +1,3 @@
 include 'nexusdata'
+include 'modelgen'
 include 'samples:todo'
