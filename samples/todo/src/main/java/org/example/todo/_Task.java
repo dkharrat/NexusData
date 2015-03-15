@@ -3,10 +3,10 @@
 package org.example.todo;
 
 import java.util.Date;
-
+import java.util.Set;
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 
-class _Task extends ManagedObject {
+abstract class _Task extends ManagedObject {
 
     public interface Property {
         final static String TITLE = "title";

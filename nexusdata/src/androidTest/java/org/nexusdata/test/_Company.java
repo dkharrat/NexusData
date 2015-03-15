@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Set;
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 
-class _Company extends ManagedObject {
+abstract class _Company extends ManagedObject {
 
     public interface Property {
         final static String NAME = "name";

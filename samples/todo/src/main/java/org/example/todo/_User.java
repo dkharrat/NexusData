@@ -2,10 +2,11 @@
 
 package org.example.todo;
 
+import java.util.Date;
 import java.util.Set;
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 
-class _User extends ManagedObject {
+abstract class _User extends ManagedObject {
 
     public interface Property {
         final static String NAME = "name";
@@ -22,6 +23,7 @@ class _User extends ManagedObject {
     }
 
 
+    @SuppressWarnings("unchecked")
     public Set<Task> getTasks() {
         return (Set<Task>)getValue(Property.TASKS);
     }
