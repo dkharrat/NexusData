@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Entity {
+    String baseClass = "ManagedObject";
     String name;
     List<Attribute> attributes;
     List<Relationship> relationships;
@@ -13,6 +14,10 @@ public class Entity {
         attributes = new ArrayList<>();
         relationships = new ArrayList<>();
         enums = new ArrayList<>();
+    }
+
+    public String getBaseClass() {
+        return baseClass;
     }
 
     public String getName() {

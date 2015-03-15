@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Set;
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 
-class _${entity.name} extends ManagedObject {
+abstract class _${entity.name} extends ${entity.baseClass} {
 
     public interface Property {
 <#list entity.attributes as attribute>
