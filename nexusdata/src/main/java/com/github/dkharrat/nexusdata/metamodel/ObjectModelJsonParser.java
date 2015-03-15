@@ -104,14 +104,16 @@ class ObjectModelJsonParser {
         Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = new HashMap<Entity<?>, List<JsonElem.Relationship>>();
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
-            for (JsonElem.Relationship jsonRelation : jsonEntity.relationships) {
-                Entity<?> entity = entities.get(jsonEntity.name);
-                List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(entity);
-                if (jsonRelations == null) {
-                    jsonRelations = new ArrayList<JsonElem.Relationship>();
-                    entityRelationMap.put(entity, jsonRelations);
+            if (jsonEntity.relationships != null) {
+                for (JsonElem.Relationship jsonRelation : jsonEntity.relationships) {
+                    Entity<?> entity = entities.get(jsonEntity.name);
+                    List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(entity);
+                    if (jsonRelations == null) {
+                        jsonRelations = new ArrayList<JsonElem.Relationship>();
+                        entityRelationMap.put(entity, jsonRelations);
+                    }
+                    jsonRelations.add(jsonRelation);
                 }
-                jsonRelations.add(jsonRelation);
             }
         }
 
