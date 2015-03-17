@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.1.3
+-----
+* Fixed exception when using 'null' in comparisons (Issue #6).
+* Update project to use latest android-gradle settings.
+* Use Java generics for a ManagedObject-based collection.
+* Fixed crash when model does not define relationships.
+* Sources are now published to Maven repo too.
+
 0.1.2
 -----
 * Support 'null' keyword in predicates (e.g. "name == null")
