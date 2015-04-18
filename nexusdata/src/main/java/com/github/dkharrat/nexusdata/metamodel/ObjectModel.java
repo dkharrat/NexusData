@@ -40,8 +40,31 @@ public class ObjectModel {
         initEntities(parsedModel.getEntities());
     }
 
+    /**
+     * Merges two unrelated models (as in not referencing each other) together to form a new single model. This is
+     * useful for organizational purposes, where two unrelated models are stored in separate files. The models must not
+     * conflict together (e.g. sharing the same entity name).
+     *
+     * @param models the set of models to merge
+     * @param name the name of the newly merged model
+     * @param version the version of the newly merged model
+     *
+     * @return a new ObjectModel from merging the specified models together
+     */
+    public static ObjectModel mergeModels(Set<ObjectModel> models, String name, int version) {
+        Set<Entity<?>> mergedEntities = new HashSet<>();
+        for (ObjectModel model : models) {
+            mergedEntities.addAll(model.getEntities());
+        }
+
+        return new ObjectModel(name, mergedEntities, version);
+    }
+
     private void initEntities(Collection<Entity<?>> entities) {
         for (Entity<?> entity : entities) {
+            if (entities.contains(entity.getName())) {
+                throw new RuntimeException("Entity " + entity.getName() + " already exists in this model.");
+            }
             this.entities.put(entity.getName(), entity);
         }
     }
