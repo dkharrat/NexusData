@@ -11,7 +11,6 @@ abstract class _Address extends ManagedObject {
     public interface Property {
         final static String STREET_NAME = "streetName";
         final static String COUNTRY = "country";
-        final static String EMPLOYEE = "employee";
     }
 
 
@@ -31,13 +30,5 @@ abstract class _Address extends ManagedObject {
         setValue(Property.COUNTRY, country);
     }
 
-
-    public Employee getEmployee() {
-        return (Employee)getValue(Property.EMPLOYEE);
-    }
-
-    public void setEmployee(Employee employee) {
-        setValue(Property.EMPLOYEE, employee);
-    }
 
 }
