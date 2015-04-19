@@ -63,6 +63,10 @@
         "inverseName": "manager",
         "toMany": true
       }, {
+        "name": "passport",
+        "destinationEntity": "Passport",
+        "inverseName": "employee"
+      }, {
         "name": "address",
         "destinationEntity": "Address",
         "inverseName": "employee"
@@ -77,11 +81,33 @@
        "type": "String",
        "required": true
      }],
-     "relationships": [{
-       "name": "employee",
-       "destinationEntity": "Employee",
-       "inverseName": "address"
-     }]
+      "relationships": [{
+        "name": "employee",
+        "destinationEntity": "Employee",
+        "inverseName": "address"
+      }]
+    }, {
+      "name": "Passport",
+      "attributes": [{
+        "name": "number",
+        "type": "String",
+        "required": true
+      }, {
+        "name": "country",
+        "type": "String",
+        "required": true
+      }, {
+        "name": "issueDate",
+        "type": "Date"
+      }, {
+        "name": "expirationDate",
+        "type": "Date"
+      }],
+      "relationships": [{
+        "name": "employee",
+        "destinationEntity": "Employee",
+        "inverseName": "passport"
+      }]
    }]
   }
 }

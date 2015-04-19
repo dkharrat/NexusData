@@ -481,16 +481,17 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         ObjectContext context = new ObjectContext(persistentStore.getCoordinator());
         Employee employee1 = createEmployee(context, "John", "Smith", 1000);
 
-        Address address = context.newObject(Address.class);
-        address.setCountry("Japan");
-        employee1.setAddress(address);
+        Passport passport = context.newObject(Passport.class);
+        passport.setNumber("123");
+        passport.setCountry("Japan");
+        employee1.setPassport(passport);
 
         context.save();
 
         List<Employee> employees = mainContext.findAll(Employee.class);
 
-        assertEquals(employee1.getAddress().getCountry(), employees.get(0).getAddress().getCountry());
-        assertEquals(employee1.getFullName(), employees.get(0).getAddress().getEmployee().getFullName());
+        assertEquals(employee1.getPassport().getCountry(), employees.get(0).getPassport().getCountry());
+        assertEquals(employee1.getFullName(), employees.get(0).getPassport().getEmployee().getFullName());
     }
 
     public void testInsertWithOneToManyReflexiveRelationship() throws Throwable {
@@ -541,14 +542,15 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         Company googleFromMainContext = (Company) mainContext.getExistingObject(google.getID());
         googleFromMainContext.getEmployees().toArray();
 
-        // now makes some changes and add an employee to the company and an associated address
+        // now makes some changes and add an employee to the company and an associated passport
         google.setName("Google, Inc.");
         Employee employee1 = createEmployee(context, "John", "Smith", 1000);
         google.addEmployee(employee1);
 
-        Address address = context.newObject(Address.class);
-        address.setCountry("Japan");
-        employee1.setAddress(address);
+        Passport passport = context.newObject(Passport.class);
+        passport.setNumber("123");
+        passport.setCountry("Japan");
+        employee1.setPassport(passport);
 
         // register a listener before we save, which will merge changes after a save
         ObjectContextListener listener = new DefaultObjectContextListener() {
@@ -567,7 +569,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
 
         Employee employeeFromMainContext = (Employee) mainContext.getExistingObject(employee1.getID());
         assertTrue(googleFromMainContext.getEmployees().contains(employeeFromMainContext));
-        assertEquals(employee1.getAddress().getID(), employeeFromMainContext.getAddress().getID());
+        assertEquals(employee1.getPassport().getID(), employeeFromMainContext.getPassport().getID());
 
         ObjectContextNotifier.unregisterListener(listener);
     }

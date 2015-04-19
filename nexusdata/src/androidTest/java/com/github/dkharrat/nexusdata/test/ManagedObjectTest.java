@@ -12,7 +12,7 @@ import com.github.dkharrat.nexusdata.store.InMemoryPersistentStore;
 public class ManagedObjectTest extends TestCase {
 
     ObjectContext context;
-    Address addressInJapan;
+    Passport japanesePassport;
     Employee john;
     Company google;
 
@@ -26,13 +26,14 @@ public class ManagedObjectTest extends TestCase {
         coordinator.addStore(persistentStore);
         context = new ObjectContext(coordinator);
 
-        addressInJapan = context.newObject(Address.class);
-        addressInJapan.setCountry("Japan");
+        japanesePassport = context.newObject(Passport.class);
+        japanesePassport.setNumber("123");
+        japanesePassport.setCountry("Japan");
 
         john = context.newObject(Employee.class);
         john.setId(123);
         john.setFirstName("John");
-        john.setAddress(addressInJapan);
+        john.setPassport(japanesePassport);
         Employee mike = context.newObject(Employee.class);
         mike.setFirstName("mike");
 
@@ -95,15 +96,20 @@ public class ManagedObjectTest extends TestCase {
     }
 
     public void testSettingOneToOneRelationship() throws Throwable {
-        Address addressInCanada = context.newObject(Address.class);
-        addressInCanada.setCountry("Canada");
+        Passport canadianPassport = context.newObject(Passport.class);
+        canadianPassport.setNumber("123");
+        canadianPassport.setCountry("Canada");
 
         Employee bob = context.newObject(Employee.class);
         bob.setFirstName("Bob");
-        bob.setAddress(addressInCanada);
+        bob.setPassport(canadianPassport);
 
-        assertSame(addressInCanada, bob.getAddress());
-        assertSame(bob, addressInCanada.getEmployee());
+        assertSame(canadianPassport, bob.getPassport());
+        assertSame(bob, canadianPassport.getEmployee());
+    }
+
+    public void testSettingOneToOneRelationshipWithNoInverse() throws Throwable {
+
     }
 
     public void testSettingOneToManyReflexiveRelationship() throws Throwable {
@@ -126,21 +132,22 @@ public class ManagedObjectTest extends TestCase {
     }
 
     public void testOverridingOneToOneRelationship() throws Throwable {
-        Address addressInCanada = context.newObject(Address.class);
-        addressInCanada.setCountry("Canada");
+        Passport canadianPassport = context.newObject(Passport.class);
+        canadianPassport.setNumber("123");
+        canadianPassport.setCountry("Canada");
 
-        john.setAddress(addressInCanada);
+        john.setPassport(canadianPassport);
 
-        assertSame(addressInCanada, john.getAddress());
-        assertSame(john, addressInCanada.getEmployee());
-        assertSame(null, addressInJapan.getEmployee());
+        assertSame(canadianPassport, john.getPassport());
+        assertSame(john, canadianPassport.getEmployee());
+        assertSame(null, japanesePassport.getEmployee());
     }
 
     public void testClearingOneToOneRelationship() throws Throwable {
-        john.setAddress(null);
+        john.setPassport(null);
 
-        assertSame(null, john.getAddress());
-        assertSame(null, addressInJapan.getEmployee());
+        assertSame(null, john.getPassport());
+        assertSame(null, japanesePassport.getEmployee());
     }
 
     public void testSettingToManyRelationship() throws Throwable {

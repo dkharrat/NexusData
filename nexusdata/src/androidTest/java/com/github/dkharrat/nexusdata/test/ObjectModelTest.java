@@ -24,7 +24,7 @@ public class ObjectModelTest extends TestCase {
     }
 
     public void testGetEntities() throws Throwable {
-        assertEquals(3, model.getEntities().size());
+        assertEquals(4, model.getEntities().size());
         //TODO: order of entities not guaranteed; so the following tests may intermittently fail
 
         ArrayList<String> entityNames = new ArrayList<String>();

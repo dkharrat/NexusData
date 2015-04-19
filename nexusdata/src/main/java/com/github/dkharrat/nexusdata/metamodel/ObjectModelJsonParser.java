@@ -100,7 +100,10 @@ class ObjectModelJsonParser {
         return entities;
     }
 
-    static private Map<Entity<?>, List<JsonElem.Relationship>> setupEntityRelationshipMapping(JsonElem.Model jsonModel, final HashMap<String, Entity<?>> entities) {
+    static private Map<Entity<?>, List<JsonElem.Relationship>> setupEntityRelationshipMapping(
+            JsonElem.Model jsonModel,
+            final HashMap<String, Entity<?>> entities
+    ) {
         Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = new HashMap<Entity<?>, List<JsonElem.Relationship>>();
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {

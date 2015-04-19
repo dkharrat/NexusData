@@ -19,6 +19,7 @@ abstract class _Employee extends ManagedObject {
         final static String COMPANY = "company";
         final static String MANAGER = "manager";
         final static String DIRECT_REPORTS = "directReports";
+        final static String PASSPORT = "passport";
         final static String ADDRESS = "address";
     }
 
@@ -108,6 +109,14 @@ abstract class _Employee extends ManagedObject {
     public void addDirectReport(Employee directReport) {
         getDirectReports().add(directReport);
     }
+    public Passport getPassport() {
+        return (Passport)getValue(Property.PASSPORT);
+    }
+
+    public void setPassport(Passport passport) {
+        setValue(Property.PASSPORT, passport);
+    }
+
     public Address getAddress() {
         return (Address)getValue(Property.ADDRESS);
     }
