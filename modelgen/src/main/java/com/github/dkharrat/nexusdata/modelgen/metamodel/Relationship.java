@@ -1,10 +1,7 @@
 package com.github.dkharrat.nexusdata.modelgen.metamodel;
 
-import org.modeshape.common.text.Inflector;
-
 public class Relationship extends Property {
     String destinationEntity;
-    String inverseName;
     boolean toMany = false;
 
     public String getJavaType() {
