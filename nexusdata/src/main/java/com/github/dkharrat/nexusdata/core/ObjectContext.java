@@ -238,6 +238,9 @@ public class ObjectContext {
      */
     public <T extends ManagedObject> T newObject(Class<T> type) {
         Entity<T> entity = storeCoordinator.getModel().getEntity(type);
+        if (entity == null) {
+            throw new RuntimeException("Could not find entity with type '" + type + "' in model.");
+        }
         ObjectID id = new ObjectID(null, entity, UUID.randomUUID());
 
         T object = ManagedObject.newObject(id);
