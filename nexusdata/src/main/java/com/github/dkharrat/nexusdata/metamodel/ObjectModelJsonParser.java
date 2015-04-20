@@ -166,18 +166,24 @@ class ObjectModelJsonParser {
                 Relationship relationship = entity.getRelationship(jsonRelation.name);
 
                 Entity<?> destinationEntity = relationship.getDestinationEntity();
-                // TODO: pluralize inverseName for to-many relationship by default
-                String inverseName = entity.getName().toLowerCase(Locale.ENGLISH);
 
-                if (!StringUtil.isBlank(jsonRelation.inverseName)) {
-                    inverseName = jsonRelation.inverseName;
-                }
+                String inverseName = jsonRelation.inverseName;
 
-                try {
-                    Relationship inverseRelationship = (Relationship) destinationEntity.getProperty(inverseName);
-                    relationship.setInverse(inverseRelationship);
-                } catch (NoSuchPropertyException e) {
-                    throw new RuntimeException("Could not find inverse property " + inverseName + " in destination entity " + destinationEntity.getName() + " for relationship " + relationship.getName(), e);
+                if (inverseName != null) {
+                    try {
+                        Relationship inverseRelationship = (Relationship) destinationEntity.getProperty(inverseName);
+
+                        relationship.setInverse(inverseRelationship);
+                        if (!relationship.getEntity().getType().isAssignableFrom(inverseRelationship.getDestinationEntity().getType())) {
+                            throw new RuntimeException("Incompatible types in relationship between entities: " +
+                                    relationship.getEntity().getName() + "#" + relationship.getName() + " <--> " +
+                                    inverseRelationship.getEntity().getName() + "#" + inverseRelationship.getName());
+                        }
+                    } catch (NoSuchPropertyException e) {
+                        throw new RuntimeException("Could not find inverse property " + inverseName +
+                                " in destination entity " + destinationEntity.getName() + " for relationship " +
+                                relationship.getName(), e);
+                    }
                 }
             }
         }

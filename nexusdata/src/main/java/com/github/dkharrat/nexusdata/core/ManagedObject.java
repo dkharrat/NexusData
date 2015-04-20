@@ -178,46 +178,49 @@ public class ManagedObject {
     private void setValue(Property property, Object newValue, Object oldValue) {
         setValueDirectly(property, newValue);
 
+        // if the property is a relationship, apply the change on the inverse relationship if it's defined.
         if (property.isRelationship()) {
             Relationship relationship = (Relationship)property;
             Relationship inverseRelationship = relationship.getInverse();
 
-            if (relationship.isToMany()) {
-                @SuppressWarnings("unchecked")
-                FaultingSet<ManagedObject> relatedObjects = ((FaultingSet<ManagedObject>)newValue);
-                for (ManagedObject relatedObject : relatedObjects) {
-                    if (inverseRelationship.isToOne()) {
-                        relatedObject.setValue(inverseRelationship.getName(), this);
+            if (inverseRelationship != null) {
+                if (relationship.isToMany()) {
+                    @SuppressWarnings("unchecked")
+                    FaultingSet<ManagedObject> relatedObjects = ((FaultingSet<ManagedObject>) newValue);
+                    for (ManagedObject relatedObject : relatedObjects) {
+                        if (inverseRelationship.isToOne()) {
+                            relatedObject.setValue(inverseRelationship.getName(), this);
+                        } else {
+                            throw new UnsupportedOperationException("many-to-many relationships are not supported yet");
+                        }
+                    }
+                } else {    // to-one relationship
+                    if (inverseRelationship.isToMany()) {
+                        if (oldValue != null) {
+                            @SuppressWarnings("unchecked")
+                            ManagedObject oldRelatedObject = (ManagedObject) oldValue;
+                            @SuppressWarnings("unchecked")
+                            FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) oldRelatedObject.getValue(inverseRelationship.getName());
+                            relatedObjects.remove(this);
+                        }
+
+                        if (newValue != null) {
+                            @SuppressWarnings("unchecked")
+                            ManagedObject relatedObject = (ManagedObject) newValue;
+                            @SuppressWarnings("unchecked")
+                            FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) relatedObject.getValue(inverseRelationship.getName());
+                            relatedObjects.add(this);
+                        }
                     } else {
-                        throw new UnsupportedOperationException("many-to-many relationships are not supported yet");
-                    }
-                }
-            } else {    // to-one relationship
-                if (inverseRelationship.isToMany()) {
-                    if (oldValue != null) {
-                        @SuppressWarnings("unchecked")
-                        ManagedObject oldRelatedObject = (ManagedObject)oldValue;
-                        @SuppressWarnings("unchecked")
-                        FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) oldRelatedObject.getValue(inverseRelationship.getName());
-                        relatedObjects.remove(this);
-                    }
+                        if (oldValue != null) {
+                            ManagedObject oldRelatedObject = (ManagedObject) oldValue;
+                            oldRelatedObject.setValue(inverseRelationship.getName(), null);
+                        }
 
-                    if (newValue != null) {
-                        @SuppressWarnings("unchecked")
-                        ManagedObject relatedObject = (ManagedObject)newValue;
-                        @SuppressWarnings("unchecked")
-                        FaultingSet<ManagedObject> relatedObjects = (FaultingSet<ManagedObject>) relatedObject.getValue(inverseRelationship.getName());
-                        relatedObjects.add(this);
-                    }
-                } else {
-                    if (oldValue != null) {
-                        ManagedObject oldRelatedObject = (ManagedObject)oldValue;
-                        oldRelatedObject.setValue(inverseRelationship.getName(), null);
-                    }
-
-                    if (newValue != null) {
-                        ManagedObject relatedObject = (ManagedObject)newValue;
-                        relatedObject.setValue(inverseRelationship.getName(), this);
+                        if (newValue != null) {
+                            ManagedObject relatedObject = (ManagedObject) newValue;
+                            relatedObject.setValue(inverseRelationship.getName(), this);
+                        }
                     }
                 }
             }

@@ -408,7 +408,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         Company google = createCompany(mainContext, "Google");
         mainContext.save();
 
-        google.setEmployees((Set<Employee>)null);
+        google.setEmployees((Set<Employee>) null);
 
         assertTrue(mainContext.getUpdatedObjects().isEmpty());
     }
@@ -492,6 +492,21 @@ public abstract class ObjectContextTest extends AndroidTestCase {
 
         assertEquals(employee1.getPassport().getCountry(), employees.get(0).getPassport().getCountry());
         assertEquals(employee1.getFullName(), employees.get(0).getPassport().getEmployee().getFullName());
+    }
+
+    public void testInsertWithToOneRelationshipAndNoInverse() throws Throwable {
+        ObjectContext context = new ObjectContext(persistentStore.getCoordinator());
+        Employee employee1 = createEmployee(context, "John", "Smith", 1000);
+
+        Address address = context.newObject(Address.class);
+        address.setCountry("Japan");
+        employee1.setAddress(address);
+
+        context.save();
+
+        List<Employee> employees = mainContext.findAll(Employee.class);
+
+        assertEquals(employee1.getAddress().getCountry(), employees.get(0).getAddress().getCountry());
     }
 
     public void testInsertWithOneToManyReflexiveRelationship() throws Throwable {

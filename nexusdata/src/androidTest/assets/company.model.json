@@ -68,8 +68,7 @@
         "inverseName": "employee"
       }, {
         "name": "address",
-        "destinationEntity": "Address",
-        "inverseName": "employee"
+        "destinationEntity": "Address"
       }]
     }, {
      "name": "Address",
@@ -80,12 +79,7 @@
        "name": "country",
        "type": "String",
        "required": true
-     }],
-      "relationships": [{
-        "name": "employee",
-        "destinationEntity": "Employee",
-        "inverseName": "address"
-      }]
+     }]
     }, {
       "name": "Passport",
       "attributes": [{
@@ -108,6 +102,6 @@
         "destinationEntity": "Employee",
         "inverseName": "passport"
       }]
-   }]
+    }]
   }
 }

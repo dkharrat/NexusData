@@ -109,7 +109,14 @@ public class ManagedObjectTest extends TestCase {
     }
 
     public void testSettingOneToOneRelationshipWithNoInverse() throws Throwable {
+        Address canadianAddress = context.newObject(Address.class);
+        canadianAddress.setCountry("Canada");
 
+        Employee bob = context.newObject(Employee.class);
+        bob.setFirstName("Bob");
+        bob.setAddress(canadianAddress);
+
+        assertSame(canadianAddress, bob.getAddress());
     }
 
     public void testSettingOneToManyReflexiveRelationship() throws Throwable {
