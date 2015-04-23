@@ -4,6 +4,7 @@
     "name": "CompanyStructure",
     "version": 1,
     "packageName": "com.github.dkharrat.nexusdata.test",
+    "includeModels": ["address.model.json"],
     "entities": [{
       "name": "Company",
       "attributes": [{
@@ -70,16 +71,6 @@
         "name": "address",
         "destinationEntity": "Address"
       }]
-    }, {
-     "name": "Address",
-     "attributes": [{
-       "name": "streetName",
-       "type": "String"
-     }, {
-       "name": "country",
-       "type": "String",
-       "required": true
-     }]
     }, {
       "name": "Passport",
       "attributes": [{

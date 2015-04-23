@@ -9,18 +9,18 @@ import com.github.dkharrat.nexusdata.core.ManagedObject;
 abstract class _Employee extends ManagedObject {
 
     public interface Property {
-        final static String ID = "id";
-        final static String FIRST_NAME = "firstName";
-        final static String LAST_NAME = "lastName";
-        final static String HOURLY_WAGE = "hourlyWage";
-        final static String HEIGHT_IN_CM = "heightInCm";
-        final static String ACTIVE = "active";
-        final static String DATE_OF_BIRTH = "dateOfBirth";
-        final static String COMPANY = "company";
-        final static String MANAGER = "manager";
-        final static String DIRECT_REPORTS = "directReports";
-        final static String PASSPORT = "passport";
-        final static String ADDRESS = "address";
+        String ID = "id";
+        String FIRST_NAME = "firstName";
+        String LAST_NAME = "lastName";
+        String HOURLY_WAGE = "hourlyWage";
+        String HEIGHT_IN_CM = "heightInCm";
+        String ACTIVE = "active";
+        String DATE_OF_BIRTH = "dateOfBirth";
+        String COMPANY = "company";
+        String MANAGER = "manager";
+        String DIRECT_REPORTS = "directReports";
+        String PASSPORT = "passport";
+        String ADDRESS = "address";
     }
 
 

@@ -9,11 +9,11 @@ import com.github.dkharrat.nexusdata.core.ManagedObject;
 abstract class _Passport extends ManagedObject {
 
     public interface Property {
-        final static String NUMBER = "number";
-        final static String COUNTRY = "country";
-        final static String ISSUE_DATE = "issueDate";
-        final static String EXPIRATION_DATE = "expirationDate";
-        final static String EMPLOYEE = "employee";
+        String NUMBER = "number";
+        String COUNTRY = "country";
+        String ISSUE_DATE = "issueDate";
+        String EXPIRATION_DATE = "expirationDate";
+        String EMPLOYEE = "employee";
     }
 
 

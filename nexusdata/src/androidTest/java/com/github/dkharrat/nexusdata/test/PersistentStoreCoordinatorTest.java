@@ -17,7 +17,7 @@ public class PersistentStoreCoordinatorTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
+        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"), "/assets");
         coordinator = new PersistentStoreCoordinator(model);
         PersistentStore persistentStore = new AndroidSqlPersistentStore(getContext(), getContext().getDatabasePath("test.db"));
         coordinator.addStore(persistentStore);

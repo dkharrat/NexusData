@@ -2,6 +2,7 @@ package com.github.dkharrat.nexusdata.test;
 
 import java.util.Arrays;
 import java.util.Set;
+
 import junit.framework.TestCase;
 import com.github.dkharrat.nexusdata.core.ObjectContext;
 import com.github.dkharrat.nexusdata.core.PersistentStore;
@@ -20,7 +21,7 @@ public class ManagedObjectTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
+        ObjectModel model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"), "/assets");
         PersistentStoreCoordinator coordinator = new PersistentStoreCoordinator(model);
         PersistentStore persistentStore = new InMemoryPersistentStore();
         coordinator.addStore(persistentStore);

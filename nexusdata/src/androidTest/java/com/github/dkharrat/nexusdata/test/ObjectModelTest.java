@@ -1,6 +1,7 @@
 package com.github.dkharrat.nexusdata.test;
 
 import java.util.ArrayList;
+
 import junit.framework.TestCase;
 import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
 import com.github.dkharrat.nexusdata.metamodel.Entity;
@@ -13,7 +14,7 @@ public class ObjectModelTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
+        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"), "/assets");
     }
 
     @Override

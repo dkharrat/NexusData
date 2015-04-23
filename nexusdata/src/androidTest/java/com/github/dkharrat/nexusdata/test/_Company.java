@@ -9,8 +9,8 @@ import com.github.dkharrat.nexusdata.core.ManagedObject;
 abstract class _Company extends ManagedObject {
 
     public interface Property {
-        final static String NAME = "name";
-        final static String EMPLOYEES = "employees";
+        String NAME = "name";
+        String EMPLOYEES = "employees";
     }
 
 

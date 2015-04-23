@@ -31,13 +31,24 @@ public class ObjectModel {
      * Creates a new ObjectModel from a model file
      *
      * @param modelData     the input stream for the model file
+     * @param includePath   path to look under if there are other models to include
      * @throws IOException  if there was a problem reading from the input stream
      */
-    public ObjectModel(InputStream modelData) throws IOException {
-        ObjectModelJsonParser.ParsedModel parsedModel = ObjectModelJsonParser.parseJsonModel(this, modelData);
+    public ObjectModel(InputStream modelData, String includePath) throws IOException {
+        ObjectModelJsonParser.ParsedModel parsedModel = ObjectModelJsonParser.parseJsonModel(this, modelData, includePath);
         name = parsedModel.getName();
         version = parsedModel.getVersion();
         initEntities(parsedModel.getEntities());
+    }
+
+    /**
+     * Creates a new ObjectModel from a model file
+     *
+     * @param modelData     the input stream for the model file
+     * @throws IOException  if there was a problem reading from the input stream
+     */
+    public ObjectModel(InputStream modelData) throws IOException {
+        this(modelData, "./");
     }
 
     /**
@@ -99,11 +110,9 @@ public class ObjectModel {
     }
 
     /**
-     * Returns the entity in this model by the entity's class type.
+     * Returns the entity in this model by the entity's class type, or NULL if not found.
      *
      * @param type  the class type
-     *
-     * @return  the entity corresponding to the class type
      */
     @SuppressWarnings("unchecked")
     public <T extends ManagedObject> Entity<T> getEntity(Class<T> type) {
@@ -111,11 +120,9 @@ public class ObjectModel {
     }
 
     /**
-     * Returns the entity in this model by the entity's name.
+     * Returns the entity in this model by the entity's name, or NULL if not found.
      *
      * @param name  the name of the entity
-     *
-     * @return  the entity corresponding to the class type
      */
     @SuppressWarnings("unchecked")
     public <T extends ManagedObject> Entity<T> getEntity(String name) {

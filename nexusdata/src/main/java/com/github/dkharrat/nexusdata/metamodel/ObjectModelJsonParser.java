@@ -40,7 +40,7 @@ class ObjectModelJsonParser {
         }
     }
 
-    static ParsedModel parseJsonModel(ObjectModel model, InputStream modelData) throws IOException {
+    static ParsedModel parseJsonModel(ObjectModel model, InputStream modelData, String includePath) throws IOException {
         LOG.debug("Parsing model from stream");
         InputStreamReader reader = new InputStreamReader(modelData);
 
@@ -49,11 +49,26 @@ class ObjectModelJsonParser {
         JsonObject modelJsonObj = rootJson.get("model").getAsJsonObject();
         JsonElem.Model jsonModel = gson.fromJson(modelJsonObj, JsonElem.Model.class);
         int modelVersion = jsonModel.version;
+        List<ObjectModel> includeModels = new ArrayList<>();
+        if (!jsonModel.includeModels.isEmpty()) {
+            for (String includeModelFilename : jsonModel.includeModels) {
+                String filename = includePath + "/" + includeModelFilename;
+                InputStream is = ObjectModel.class.getResourceAsStream(filename);
+                if (is == null) {
+                    throw new RuntimeException("Could not find file " + filename);
+                }
+                ObjectModel includeModel = new ObjectModel(is, includePath);
+                includeModels.add(includeModel);
+            }
+        }
 
-        HashMap<String, Entity<?>> entities = setupEntities(jsonModel, model);
+        HashMap<String, Entity<?>> entities = setupEntities(jsonModel, model, includeModels);
 
         // Setup mapping between entity and relationship info
-        Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = setupEntityRelationshipMapping(jsonModel, entities);
+        Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap = setupEntityRelationshipMapping(
+                jsonModel,
+                entities
+        );
 
         setupRelationships(entityRelationMap, entities);
 
@@ -82,19 +97,29 @@ class ObjectModelJsonParser {
         }
     }
 
-    static private HashMap<String, Entity<?>> setupEntities(JsonElem.Model jsonModel, ObjectModel model) {
-        HashMap<String, Entity<?>> entities = new HashMap<String, Entity<?>>();
+    static private HashMap<String, Entity<?>> setupEntities(
+            JsonElem.Model jsonModel,
+            ObjectModel model,
+            List<ObjectModel> modelsToIncludeEntities)
+    {
+        HashMap<String, Entity<?>> entities = new HashMap<>();
 
         for (JsonElem.Entity jsonEntity : jsonModel.entities) {
             LOG.debug("Creating entity {}", jsonEntity.name);
 
             @SuppressWarnings("unchecked")
             Class<ManagedObject> entityType = (Class<ManagedObject>)getEntityType(jsonModel.packageName, jsonEntity.name);
-            Entity<ManagedObject> entity = new Entity<ManagedObject>(model, entityType);
+            Entity<ManagedObject> entity = new Entity<>(model, entityType);
 
             setupAttributes(jsonModel, jsonEntity, entity);
 
             entities.put(jsonEntity.name, entity);
+        }
+
+        for (ObjectModel includeModel : modelsToIncludeEntities) {
+            for (Entity<?> entity : includeModel.getEntities()) {
+                entities.put(entity.getName(), entity);
+            }
         }
 
         return entities;
@@ -112,7 +137,7 @@ class ObjectModelJsonParser {
                     Entity<?> entity = entities.get(jsonEntity.name);
                     List<JsonElem.Relationship> jsonRelations = entityRelationMap.get(entity);
                     if (jsonRelations == null) {
-                        jsonRelations = new ArrayList<JsonElem.Relationship>();
+                        jsonRelations = new ArrayList<>();
                         entityRelationMap.put(entity, jsonRelations);
                     }
                     jsonRelations.add(jsonRelation);
@@ -138,12 +163,19 @@ class ObjectModelJsonParser {
         }
     }
 
-    static private void setupRelationships(final Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap,
-                                           final HashMap<String, Entity<?>> entities) {
+    static private void setupRelationships(
+            final Map<Entity<?>,
+            List<JsonElem.Relationship>> entityRelationMap,
+            final HashMap<String, Entity<?>> entities)
+    {
         for (Map.Entry<Entity<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
             Entity<?> entity = entityRelationPair.getKey();
             for (JsonElem.Relationship jsonRelation : entityRelationPair.getValue()) {
                 Entity<?> destinationEntity = entities.get(jsonRelation.destinationEntity);
+                if (destinationEntity == null) {
+                    throw new RuntimeException("Could not find destination entity " + jsonRelation.destinationEntity +
+                            " for relationship '" + entity.getName() + "#" + jsonRelation.name + "'");
+                }
                 Relationship.Type relationshipType = jsonRelation.getRelationshipType();
                 Class<?> relationClassType = (relationshipType == Relationship.Type.TO_MANY) ? Set.class : destinationEntity.getType();
                 Relationship relationship = new Relationship(
@@ -195,6 +227,7 @@ class JsonElem {
         String name;
         Integer version;
         String packageName;
+        List<String> includeModels = new ArrayList<>();
         List<Entity> entities;
     }
 
@@ -255,7 +288,9 @@ class JsonElem {
         boolean toMany;
 
         com.github.dkharrat.nexusdata.metamodel.Relationship.Type getRelationshipType() {
-            return toMany ? com.github.dkharrat.nexusdata.metamodel.Relationship.Type.TO_MANY : com.github.dkharrat.nexusdata.metamodel.Relationship.Type.TO_ONE;
+            return toMany ?
+                    com.github.dkharrat.nexusdata.metamodel.Relationship.Type.TO_MANY :
+                    com.github.dkharrat.nexusdata.metamodel.Relationship.Type.TO_ONE;
         }
     }
 }

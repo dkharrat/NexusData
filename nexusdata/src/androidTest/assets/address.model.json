@@ -1,0 +1,19 @@
+{
+  "metaVersion": 1,
+  "model": {
+    "name": "AddressModel",
+    "version": 1,
+    "packageName": "com.github.dkharrat.nexusdata.test",
+    "entities": [{
+      "name": "Address",
+      "attributes": [{
+        "name": "streetName",
+        "type": "String"
+      }, {
+        "name": "country",
+        "type": "String",
+        "required": true
+      }]
+    }]
+  }
+}

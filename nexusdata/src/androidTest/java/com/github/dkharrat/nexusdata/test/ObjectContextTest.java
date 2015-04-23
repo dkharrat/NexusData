@@ -22,7 +22,6 @@ import com.github.dkharrat.nexusdata.metamodel.Entity;
 import com.github.dkharrat.nexusdata.metamodel.ObjectModel;
 import com.github.dkharrat.nexusdata.predicate.ExpressionBuilder;
 import com.github.dkharrat.nexusdata.predicate.PredicateBuilder;
-import com.github.dkharrat.nexusdata.predicate.parser.PredicateParser;
 
 public abstract class ObjectContextTest extends AndroidTestCase {
 
@@ -36,7 +35,7 @@ public abstract class ObjectContextTest extends AndroidTestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"));
+        model = new ObjectModel(getClass().getResourceAsStream("/assets/company.model.json"), "/assets");
         PersistentStoreCoordinator coordinator = new PersistentStoreCoordinator(model);
         persistentStore = newPersistentStore();
         coordinator.addStore(persistentStore);
