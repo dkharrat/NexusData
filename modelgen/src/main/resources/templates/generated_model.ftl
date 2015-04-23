@@ -10,10 +10,10 @@ abstract class _${entity.name} extends ${entity.baseClass} {
 
     public interface Property {
 <#list entity.attributes as attribute>
-        final static String ${attribute.getNameAsConstant()} = "${attribute.name}";
+        String ${attribute.getNameAsConstant()} = "${attribute.name}";
 </#list>
 <#list entity.relationships as relationship>
-        final static String ${relationship.getNameAsConstant()} = "${relationship.name}";
+        String ${relationship.getNameAsConstant()} = "${relationship.name}";
 </#list>
     }
 
