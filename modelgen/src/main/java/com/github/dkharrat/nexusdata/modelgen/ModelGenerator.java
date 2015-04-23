@@ -35,7 +35,8 @@ public class ModelGenerator {
         Model model = parseFile(modelPath);
 
         LOG.info("Generating class files for '{}' model (version {})", model.getName(), model.getVersion());
-        outputDir.mkdir();
+        File packageDir = getPackageDir(outputDir, model.getPackageName());
+        packageDir.mkdirs();
 
         Template generatedModelTemplate = cfg.getTemplate("generated_model.ftl");
         Template userModelTemplate = cfg.getTemplate("user_model.ftl");
@@ -49,7 +50,7 @@ public class ModelGenerator {
             String genModelFileName = "_" + userModelFileName;
 
             try {
-                File userModelFile = new File(outputDir, userModelFileName);
+                File userModelFile = new File(packageDir, userModelFileName);
                 if (!userModelFile.exists()) {
                     LOG.info("Generating class {}", userModelFileName);
                     Writer userModelOut = new FileWriter(userModelFile);
@@ -57,7 +58,7 @@ public class ModelGenerator {
                 }
 
                 LOG.info("Generating class {}", genModelFileName);
-                Writer genModelOut = new FileWriter(new File(outputDir, genModelFileName));
+                Writer genModelOut = new FileWriter(new File(packageDir, genModelFileName));
                 generatedModelTemplate.process(root, genModelOut);
             } catch (TemplateException ex) {
                 throw new RuntimeException("Could not generate class files", ex);
@@ -95,5 +96,10 @@ public class ModelGenerator {
             }
             return entity;
         }
+    }
+
+    File getPackageDir(File rootPath, String packageName) {
+        String packageDir = packageName.replaceAll("\\.", File.separator);
+        return new File(rootPath, packageDir);
     }
 }
