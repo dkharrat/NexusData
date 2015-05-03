@@ -1,10 +1,12 @@
 package com.github.dkharrat.nexusdata.modelgen.metamodel;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class Entity {
-    String baseClass = "ManagedObject";
+    @SerializedName("extends") String baseClass = "ManagedObject";
     String name;
     List<Attribute> attributes;
     List<Relationship> relationships;
