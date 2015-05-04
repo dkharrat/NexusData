@@ -1,10 +1,6 @@
 package com.github.dkharrat.nexusdata.metamodel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.github.dkharrat.nexusdata.core.ManagedObject;
 import com.github.dkharrat.nexusdata.core.NoSuchPropertyException;
@@ -18,6 +14,8 @@ public class Entity<T extends ManagedObject> {
 
     private final ObjectModel model;
     private final Class<T> type;
+    private Entity<?> superEntity;
+    private final Set<Entity<?>> subEntities = new HashSet<>();
     private final Map<String, Property> properties = new HashMap<String,Property>();
 
     /**
@@ -48,6 +46,45 @@ public class Entity<T extends ManagedObject> {
      */
     public Class<T> getType() {
         return type;
+    }
+
+    /**
+     * Returns the Entity from which this Entity inherits, or NULL if there is no super-entity.
+     */
+    public Entity<?> getSuperEntity() {
+        return superEntity;
+    }
+
+    /**
+     * Returns the set of entities that inherit from this Entity.
+     */
+    public Set<Entity<?>> getSubEntities() {
+        return Collections.unmodifiableSet(subEntities);
+    }
+
+    void setSuperEntity(Entity<?> superEntity) {
+        if (this.superEntity != null) throw new AssertionError("Super entity already set!");
+
+        this.superEntity = superEntity;
+        superEntity.subEntities.add(this);
+    }
+
+    /**
+     * Returns true if this is the root entity. In other words, it does not extend any other entity.
+     */
+    public boolean isBaseEntity() {
+        return this.superEntity == null;
+    }
+
+    /**
+     * Returns the root entity in the inheritance tree. Calling this method on the root entity will return itself.
+     */
+    public Entity<?> getTopMostSuperEntity() {
+        if (this.superEntity == null) {
+            return this;
+        } else {
+            return this.superEntity.getTopMostSuperEntity();
+        }
     }
 
     void addProperty(Property property) {

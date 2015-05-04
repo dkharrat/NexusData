@@ -27,10 +27,13 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(AndroidSqlPersistentStore.class);
 
-    static final String COLUMN_ID_NAME = "_ID";
+    static final String ID_COLUMN_NAME = "_ID";
+    static final String ENTITY_COLUMN_NAME = "_ENT";
 
     private DatabaseHelper databaseHelper;
-    private Map<String,Long> lastRowIDs = new HashMap<String,Long>();
+    private Map<Entity<?>,Integer> entityToIDMap = new HashMap<>();
+    private Map<Integer,Entity<?>> idToEntityMap = new HashMap<>();
+    private Map<String,Long> lastRowIDs = new HashMap<>();
     private Context context;
 
     private SQLiteDatabase db;
@@ -55,24 +58,39 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         // TODO: does the DB need to be closed at some point?
         db = databaseHelper.getWritableDatabase();
+        entityToIDMap = databaseHelper.getEntityIDs(db);
+        idToEntityMap = new HashMap<>();
+
+        for(Map.Entry<Entity<?>,Integer> entry : entityToIDMap.entrySet()){
+            idToEntityMap.put(entry.getValue(), entry.getKey());
+        }
 
         setUuid(DatabaseHelper.getDatabaseUuid(db, model.getVersion()));
     }
 
-    static protected String getColumnName(Property property) {
-        return "`" + property.getName() + "`";
+    Map<Entity<?>,Integer> getEntityToIDMap() {
+        return entityToIDMap;
     }
 
-    private ManagedObject createObjectFromCursor(ObjectContext context, Entity<?> entity, Cursor cursor) {
+    protected String getColumnName(Property property) {
+        return property.getName() + "_" + entityToIDMap.get(property.getEntity());
+    }
 
-        long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
+    protected String getQuotedColumnName(Property property) {
+        return "`" + getColumnName(property) + "`";
+    }
+
+    private ManagedObject createObjectFromCursor(ObjectContext context, Cursor cursor) {
+
+        long id = CursorUtil.getLong(cursor, ID_COLUMN_NAME);
+        Entity<?> entity = idToEntityMap.get(CursorUtil.getInt(cursor, ENTITY_COLUMN_NAME));
         ObjectID objectID = this.createObjectID(entity, id);
         ManagedObject object = context.objectWithID(objectID);
 
         StoreCacheNode cacheNode = getStoreNodeFromCursor(objectID, cursor, context);
         Map<Long,StoreCacheNode> entityCache = cache.get(entity.getType());
         if (entityCache == null) {
-            entityCache = new HashMap<Long,StoreCacheNode>();
+            entityCache = new HashMap<>();
             cache.put(entity.getType(), entityCache);
         }
         entityCache.put(id, cacheNode);
@@ -87,7 +105,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         List<T> results = new ArrayList<T>();
         while(cursor.moveToNext()) {
             @SuppressWarnings("unchecked")
-            T object = (T)createObjectFromCursor(context, request.getEntity(), cursor);
+            T object = (T)createObjectFromCursor(context, cursor);
             results.add(object);
         }
 
@@ -99,7 +117,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
     private ContentValues getContentValues(ManagedObject object) throws IllegalArgumentException, IllegalAccessException {
         ContentValues values = new ContentValues();
 
-        values.put(COLUMN_ID_NAME, getReferenceObjectForObjectID(object.getID()).toString());
+        values.put(ID_COLUMN_NAME, getReferenceObjectForObjectID(object.getID()).toString());
         for (Property property : object.getEntity().getProperties()) {
             Class<?> propertyType = property.getType();
             Object value = object.getValue(property.getName());
@@ -109,22 +127,22 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 if (relationship.isToOne()) {
                     ManagedObject toOneObject = (ManagedObject) value;
                     if (toOneObject != null) {
-                        values.put(getColumnName(relationship), getReferenceObjectForObjectID(toOneObject.getID()).toString());
+                        values.put(getQuotedColumnName(relationship), getReferenceObjectForObjectID(toOneObject.getID()).toString());
                     } else {
-                        values.putNull(getColumnName(relationship));
+                        values.putNull(getQuotedColumnName(relationship));
                     }
                 }
             } else {
                 if (value != null) {
                     if (Date.class.isAssignableFrom(propertyType)) {
-                        values.put(getColumnName(property), DateUtil.format(DateUtil.ISO8601_NO_TIMEZONE, (Date)value));
+                        values.put(getQuotedColumnName(property), DateUtil.format(DateUtil.ISO8601_NO_TIMEZONE, (Date)value));
                     } else if (Boolean.class.isAssignableFrom(propertyType)) {
-                        values.put(getColumnName(property), ((Boolean)value) ? "1" : "0" );
+                        values.put(getQuotedColumnName(property), ((Boolean)value) ? "1" : "0" );
                     } else {
-                        values.put(getColumnName(property), value.toString());
+                        values.put(getQuotedColumnName(property), value.toString());
                     }
                 } else {
-                    values.putNull(getColumnName(property));
+                    values.putNull(getQuotedColumnName(property));
                 }
             }
         }
@@ -138,6 +156,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         try {
             for (ManagedObject object : request.getChanges().getInsertedObjects()) {
                 ContentValues values = getContentValues(object);
+                values.put(ENTITY_COLUMN_NAME, entityToIDMap.get(object.getEntity()));
                 //TODO: log inserts, updates & deletes
                 db.insertOrThrow(DatabaseHelper.getTableName(object.getEntity()), null, values);
             }
@@ -181,12 +200,14 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 @SuppressWarnings("unchecked")
                 Class<?> propType = property.getType();
 
+                String columnName = getColumnName(property);
+
                 if (property.isRelationship()) {
                     Relationship relationship = (Relationship)property;
                     if (relationship.isToOne()) {
                         @SuppressWarnings("unchecked")
                         Entity<?> assocEntity = getCoordinator().getModel().getEntity((Class<ManagedObject>)relationship.getType());
-                        long relatedID = CursorUtil.getLong(cursor, relationship.getName());
+                        long relatedID = CursorUtil.getLong(cursor, columnName);
                         if (relatedID != 0) {
                             value = this.createObjectID(assocEntity, relatedID);
                         } else {
@@ -195,29 +216,29 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                     } else {
                         continue;
                     }
-                } else if (CursorUtil.isNull(cursor, property.getName())) {
+                } else if (CursorUtil.isNull(cursor, columnName)) {
                     value = null;
                 } else if (propType.isAssignableFrom(Integer.class) || propType.isAssignableFrom(int.class)) {
-                    value = CursorUtil.getInt(cursor, property.getName());
+                    value = CursorUtil.getInt(cursor, columnName);
                 } else if (propType.isAssignableFrom(Long.class) || propType.isAssignableFrom(long.class)) {
-                    value = CursorUtil.getLong(cursor, property.getName());
+                    value = CursorUtil.getLong(cursor, columnName);
                 } else if (propType.isAssignableFrom(String.class)) {
-                    value = CursorUtil.getString(cursor, property.getName());
+                    value = CursorUtil.getString(cursor, columnName);
                 } else if (propType.isAssignableFrom(Boolean.class) || propType.isAssignableFrom(boolean.class)) {
-                    value = CursorUtil.getBoolean(cursor, property.getName());
+                    value = CursorUtil.getBoolean(cursor, columnName);
                 } else if (propType.isAssignableFrom(Float.class) || propType.isAssignableFrom(float.class)) {
-                    value = CursorUtil.getFloat(cursor, property.getName());
+                    value = CursorUtil.getFloat(cursor, columnName);
                 } else if (propType.isAssignableFrom(Double.class) || propType.isAssignableFrom(double.class)) {
-                    value = CursorUtil.getDouble(cursor, property.getName());
+                    value = CursorUtil.getDouble(cursor, columnName);
                 } else if (Enum.class.isAssignableFrom(propType)) {
-                    String enumName = CursorUtil.getString(cursor, property.getName());
+                    String enumName = CursorUtil.getString(cursor, columnName);
                     if (enumName != null) {
                         value = Enum.valueOf((Class<? extends Enum>)propType, enumName);
                     } else {
                         value = null;
                     }
                 } else if (propType.isAssignableFrom(Date.class)) {
-                    String dateStr = CursorUtil.getString(cursor, property.getName());
+                    String dateStr = CursorUtil.getString(cursor, columnName);
                     if (dateStr != null) {
                         value = DateUtil.parse(DateUtil.ISO8601_NO_TIMEZONE, dateStr);
                     } else {
@@ -229,9 +250,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
                 node.setProperty(property.getName(), value);
             }
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
+        } catch (IllegalArgumentException | ParseException e) {
             throw new RuntimeException(e);
         }
 
@@ -255,7 +274,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
                 false,          // not distinct
                 DatabaseHelper.getTableName(objectID.getEntity()),
                 null,           // columns
-                COLUMN_ID_NAME + "=?",           // selection
+                ID_COLUMN_NAME + "=?",           // selection
                 new String[]{String.valueOf(id)},           // selectionArgs
                 null,           // groupBy
                 null,           // having
@@ -283,9 +302,9 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
             Relationship relationship,
             ObjectContext context) {
 
-        String[] columns = new String[]{COLUMN_ID_NAME};
+        String[] columns = new String[]{ID_COLUMN_NAME};
         String table = DatabaseHelper.getTableName(relationship.getDestinationEntity());
-        String selection = relationship.getInverse().getName()+"=?";
+        String selection = getQuotedColumnName(relationship.getInverse())+"=?";
         String[] selectionArgs = new String[]{getReferenceObjectForObjectID(objectID).toString()};
 
         Cursor cursor = db.query(
@@ -302,7 +321,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         Set<ObjectID> results = new HashSet<ObjectID>();
         while(cursor.moveToNext()) {
-            long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
+            long id = CursorUtil.getLong(cursor, ID_COLUMN_NAME);
             ObjectID relatedObject = this.createObjectID(relationship.getDestinationEntity(), id);
             results.add(relatedObject);
         }
@@ -321,9 +340,9 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
         String toTable = DatabaseHelper.getTableName(relationship.getDestinationEntity());
 
         String table = fromTable + " t1," + toTable + " t2";
-        String[] columns = new String[]{"t1" + "." + COLUMN_ID_NAME};
-        String selection = "t1"+"."+COLUMN_ID_NAME+"="+getReferenceObjectForObjectID(objectID) + " AND " +
-                           "t1"+"."+getColumnName(relationship)+"=t2."+COLUMN_ID_NAME;
+        String[] columns = new String[]{"t1" + "." + ID_COLUMN_NAME};
+        String selection = "t1"+"."+ ID_COLUMN_NAME +"="+getReferenceObjectForObjectID(objectID) + " AND " +
+                           "t1"+"."+ getQuotedColumnName(relationship)+"=t2."+ ID_COLUMN_NAME;
 
         Cursor cursor = db.query(
                 false,          // not distinct
@@ -339,7 +358,7 @@ public class AndroidSqlPersistentStore extends IncrementalStore {
 
         ObjectID relatedObjectID = null;
         if(cursor.moveToNext()) {
-            long id = CursorUtil.getLong(cursor, COLUMN_ID_NAME);
+            long id = CursorUtil.getLong(cursor, ID_COLUMN_NAME);
             relatedObjectID = this.createObjectID(relationship.getDestinationEntity(), id);
         }
         cursor.close();

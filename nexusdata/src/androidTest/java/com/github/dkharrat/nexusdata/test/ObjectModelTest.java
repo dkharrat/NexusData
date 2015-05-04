@@ -25,16 +25,19 @@ public class ObjectModelTest extends TestCase {
     }
 
     public void testGetEntities() throws Throwable {
-        assertEquals(4, model.getEntities().size());
-        //TODO: order of entities not guaranteed; so the following tests may intermittently fail
+        assertEquals(7, model.getEntities().size());
 
         ArrayList<String> entityNames = new ArrayList<String>();
         for (Entity<?> entity : model.getEntities()) {
             entityNames.add(entity.getName());
         }
         assertTrue(entityNames.contains(Company.class.getSimpleName()));
+        assertTrue(entityNames.contains(Person.class.getSimpleName()));
         assertTrue(entityNames.contains(Employee.class.getSimpleName()));
         assertTrue(entityNames.contains(Address.class.getSimpleName()));
+        assertTrue(entityNames.contains(Passport.class.getSimpleName()));
+        assertTrue(entityNames.contains(Contractor.class.getSimpleName()));
+        assertTrue(entityNames.contains(Director.class.getSimpleName()));
     }
 
     public void testGetEntity() throws Throwable {

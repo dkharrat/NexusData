@@ -168,7 +168,7 @@ public abstract class AtomicStore extends PersistentStore {
             @SuppressWarnings("unchecked")
             T obj = (T)context.getExistingObject(objID);
 
-            if (objID.getType().isAssignableFrom(request.getEntity().getType())) {
+            if (request.getEntity().getType().isAssignableFrom(objID.getType())) {
                 if (request.getPredicate() == null || request.getPredicate().evaluate(obj)) {
                     results.add(obj);
                 }

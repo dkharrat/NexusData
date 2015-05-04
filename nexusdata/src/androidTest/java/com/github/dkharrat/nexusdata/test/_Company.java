@@ -11,6 +11,7 @@ abstract class _Company extends ManagedObject {
     public interface Property {
         String NAME = "name";
         String EMPLOYEES = "employees";
+        String DIRECTORS = "directors";
     }
 
 
@@ -34,5 +35,17 @@ abstract class _Company extends ManagedObject {
 
     public void addEmployee(Employee employee) {
         getEmployees().add(employee);
+    }
+    @SuppressWarnings("unchecked")
+    public Set<Director> getDirectors() {
+        return (Set<Director>)getValue(Property.DIRECTORS);
+    }
+
+    public void setDirectors(Set<Director> directors) {
+        setValue(Property.DIRECTORS, directors);
+    }
+
+    public void addDirector(Director director) {
+        getDirectors().add(director);
     }
 }

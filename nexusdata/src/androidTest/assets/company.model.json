@@ -17,9 +17,14 @@
         "destinationEntity": "Employee",
         "inverseName": "company",
         "toMany": true
+      }, {
+        "name": "directors",
+        "destinationEntity": "Director",
+        "inverseName": "company",
+        "toMany": true
       }]
     }, {
-      "name": "Employee",
+      "name": "Person",
       "attributes": [{
         "name": "id",
         "type": "Int",
@@ -32,23 +37,27 @@
         "name": "lastName",
         "type": "String"
       }, {
-        "name": "hourlyWage",
-        "type": "Double",
-        "required": true,
-        "default": 10.123
-      }, {
         "name": "heightInCm",
         "type": "Float"
-      }, {
-        "name": "active",
-        "type": "Bool",
-        "required": true,
-        "default": true
       }, {
         "name": "dateOfBirth",
         "type": "Date",
         "required": true,
         "default": "1984-02-03T00:00:00"
+      }]
+    }, {
+      "name": "Employee",
+      "extends": "Person",
+      "attributes": [{
+        "name": "hourlyWage",
+        "type": "Double",
+        "required": true,
+        "default": 10.123
+      }, {
+        "name": "active",
+        "type": "Bool",
+        "required": true,
+        "default": true
       }],
       "relationships": [{
         "name": "company",
@@ -72,6 +81,20 @@
         "destinationEntity": "Address"
       }]
     }, {
+      "name": "Director",
+      "extends": "Person",
+      "attributes": [{
+        "name": "active",
+        "type": "Bool",
+        "required": true,
+        "default": true
+      }],
+      "relationships": [{
+        "name": "company",
+        "destinationEntity": "Company",
+        "inverseName": "directors"
+      }]
+    }, {
       "name": "Passport",
       "attributes": [{
         "name": "number",
@@ -92,6 +115,14 @@
         "name": "employee",
         "destinationEntity": "Employee",
         "inverseName": "passport"
+      }]
+    }, {
+      "name": "Contractor",
+      "extends": "Employee",
+      "attributes": [{
+        "name": "firmName",
+        "type": "String",
+        "required": true
       }]
     }]
   }

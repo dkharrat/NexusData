@@ -2,6 +2,7 @@ package com.github.dkharrat.nexusdata.utils;
 
 import java.text.ParseException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -10,12 +11,12 @@ public class StringUtil {
         return s == null || s.length() == 0;
     }
 
-    public static String join(List<String> list, String separator, boolean ignoreNull) {
+    public static String join(Collection<?> list, String separator, boolean ignoreNull) {
         if (list.isEmpty())
             return "";
 
         StringBuilder b = new StringBuilder();
-        for (String item : list) {
+        for (Object item : list) {
             if (!ignoreNull || item != null) {
                 b.append(separator).append(item);
             }
@@ -28,15 +29,15 @@ public class StringUtil {
         return b.toString().substring(separator.length());
     }
 
-    public static String join(List<String> list, String separator) {
+    public static String join(Collection<?> list, String separator) {
         return join(list, separator, false);
     }
 
-    public static String join(String[] array, String separator, boolean ignoreNull) {
+    public static <T> String join(T[] array, String separator, boolean ignoreNull) {
         return join(Arrays.asList(array), separator, ignoreNull);
     }
 
-    public static String join(String[] array, String separator) {
+    public static <T> String join(T[] array, String separator) {
         return join(array, separator, false);
     }
 

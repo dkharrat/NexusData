@@ -1,6 +1,8 @@
 package com.github.dkharrat.nexusdata.test;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
@@ -14,7 +16,7 @@ public class ManagedObjectTest extends TestCase {
 
     ObjectContext context;
     Passport japanesePassport;
-    Employee john;
+    Employee john, mike;
     Company google;
 
     @Override
@@ -35,7 +37,7 @@ public class ManagedObjectTest extends TestCase {
         john.setId(123);
         john.setFirstName("John");
         john.setPassport(japanesePassport);
-        Employee mike = context.newObject(Employee.class);
+        mike = context.newObject(Employee.class);
         mike.setFirstName("mike");
 
         google = context.newObject(Company.class);
@@ -180,7 +182,7 @@ public class ManagedObjectTest extends TestCase {
     }
 
     public void testClearingToManyRelationship() throws Throwable {
-        google.setEmployees((Set<Employee>)null);
+        google.setEmployees((Set<Employee>) null);
 
         assertFalse(google.getEmployees().contains(john));
         assertTrue(google.getEmployees().isEmpty());
@@ -223,5 +225,31 @@ public class ManagedObjectTest extends TestCase {
         assertEquals(1, google.getEmployees().size());
         assertTrue(apple.getEmployees().contains(john));
         assertEquals(1, apple.getEmployees().size());
+    }
+
+    public void testPolymorphicRelationship() throws Throwable {
+        final Employee alice = context.newObject(Employee.class);
+        alice.setFirstName("Alice");
+        alice.setCompany(google);
+
+        final Contractor bob = context.newObject(Contractor.class);
+        bob.setFirstName("Bob");
+        bob.setCompany(google);
+
+        bob.setManager(alice);
+
+        Set<Employee> expectedGoogleEmployees = new HashSet<Employee>() {{
+            this.add(bob);
+            this.add(alice);
+            this.add(john);
+            this.add(mike);
+        }};
+
+        assertSame(google, bob.getCompany());
+        assertEquals(4, google.getEmployees().size());
+        assertTrue(google.getEmployees().containsAll(expectedGoogleEmployees));
+
+        assertSame(alice, bob.getManager());
+        assertEquals(new HashSet<Employee>(Collections.singletonList(bob)), alice.getDirectReports());
     }
 }

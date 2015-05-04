@@ -19,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 
 class DatabaseHelper extends SQLiteDatabaseHelper {
 
@@ -32,6 +31,10 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
     private static final String METADATA_COLUMN_VERSION = "version";
     private static final String METADATA_COLUMN_UUID = "uuid";
 
+    private static final String ENTITY_TABLE_NAME = "nxs_entity";
+    private static final String ENTITY_COLUMN_ID = "_id";
+    private static final String ENTITY_COLUMN_NAME = "name";
+
     private ObjectModel model;
 
     DatabaseHelper(Context context, File path, ObjectModel model) {
@@ -40,64 +43,113 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
     }
 
     static <T extends ManagedObject> String getTableName(Entity<T> entity) {
-        return entity.getType().getSimpleName();
+        return entity.getTopMostSuperEntity().getType().getSimpleName();
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         LOG.info("Creating database: " + db.getPath());
 
+        createMetadataTable(db);
+        createEntityInfoTable(db);
+
+        Map<Entity<?>, Integer> entityIDMap = generateEntityIDs(db);
+
+        for (Entity<?> entity : model.getEntities()) {
+            if (!entity.isBaseEntity()) {
+                continue;
+            }
+            createEntityTable(db, entity, entityIDMap);
+        }
+
+        generateMetadata(db);
+    }
+
+    private void createMetadataTable(SQLiteDatabase db) {
         // create the metadata table
         SqlTableBuilder tableBuilder = new SqlTableBuilder();
         tableBuilder.tableName(METADATA_TABLE_NAME);
         tableBuilder.column(METADATA_COLUMN_VERSION, SqlTableBuilder.ColumnType.INTEGER).setUnique(SqlTableBuilder.ConflictAction.ABORT);
         tableBuilder.column(METADATA_COLUMN_UUID, SqlTableBuilder.ColumnType.TEXT);
         tableBuilder.createTable(db);
+    }
 
-        for (Entity<?> entity : model.getEntities()) {
-            tableBuilder = new SqlTableBuilder();
-            tableBuilder.tableName(getTableName(entity));
-            tableBuilder.primaryKey(AndroidSqlPersistentStore.COLUMN_ID_NAME, SqlTableBuilder.ColumnType.INTEGER);
+    private void createEntityInfoTable(SQLiteDatabase db) {
+        SqlTableBuilder tableBuilder = new SqlTableBuilder();
+        tableBuilder.tableName(ENTITY_TABLE_NAME);
+        tableBuilder.primaryKey(ENTITY_COLUMN_ID, SqlTableBuilder.ColumnType.INTEGER);
+        tableBuilder.column(ENTITY_COLUMN_NAME, SqlTableBuilder.ColumnType.TEXT);
+        tableBuilder.createTable(db);
+    }
 
-            for (Property property : entity.getProperties()) {
-                SqlTableBuilder.ColumnType columnType;
-                Class<?> propType = property.getType();
+    private void createEntityTable(SQLiteDatabase db, Entity<?> entity, Map<Entity<?>, Integer> entityIDMap) {
+        SqlTableBuilder tableBuilder = new SqlTableBuilder();
+        tableBuilder.tableName(getTableName(entity));
+        tableBuilder.primaryKey(AndroidSqlPersistentStore.ID_COLUMN_NAME, SqlTableBuilder.ColumnType.INTEGER);
+        tableBuilder.column(AndroidSqlPersistentStore.ENTITY_COLUMN_NAME, SqlTableBuilder.ColumnType.INTEGER).setNullable(false);
 
-                if (property.isRelationship()) {
-                    Relationship relationship = (Relationship) property;
-                    if (relationship.isToOne()) {
-                        columnType = SqlTableBuilder.ColumnType.INTEGER;
-                    } else {
-                        continue;
-                    }
-                }
-                else if (int.class.isAssignableFrom(propType) || Integer.class.isAssignableFrom(propType) ||
-                        long.class.isAssignableFrom(propType) || Long.class.isAssignableFrom(propType)) {
+        for (Property property : Utils.getPropertiesOfEntityAndItsChildren(entity)) {
+            SqlTableBuilder.ColumnType columnType;
+            Class<?> propType = property.getType();
+
+            if (property.isRelationship()) {
+                Relationship relationship = (Relationship) property;
+                if (relationship.isToOne()) {
                     columnType = SqlTableBuilder.ColumnType.INTEGER;
-                } else if (String.class.isAssignableFrom(propType) || Enum.class.isAssignableFrom(propType)) {
-                    columnType = SqlTableBuilder.ColumnType.TEXT;
-                } else if (boolean.class.isAssignableFrom(propType) || Boolean.class.isAssignableFrom(propType)) {
-                    columnType = SqlTableBuilder.ColumnType.BOOLEAN;
-                } else if (float.class.isAssignableFrom(propType) || Float.class.isAssignableFrom(propType)) {
-                    columnType = SqlTableBuilder.ColumnType.REAL;
-                } else if (double.class.isAssignableFrom(propType) || Double.class.isAssignableFrom(propType)) {
-                    columnType = SqlTableBuilder.ColumnType.REAL;
-                } else if (Date.class.isAssignableFrom(property.getType())) {
-                    columnType = SqlTableBuilder.ColumnType.DATETIME;
                 } else {
-                    throw new UnsupportedOperationException("Unsupported field type " + property.getType() + " for " + entity.getType());
-                }
-
-                tableBuilder.column(property.getName(), columnType);
-                if (property.isRequired()) {
-                    tableBuilder.setNullable(false);
+                    continue;
                 }
             }
+            else if (int.class.isAssignableFrom(propType) || Integer.class.isAssignableFrom(propType) ||
+                    long.class.isAssignableFrom(propType) || Long.class.isAssignableFrom(propType)) {
+                columnType = SqlTableBuilder.ColumnType.INTEGER;
+            } else if (String.class.isAssignableFrom(propType) || Enum.class.isAssignableFrom(propType)) {
+                columnType = SqlTableBuilder.ColumnType.TEXT;
+            } else if (boolean.class.isAssignableFrom(propType) || Boolean.class.isAssignableFrom(propType)) {
+                columnType = SqlTableBuilder.ColumnType.BOOLEAN;
+            } else if (float.class.isAssignableFrom(propType) || Float.class.isAssignableFrom(propType)) {
+                columnType = SqlTableBuilder.ColumnType.REAL;
+            } else if (double.class.isAssignableFrom(propType) || Double.class.isAssignableFrom(propType)) {
+                columnType = SqlTableBuilder.ColumnType.REAL;
+            } else if (Date.class.isAssignableFrom(property.getType())) {
+                columnType = SqlTableBuilder.ColumnType.DATETIME;
+            } else {
+                throw new UnsupportedOperationException("Unsupported field type " + property.getType() + " for " + entity.getType());
+            }
 
-            tableBuilder.createTable(db);
+            int entityID = entityIDMap.get(property.getEntity());
+            tableBuilder.column(property.getName() + "_" + entityID, columnType);
         }
 
-        generateMetadata(db);
+        tableBuilder.createTable(db);
+    }
+
+    private Map<Entity<?>, Integer> generateEntityIDs(SQLiteDatabase db) {
+        Map<Entity<?>, Integer> entityIDMap = new HashMap<>();
+        int entityID = 1;
+        for (Entity<?> entity : model.getEntities()) {
+            ContentValues entityMetadataValues = new ContentValues();
+            entityMetadataValues.put(ENTITY_COLUMN_ID, entityID);
+            entityMetadataValues.put(ENTITY_COLUMN_NAME, entity.getName());
+            db.insert(ENTITY_TABLE_NAME, null, entityMetadataValues);
+            entityIDMap.put(entity, entityID);
+            entityID++;
+        }
+
+        return entityIDMap;
+    }
+
+    Map<Entity<?>, Integer> getEntityIDs(SQLiteDatabase db) {
+        Map<Entity<?>, Integer> entityIDs = new HashMap<>();
+
+        Cursor cursor = db.query(ENTITY_TABLE_NAME, null, null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            int entityID = CursorUtil.getInt(cursor, ENTITY_COLUMN_ID);
+            String entityName = CursorUtil.getString(cursor, ENTITY_COLUMN_NAME);
+            entityIDs.put(model.getEntity(entityName), entityID);
+        }
+
+        return entityIDs;
     }
 
     private UUID generateMetadata(SQLiteDatabase db) {

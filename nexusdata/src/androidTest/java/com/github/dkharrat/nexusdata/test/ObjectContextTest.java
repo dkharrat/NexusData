@@ -73,6 +73,31 @@ public abstract class ObjectContextTest extends AndroidTestCase {
         assertEquals(new Date(999000), employees.get(0).getDateOfBirth());
     }
 
+    public void testGetObjectsBySuperEntity() throws Throwable
+    {
+        Employee employee = createEmployee(mainContext, "John", "Smith", 1000, true, new Date(999000));
+        Contractor contractor = createContractor(mainContext, "Mike", "Jones", 1001);
+        mainContext.save();
+
+        List<Employee> employees = mainContext.findAll(Employee.class);
+
+        assertEquals(2, employees.size());
+        assertTrue(employees.contains(employee));
+        assertTrue(employees.contains(contractor));
+    }
+
+    public void testGetObjectsBySubEntity() throws Throwable
+    {
+        createEmployee(mainContext, "John", "Smith", 1000, true, new Date(999000));
+        Contractor contractor = createContractor(mainContext, "Mike", "Jones", 1001);
+        mainContext.save();
+
+        List<Contractor> employees = mainContext.findAll(Contractor.class);
+
+        assertEquals(1, employees.size());
+        assertTrue(employees.contains(contractor));
+    }
+
     public void testDeleteThenInsertIsNoOp() throws Throwable {
         Employee employee1 = createEmployee(mainContext, "John", "Smith", 1000);
         mainContext.save();
@@ -112,7 +137,6 @@ public abstract class ObjectContextTest extends AndroidTestCase {
     }
 
     public void testFetchUsingPredicate() throws Throwable {
-
         ObjectContext context = new ObjectContext(persistentStore.getCoordinator());
         Employee employee1 = createEmployee(context, "John", "Smith", 1000);
         Employee employee2 = createEmployee(context, "Mike", "Jones", 1000);
@@ -613,6 +637,17 @@ public abstract class ObjectContextTest extends AndroidTestCase {
 
     private Employee createEmployee(ObjectContext context, String firstName, String lastName, int id) {
         return createEmployee(context, firstName, lastName, id, true, null);
+    }
+
+    private Contractor createContractor(ObjectContext context, String firstName, String lastName, int id) {
+        Contractor employee = context.newObject(Contractor.class);
+        employee.setFirstName(firstName);
+        employee.setLastName(lastName);
+        employee.setFirmName("ABC Consulting");
+        employee.setId(id);
+        employee.setActive(true);
+
+        return employee;
     }
 
     private Company createCompany(ObjectContext context, String name) {

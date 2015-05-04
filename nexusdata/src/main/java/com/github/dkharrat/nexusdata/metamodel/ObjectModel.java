@@ -48,7 +48,7 @@ public class ObjectModel {
      * @throws IOException  if there was a problem reading from the input stream
      */
     public ObjectModel(InputStream modelData) throws IOException {
-        this(modelData, "./");
+        this(modelData, "");
     }
 
     /**

@@ -3,18 +3,21 @@ package com.github.dkharrat.nexusdata.store;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import com.github.dkharrat.nexusdata.core.*;
+import com.github.dkharrat.nexusdata.metamodel.Entity;
 import com.github.dkharrat.nexusdata.predicate.*;
 import com.github.dkharrat.nexusdata.utils.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 class DatabaseQueryService {
     private static final Logger LOG = LoggerFactory.getLogger(DatabaseQueryService.class);
 
-    public static <T extends ManagedObject> Cursor query(SQLiteDatabase db, final IncrementalStore store, String tableName, FetchRequest<T> request) {
+    public static <T extends ManagedObject> Cursor query(SQLiteDatabase db, final AndroidSqlPersistentStore store, String tableName, FetchRequest<T> request) {
 
         LOG.debug("Constructing SQL query for request: " + request);
 
@@ -28,19 +31,20 @@ class DatabaseQueryService {
             List<String> orderBys = new ArrayList<String>();
             for (SortDescriptor sortDesc : request.getSortDescriptors()) {
                 String orderType = sortDesc.isAscending() ? " ASC" : " DESC";
-                orderBys.add(sortDesc.getAttributeName() + orderType);
+                String columnName = getColumnName(request.getEntity(), store.getEntityToIDMap(), sortDesc.getAttributeName());
+                orderBys.add(columnName + orderType);
             }
 
             orderBy = StringUtil.join(orderBys, ",");
         }
 
 
-        String selection = null;
+        String selection = getEntityIDsCondition(store, request.getEntity());
         String[] selectionArgs = null;
         if (request.getPredicate() != null) {
-            QueryParts queryParts = buildQuery(store, request.getPredicate());
+            QueryParts queryParts = buildQuery(store, request.getEntity(), request.getPredicate());
 
-            selection = queryParts.stringBuilder.toString();
+            selection += " AND " + queryParts.stringBuilder.toString();
             selectionArgs = queryParts.params.isEmpty() ? null : queryParts.params.toArray(new String[0]);
         }
 
@@ -58,8 +62,31 @@ class DatabaseQueryService {
         return cursor;
     }
 
-    private static QueryParts buildQuery(IncrementalStore store, Predicate predicate) {
-        return new QueryBuilder(store).visit(predicate);
+    private static String getEntityIDsCondition(final AndroidSqlPersistentStore store, Entity<?> entity) {
+        return AndroidSqlPersistentStore.ENTITY_COLUMN_NAME + " IN (" + StringUtil.join(getEntityInheritanceIDs(store, entity), ",") + ")";
+    }
+
+    private static Collection<Integer> getEntityInheritanceIDs(final AndroidSqlPersistentStore store, Entity<?> entity) {
+        List<Integer> entityIDs = new ArrayList<>();
+
+        entityIDs.add(store.getEntityToIDMap().get(entity));
+        for (Entity<?> childEntity : Utils.getAllChildEntities(entity, new ArrayList<Entity<?>>())) {
+            entityIDs.add(store.getEntityToIDMap().get(childEntity));
+        }
+
+        return entityIDs;
+    }
+
+    private static String getColumnName(Entity<?> entity, Map<Entity<?>,Integer> entityIDMap, String fieldName) {
+        if (entity.getSuperEntity() == null || !entity.getSuperEntity().hasProperty(fieldName)) {
+            return fieldName + "_" + entityIDMap.get(entity);
+        } else {
+            return getColumnName(entity.getSuperEntity(), entityIDMap, fieldName);
+        }
+    }
+
+    private static QueryParts buildQuery(AndroidSqlPersistentStore store, Entity<?> entity, Predicate predicate) {
+        return new QueryBuilder(store, entity).visit(predicate);
     }
 
     private static class QueryParts {
@@ -69,11 +96,13 @@ class DatabaseQueryService {
 
     private static class QueryBuilder implements ExpressionVisitor<QueryParts> {
 
-        final IncrementalStore store;
+        final AndroidSqlPersistentStore store;
+        final Entity<?> entity;
         final QueryParts queryParts = new QueryParts();
 
-        QueryBuilder(IncrementalStore store) {
+        QueryBuilder(AndroidSqlPersistentStore store, Entity<?> entity) {
             this.store = store;
+            this.entity = entity;
         }
 
         @Override
@@ -97,13 +126,13 @@ class DatabaseQueryService {
 
         @Override
         public QueryParts visit(FieldPathExpression expression) {
-            queryParts.stringBuilder.append(expression.getFieldPath());
+            queryParts.stringBuilder.append(getColumnName(entity, store.getEntityToIDMap(), expression.getFieldPath()));
             return queryParts;
         }
 
         @Override
         public QueryParts visit(ThisExpression expression) {
-            queryParts.stringBuilder.append(AndroidSqlPersistentStore.COLUMN_ID_NAME);
+            queryParts.stringBuilder.append(AndroidSqlPersistentStore.ID_COLUMN_NAME);
             return queryParts;
         }
 

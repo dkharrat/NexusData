@@ -111,8 +111,6 @@ class ObjectModelJsonParser {
             Class<ManagedObject> entityType = (Class<ManagedObject>)getEntityType(jsonModel.packageName, jsonEntity.name);
             Entity<ManagedObject> entity = new Entity<>(model, entityType);
 
-            setupAttributes(jsonModel, jsonEntity, entity);
-
             entities.put(jsonEntity.name, entity);
         }
 
@@ -120,6 +118,21 @@ class ObjectModelJsonParser {
             for (Entity<?> entity : includeModel.getEntities()) {
                 entities.put(entity.getName(), entity);
             }
+        }
+
+        // do another pass to setup entity inheritance and attributes
+        for (JsonElem.Entity jsonEntity : jsonModel.entities) {
+            Entity<?> entity = entities.get(jsonEntity.name);
+
+            if (jsonEntity.superEntityName != null) {
+                Entity<?> superEntity = entities.get(jsonEntity.superEntityName);
+                if (superEntity == null) {
+                    throw new RuntimeException("Could not find super entity " + jsonEntity.superEntityName);
+                }
+                entity.setSuperEntity(superEntity);
+            }
+
+            setupAttributes(jsonModel, jsonEntity, entity);
         }
 
         return entities;
@@ -161,11 +174,17 @@ class ObjectModelJsonParser {
             LOG.debug("Adding attribute: " + jsonAttr.name);
             entity.addProperty(attr);
         }
+
+        // add the attributes of the super-entity if set
+        if (entity.getSuperEntity() != null) {
+            for (Attribute attribute : entity.getSuperEntity().getAttributes()) {
+                entity.addProperty(attribute);
+            }
+        }
     }
 
     static private void setupRelationships(
-            final Map<Entity<?>,
-            List<JsonElem.Relationship>> entityRelationMap,
+            final Map<Entity<?>, List<JsonElem.Relationship>> entityRelationMap,
             final HashMap<String, Entity<?>> entities)
     {
         for (Map.Entry<Entity<?>, List<JsonElem.Relationship>> entityRelationPair : entityRelationMap.entrySet()) {
@@ -219,6 +238,15 @@ class ObjectModelJsonParser {
                 }
             }
         }
+
+        // for each entity, add the relationships of the super-entity if set
+        for (Entity<?> entity : entities.values()) {
+            if (entity.getSuperEntity() != null) {
+                for (Relationship relationship : entity.getSuperEntity().getRelationships()) {
+                    entity.addProperty(relationship);
+                }
+            }
+        }
     }
 }
 
@@ -233,6 +261,7 @@ class JsonElem {
 
     static class Entity {
         String name;
+        @SerializedName("extends") String superEntityName;
         List<Attribute> attributes;
         List<Relationship> relationships;
         List<EnumProperty> enums;
