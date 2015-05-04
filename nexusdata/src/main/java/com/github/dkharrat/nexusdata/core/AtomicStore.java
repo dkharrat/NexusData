@@ -165,10 +165,10 @@ public abstract class AtomicStore extends PersistentStore {
 
         for (StoreCacheNode cacheNode : getCacheNodes()) {
             ObjectID objID = cacheNode.getID();
-            @SuppressWarnings("unchecked")
-            T obj = (T)context.getExistingObject(objID);
-
             if (request.getEntity().getType().isAssignableFrom(objID.getType())) {
+                @SuppressWarnings("unchecked")
+                T obj = (T)context.getExistingObject(objID);
+
                 if (request.getPredicate() == null || request.getPredicate().evaluate(obj)) {
                     results.add(obj);
                 }
