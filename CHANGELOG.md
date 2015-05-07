@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.2.1
+-----
+* Support entity inheritence
+* Defining the inverse for a relationship is now optional
+* modelgen now supports file includes, which allows breaking up model into multiple files.
+* Bug fixes and performance improvements
+
 0.1.3
 -----
 * Fixed exception when using 'null' in comparisons (Issue #6).
