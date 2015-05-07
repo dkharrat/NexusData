@@ -32,6 +32,7 @@ Features
 * Lazy loading of the object graph to reduce memory overhead.
 * Flexible query interface that is independent of the underlying storage engine.
 * Model generator that generates java classes from the model.
+* Entity inheritence.
 * Support for atomic and incremental persistence stores.
 * Extensible to different persistence storage. Currently, two storage engines are provided out of the box:
   * In-memory
@@ -57,7 +58,6 @@ currently has some limitations:
 * Framework is not yet optimized for large data sets in terms of performance and memory. This is due to the early
   development of the project and will be improved over time.
 * Custom data types are not supported yet.
-* Entity inheritance is not supported yet.
 
 Apps Using NexusData
 --------------------
@@ -167,12 +167,10 @@ the generator is not necessary to use NexusData, the Model Generator reduces the
 boilerplate code for each entity (getter, setters, etc.). If you choose not to use the Model Generator, you may either
 create the classes yourself or use `ManagedObject` directly.
 
-A pre-built binary of the Model Generator is available [here](http://dkharrat.github.io/NexusData/bin/modelgen/modelgen-0.1.0.jar)
-or you can build it from source yourself.
+The model generator source code is located under the `modelgen` directory. To generate the appropriate classes from
+the above model file, run this command:
 
-To generate the appropriate classes from the above model file, run this command:
-
-    java -jar modelgen-0.1.0.jar -f todo.model.json -O src/main/java/org/example/todo
+    gradle :modelgen:run -Pargs="-f /path/to/model/todo.model.json -O /path/to/output/src/main/java"
 
 This will parse the `todo.model.json` file and generate the corresponding classes in the
 `src/main/java/org/example/todo` directory. The output of the generator will look something like this:
@@ -207,12 +205,12 @@ import com.github.dkharrat.nexusdata.core.ManagedObject;
 class _Task extends ManagedObject {
 
     public interface Property {
-        final static String TITLE = "title";
-        final static String NOTES = "notes";
-        final static String DUE_BY = "dueBy";
-        final static String COMPLETED = "completed";
-        final static String PRIORITY = "priority";
-        final static String ASSIGNED_TO = "assignedTo";
+        String TITLE = "title";
+        String NOTES = "notes";
+        String DUE_BY = "dueBy";
+        String COMPLETED = "completed";
+        String PRIORITY = "priority";
+        String ASSIGNED_TO = "assignedTo";
     }
 
     public enum Priority {
