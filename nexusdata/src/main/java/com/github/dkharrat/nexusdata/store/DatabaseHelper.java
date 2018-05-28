@@ -179,7 +179,7 @@ class DatabaseHelper extends SQLiteDatabaseHelper {
     private static void dropTables(SQLiteDatabase db) {
         String TABLES_SQL = "select 'drop table if exists ' || name || ';' from sqlite_master where type='table' "+
                 "and name not like 'android%' "+
-                "and name not like 'sqlite%';"+
+                "and name not like 'sqlite%' "+
                 "and name not like '"+METADATA_TABLE_NAME+"';";
         Cursor c = db.rawQuery(TABLES_SQL, null);
         while(c.moveToNext()) {
